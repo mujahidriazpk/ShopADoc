@@ -1,0 +1,439 @@
+.jpselect2-container {
+  box-sizing: border-box;
+  display: inline-block;
+  margin: 0;
+  position: relative;
+  vertical-align: middle; }
+  .jpselect2-container .jpselect2-selection--single {
+    box-sizing: border-box;
+    cursor: pointer;
+    display: block;
+    height: 28px;
+    user-select: none;
+    -webkit-user-select: none; }
+    .jpselect2-container .jpselect2-selection--single .jpselect2-selection__rendered {
+      display: block;
+      padding-left: 8px;
+      padding-right: 20px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap; }
+    .jpselect2-container .jpselect2-selection--single .jpselect2-selection__clear {
+      position: relative; }
+  .jpselect2-container[dir="rtl"] .jpselect2-selection--single .jpselect2-selection__rendered {
+    padding-right: 8px;
+    padding-left: 20px; }
+  .jpselect2-container .jpselect2-selection--multiple {
+    box-sizing: border-box;
+    cursor: pointer;
+    display: block;
+    min-height: 32px;
+    user-select: none;
+    -webkit-user-select: none; }
+    .jpselect2-container .jpselect2-selection--multiple .jpselect2-selection__rendered {
+      display: inline-block;
+      overflow: hidden;
+      padding-left: 8px;
+      text-overflow: ellipsis;
+      white-space: nowrap; }
+  .jpselect2-container .jpselect2-search--inline {
+    float: left; }
+    .jpselect2-container .jpselect2-search--inline .jpselect2-search__field {
+      box-sizing: border-box;
+      border: none;
+      font-size: 100%;
+      margin-top: 5px;
+      padding: 0; }
+      .jpselect2-container .jpselect2-search--inline .jpselect2-search__field::-webkit-search-cancel-button {
+        -webkit-appearance: none; }
+
+.jpselect2-dropdown {
+  background-color: white;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  box-sizing: border-box;
+  display: block;
+  position: absolute;
+  left: -100000px;
+  width: 100%;
+  z-index: 1051; }
+
+.jpselect2-results {
+  display: block; }
+
+.jpselect2-results__options {
+  list-style: none;
+  margin: 0;
+  padding: 0; }
+
+.jpselect2-results__option {
+  padding: 6px;
+  user-select: none;
+  -webkit-user-select: none; }
+  .jpselect2-results__option[aria-selected] {
+    cursor: pointer; }
+
+.jpselect2-container--open .jpselect2-dropdown {
+  left: 0; }
+
+.jpselect2-container--open .jpselect2-dropdown--above {
+  border-bottom: none;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0; }
+
+.jpselect2-container--open .jpselect2-dropdown--below {
+  border-top: none;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0; }
+
+.jpselect2-search--dropdown {
+  display: block;
+  padding: 4px; }
+  .jpselect2-search--dropdown .jpselect2-search__field {
+    padding: 4px;
+    width: 100%;
+    box-sizing: border-box; }
+    .jpselect2-search--dropdown .jpselect2-search__field::-webkit-search-cancel-button {
+      -webkit-appearance: none; }
+  .jpselect2-search--dropdown.jpselect2-search--hide {
+    display: none; }
+
+.jpselect2-close-mask {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: block;
+  position: fixed;
+  left: 0;
+  top: 0;
+  min-height: 100%;
+  min-width: 100%;
+  height: auto;
+  width: auto;
+  opacity: 0;
+  z-index: 99;
+  background-color: #fff;
+  filter: alpha(opacity=0); }
+
+.jpselect2-hidden-accessible {
+  border: 0 !important;
+  clip: rect(0 0 0 0) !important;
+  height: 1px !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  position: absolute !important;
+  width: 1px !important; }
+
+.jpselect2-container--default .jpselect2-selection--single {
+  background-color: #fff;
+  border: 1px solid #aaa;
+  border-radius: 4px; }
+  .jpselect2-container--default .jpselect2-selection--single .jpselect2-selection__rendered {
+    color: #444;
+    line-height: 28px; }
+  .jpselect2-container--default .jpselect2-selection--single .jpselect2-selection__clear {
+    cursor: pointer;
+    float: right;
+    font-weight: bold; }
+  .jpselect2-container--default .jpselect2-selection--single .jpselect2-selection__placeholder {
+    color: #999; }
+  .jpselect2-container--default .jpselect2-selection--single .jpselect2-selection__arrow {
+    height: 26px;
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    width: 20px; }
+    .jpselect2-container--default .jpselect2-selection--single .jpselect2-selection__arrow b {
+      border-color: #888 transparent transparent transparent;
+      border-style: solid;
+      border-width: 5px 4px 0 4px;
+      height: 0;
+      left: 50%;
+      margin-left: -4px;
+      margin-top: -2px;
+      position: absolute;
+      top: 50%;
+      width: 0; }
+.jpselect2-container--default[dir="rtl"] .jpselect2-selection--single .jpselect2-selection__clear {
+  float: left; }
+.jpselect2-container--default[dir="rtl"] .jpselect2-selection--single .jpselect2-selection__arrow {
+  left: 1px;
+  right: auto; }
+.jpselect2-container--default.jpselect2-container--disabled .jpselect2-selection--single {
+  background-color: #eee;
+  cursor: default; }
+  .jpselect2-container--default.jpselect2-container--disabled .jpselect2-selection--single .jpselect2-selection__clear {
+    display: none; }
+.jpselect2-container--default.jpselect2-container--open .jpselect2-selection--single .jpselect2-selection__arrow b {
+  border-color: transparent transparent #888 transparent;
+  border-width: 0 4px 5px 4px; }
+.jpselect2-container--default .jpselect2-selection--multiple {
+  background-color: white;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  cursor: text; }
+  .jpselect2-container--default .jpselect2-selection--multiple .jpselect2-selection__rendered {
+    box-sizing: border-box;
+    list-style: none;
+    margin: 0;
+    padding: 0 5px;
+    width: 100%; }
+    .jpselect2-container--default .jpselect2-selection--multiple .jpselect2-selection__rendered li {
+      list-style: none; }
+  .jpselect2-container--default .jpselect2-selection--multiple .jpselect2-selection__placeholder {
+    color: #999;
+    margin-top: 5px;
+    float: left; }
+  .jpselect2-container--default .jpselect2-selection--multiple .jpselect2-selection__clear {
+    cursor: pointer;
+    float: right;
+    font-weight: bold;
+    margin-top: 5px;
+    margin-right: 10px; }
+  .jpselect2-container--default .jpselect2-selection--multiple .jpselect2-selection__choice {
+    background-color: #e4e4e4;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    cursor: default;
+    float: left;
+    margin-right: 5px;
+    margin-top: 5px;
+    padding: 0 5px; }
+  .jpselect2-container--default .jpselect2-selection--multiple .jpselect2-selection__choice__remove {
+    color: #999;
+    cursor: pointer;
+    display: inline-block;
+    font-weight: bold;
+    margin-right: 2px; }
+    .jpselect2-container--default .jpselect2-selection--multiple .jpselect2-selection__choice__remove:hover {
+      color: #333; }
+.jpselect2-container--default[dir="rtl"] .jpselect2-selection--multiple .jpselect2-selection__choice, .jpselect2-container--default[dir="rtl"] .jpselect2-selection--multiple .jpselect2-selection__placeholder, .jpselect2-container--default[dir="rtl"] .jpselect2-selection--multiple .jpselect2-search--inline {
+  float: right; }
+.jpselect2-container--default[dir="rtl"] .jpselect2-selection--multiple .jpselect2-selection__choice {
+  margin-left: 5px;
+  margin-right: auto; }
+.jpselect2-container--default[dir="rtl"] .jpselect2-selection--multiple .jpselect2-selection__choice__remove {
+  margin-left: 2px;
+  margin-right: auto; }
+.jpselect2-container--default.jpselect2-container--focus .jpselect2-selection--multiple {
+  border: solid black 1px;
+  outline: 0; }
+.jpselect2-container--default.jpselect2-container--disabled .jpselect2-selection--multiple {
+  background-color: #eee;
+  cursor: default; }
+.jpselect2-container--default.jpselect2-container--disabled .jpselect2-selection__choice__remove {
+  display: none; }
+.jpselect2-container--default.jpselect2-container--open.jpselect2-container--above .jpselect2-selection--single, .jpselect2-container--default.jpselect2-container--open.jpselect2-container--above .jpselect2-selection--multiple {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0; }
+.jpselect2-container--default.jpselect2-container--open.jpselect2-container--below .jpselect2-selection--single, .jpselect2-container--default.jpselect2-container--open.jpselect2-container--below .jpselect2-selection--multiple {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0; }
+.jpselect2-container--default .jpselect2-search--dropdown .jpselect2-search__field {
+  border: 1px solid #aaa; }
+.jpselect2-container--default .jpselect2-search--inline .jpselect2-search__field {
+  background: transparent;
+  border: none;
+  outline: 0;
+  box-shadow: none;
+  -webkit-appearance: textfield; }
+.jpselect2-container--default .jpselect2-results > .jpselect2-results__options {
+  max-height: 200px;
+  overflow-y: auto; }
+.jpselect2-container--default .jpselect2-results__option[role=group] {
+  padding: 0; }
+.jpselect2-container--default .jpselect2-results__option[aria-disabled=true] {
+  color: #999; }
+.jpselect2-container--default .jpselect2-results__option[aria-selected=true] {
+  background-color: #ddd; }
+.jpselect2-container--default .jpselect2-results__option .jpselect2-results__option {
+  padding-left: 1em; }
+  .jpselect2-container--default .jpselect2-results__option .jpselect2-results__option .jpselect2-results__group {
+    padding-left: 0; }
+  .jpselect2-container--default .jpselect2-results__option .jpselect2-results__option .jpselect2-results__option {
+    margin-left: -1em;
+    padding-left: 2em; }
+    .jpselect2-container--default .jpselect2-results__option .jpselect2-results__option .jpselect2-results__option .jpselect2-results__option {
+      margin-left: -2em;
+      padding-left: 3em; }
+      .jpselect2-container--default .jpselect2-results__option .jpselect2-results__option .jpselect2-results__option .jpselect2-results__option .jpselect2-results__option {
+        margin-left: -3em;
+        padding-left: 4em; }
+        .jpselect2-container--default .jpselect2-results__option .jpselect2-results__option .jpselect2-results__option .jpselect2-results__option .jpselect2-results__option .jpselect2-results__option {
+          margin-left: -4em;
+          padding-left: 5em; }
+          .jpselect2-container--default .jpselect2-results__option .jpselect2-results__option .jpselect2-results__option .jpselect2-results__option .jpselect2-results__option .jpselect2-results__option .jpselect2-results__option {
+            margin-left: -5em;
+            padding-left: 6em; }
+.jpselect2-container--default .jpselect2-results__option--highlighted[aria-selected] {
+  background-color: #5897fb;
+  color: white; }
+.jpselect2-container--default .jpselect2-results__group {
+  cursor: default;
+  display: block;
+  padding: 6px; }
+
+.jpselect2-container--classic .jpselect2-selection--single {
+  background-color: #f7f7f7;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  outline: 0;
+  background-image: -webkit-linear-gradient(top, white 50%, #eeeeee 100%);
+  background-image: -o-linear-gradient(top, white 50%, #eeeeee 100%);
+  background-image: linear-gradient(to bottom, white 50%, #eeeeee 100%);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFFFFFF', endColorstr='#FFEEEEEE', GradientType=0); }
+  .jpselect2-container--classic .jpselect2-selection--single:focus {
+    border: 1px solid #5897fb; }
+  .jpselect2-container--classic .jpselect2-selection--single .jpselect2-selection__rendered {
+    color: #444;
+    line-height: 28px; }
+  .jpselect2-container--classic .jpselect2-selection--single .jpselect2-selection__clear {
+    cursor: pointer;
+    float: right;
+    font-weight: bold;
+    margin-right: 10px; }
+  .jpselect2-container--classic .jpselect2-selection--single .jpselect2-selection__placeholder {
+    color: #999; }
+  .jpselect2-container--classic .jpselect2-selection--single .jpselect2-selection__arrow {
+    background-color: #ddd;
+    border: none;
+    border-left: 1px solid #aaa;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    height: 26px;
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    width: 20px;
+    background-image: -webkit-linear-gradient(top, #eeeeee 50%, #cccccc 100%);
+    background-image: -o-linear-gradient(top, #eeeeee 50%, #cccccc 100%);
+    background-image: linear-gradient(to bottom, #eeeeee 50%, #cccccc 100%);
+    background-repeat: repeat-x;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFEEEEEE', endColorstr='#FFCCCCCC', GradientType=0); }
+    .jpselect2-container--classic .jpselect2-selection--single .jpselect2-selection__arrow b {
+      border-color: #888 transparent transparent transparent;
+      border-style: solid;
+      border-width: 5px 4px 0 4px;
+      height: 0;
+      left: 50%;
+      margin-left: -4px;
+      margin-top: -2px;
+      position: absolute;
+      top: 50%;
+      width: 0; }
+.jpselect2-container--classic[dir="rtl"] .jpselect2-selection--single .jpselect2-selection__clear {
+  float: left; }
+.jpselect2-container--classic[dir="rtl"] .jpselect2-selection--single .jpselect2-selection__arrow {
+  border: none;
+  border-right: 1px solid #aaa;
+  border-radius: 0;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+  left: 1px;
+  right: auto; }
+.jpselect2-container--classic.jpselect2-container--open .jpselect2-selection--single {
+  border: 1px solid #5897fb; }
+  .jpselect2-container--classic.jpselect2-container--open .jpselect2-selection--single .jpselect2-selection__arrow {
+    background: transparent;
+    border: none; }
+    .jpselect2-container--classic.jpselect2-container--open .jpselect2-selection--single .jpselect2-selection__arrow b {
+      border-color: transparent transparent #888 transparent;
+      border-width: 0 4px 5px 4px; }
+.jpselect2-container--classic.jpselect2-container--open.jpselect2-container--above .jpselect2-selection--single {
+  border-top: none;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  background-image: -webkit-linear-gradient(top, white 0%, #eeeeee 50%);
+  background-image: -o-linear-gradient(top, white 0%, #eeeeee 50%);
+  background-image: linear-gradient(to bottom, white 0%, #eeeeee 50%);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFFFFFF', endColorstr='#FFEEEEEE', GradientType=0); }
+.jpselect2-container--classic.jpselect2-container--open.jpselect2-container--below .jpselect2-selection--single {
+  border-bottom: none;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  background-image: -webkit-linear-gradient(top, #eeeeee 50%, white 100%);
+  background-image: -o-linear-gradient(top, #eeeeee 50%, white 100%);
+  background-image: linear-gradient(to bottom, #eeeeee 50%, white 100%);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFEEEEEE', endColorstr='#FFFFFFFF', GradientType=0); }
+.jpselect2-container--classic .jpselect2-selection--multiple {
+  background-color: white;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  cursor: text;
+  outline: 0; }
+  .jpselect2-container--classic .jpselect2-selection--multiple:focus {
+    border: 1px solid #5897fb; }
+  .jpselect2-container--classic .jpselect2-selection--multiple .jpselect2-selection__rendered {
+    list-style: none;
+    margin: 0;
+    padding: 0 5px; }
+  .jpselect2-container--classic .jpselect2-selection--multiple .jpselect2-selection__clear {
+    display: none; }
+  .jpselect2-container--classic .jpselect2-selection--multiple .jpselect2-selection__choice {
+    background-color: #e4e4e4;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    cursor: default;
+    float: left;
+    margin-right: 5px;
+    margin-top: 5px;
+    padding: 0 5px; }
+  .jpselect2-container--classic .jpselect2-selection--multiple .jpselect2-selection__choice__remove {
+    color: #888;
+    cursor: pointer;
+    display: inline-block;
+    font-weight: bold;
+    margin-right: 2px; }
+    .jpselect2-container--classic .jpselect2-selection--multiple .jpselect2-selection__choice__remove:hover {
+      color: #555; }
+.jpselect2-container--classic[dir="rtl"] .jpselect2-selection--multiple .jpselect2-selection__choice {
+  float: right; }
+.jpselect2-container--classic[dir="rtl"] .jpselect2-selection--multiple .jpselect2-selection__choice {
+  margin-left: 5px;
+  margin-right: auto; }
+.jpselect2-container--classic[dir="rtl"] .jpselect2-selection--multiple .jpselect2-selection__choice__remove {
+  margin-left: 2px;
+  margin-right: auto; }
+.jpselect2-container--classic.jpselect2-container--open .jpselect2-selection--multiple {
+  border: 1px solid #5897fb; }
+.jpselect2-container--classic.jpselect2-container--open.jpselect2-container--above .jpselect2-selection--multiple {
+  border-top: none;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0; }
+.jpselect2-container--classic.jpselect2-container--open.jpselect2-container--below .jpselect2-selection--multiple {
+  border-bottom: none;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0; }
+.jpselect2-container--classic .jpselect2-search--dropdown .jpselect2-search__field {
+  border: 1px solid #aaa;
+  outline: 0; }
+.jpselect2-container--classic .jpselect2-search--inline .jpselect2-search__field {
+  outline: 0;
+  box-shadow: none; }
+.jpselect2-container--classic .jpselect2-dropdown {
+  background-color: white;
+  border: 1px solid transparent; }
+.jpselect2-container--classic .jpselect2-dropdown--above {
+  border-bottom: none; }
+.jpselect2-container--classic .jpselect2-dropdown--below {
+  border-top: none; }
+.jpselect2-container--classic .jpselect2-results > .jpselect2-results__options {
+  max-height: 200px;
+  overflow-y: auto; }
+.jpselect2-container--classic .jpselect2-results__option[role=group] {
+  padding: 0; }
+.jpselect2-container--classic .jpselect2-results__option[aria-disabled=true] {
+  color: grey; }
+.jpselect2-container--classic .jpselect2-results__option--highlighted[aria-selected] {
+  background-color: #3875d7;
+  color: white; }
+.jpselect2-container--classic .jpselect2-results__group {
+  cursor: default;
+  display: block;
+  padding: 6px; }
+.jpselect2-container--classic.jpselect2-container--open .jpselect2-dropdown {
+  border-color: #5897fb; }

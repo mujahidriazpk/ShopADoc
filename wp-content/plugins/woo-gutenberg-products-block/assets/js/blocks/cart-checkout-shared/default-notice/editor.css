@@ -1,0 +1,8 @@
+.wc-block-cart__page-notice {
+  margin: 0;
+  padding-right: 16px; }
+  .wc-block-cart__page-notice .components-notice__dismiss {
+    min-width: 24px; }
+  .wc-block-cart__page-notice svg {
+    width: 16px;
+    height: 16px; }

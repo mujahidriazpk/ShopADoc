@@ -1,0 +1,12 @@
+.site-editor__preview-iframe {
+  height: 50vh;
+  position: relative; }
+  .site-editor__preview-iframe__iframe {
+    top: 0;
+    left: 0;
+    position: absolute;
+    border: none;
+    transform-origin: 0 0;
+    height: 100%; }
+  .site-editor__preview-iframe--header, .site-editor__preview-iframe--footer {
+    height: 15vh; }

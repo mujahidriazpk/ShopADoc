@@ -1,0 +1,8 @@
+.wc-default-page-notice.is-dismissible {
+  margin: 0;
+  padding-right: 16px; }
+  .wc-default-page-notice.is-dismissible .components-notice__dismiss {
+    min-width: 24px; }
+  .wc-default-page-notice.is-dismissible svg {
+    width: 16px;
+    height: 16px; }

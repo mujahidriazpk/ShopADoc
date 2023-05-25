@@ -3,9 +3,49 @@
 <head>
   <meta charset="utf-8">
   <title>click demo</title>
+	
 </head>
 <body>
- <script src="https://fast.wistia.com/embed/medias/vv2vijz39l.jsonp" async></script><script src="https://fast.wistia.com/assets/external/E-v1.js" async></script>
- <div class="wistia_embed wistia_async_vv2vijz39l autoplay=true" style="width:100%;height:218px;position:relative">&nbsp;</div>
+	
+	<h1 id="time"></h1>
+	<script type="text/javascript">
+		/*const iosTime = new Date().getTime();
+
+// Get the current time on the Windows computer
+const windowsTime = Date.now();
+
+// Calculate the time difference in seconds
+const timeDifferenceSeconds = Math.abs((iosTime - windowsTime) / 1000);
+
+console.log(`The time difference between the iOS device and the Windows computer is ${timeDifferenceSeconds} seconds.`);*/
+		function counter(){
+			var time = new Date();
+		 	var seconds = parseInt(time.getSeconds());
+			//const seconds = new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' ,hour12: false });
+			const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+			if (navigator.userAgent.includes("Mac")) {
+			  // Do something if the browser is running on iOS
+			  console.log("This browser is running on iOS");
+				if(seconds >= 58){
+					seconds = 0;
+				}else{
+					seconds = seconds + 1;
+				}
+				
+			} else {
+			  // Do something if the browser is not running on iOS
+			  //console.log("This browser is not running on iOS");
+			}
+
+			//var now = Date.parse(str)/1000;
+			
+		 	//var seconds = now.getSeconds();
+			
+			document.getElementById('time').innerHTML = seconds;
+			setTimeout("counter();",1000);
+		}
+		counter();
+	</script>
 </body>
 </html>

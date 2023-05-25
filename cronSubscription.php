@@ -1,6 +1,6 @@
 <?php
 define('WP_USE_THEMES', true);
-require('/home/642855.cloudwaysapps.com/zvdtvwubwd/public_html/wp-load.php');
+require('/var/www/html/shopadoc/wp-load.php');
 global $wpdb;
 $query = "SELECT post_id FROM wp_postmeta where meta_value = 'active_cancelled'";
 $results = $wpdb->get_results($query, OBJECT);

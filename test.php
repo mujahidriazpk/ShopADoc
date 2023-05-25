@@ -166,7 +166,7 @@ setInterval('', 6000);
 die;
 
 /*define('WP_USE_THEMES', true);
-require('/home/642855.cloudwaysapps.com/zvdtvwubwd/public_html/wp-load.php');
+require('/home/642855.cloudwaysapps.com/gddwwykpfm/public_html/wp-load.php');
 $args = array('post_type' 			=> 'mapsvg','posts_per_page'         => '-1','orderby' => 'ID', 'order'   => 'ASC',);
 $product_query = new WP_Query( $args );
 $count = $product_query->found_posts;

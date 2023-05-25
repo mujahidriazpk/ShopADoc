@@ -2,7 +2,7 @@
 <head>
 <title>ajax count down test</title>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-<script src="/wp-content/plugins/woocommerce-simple-auctions/js/jquery.countdown.min.js"></script> <!--maybe you shouldn't hotlink this file ;-) -->
+<script src="http://staging.shopadoc.com/wp-content/plugins/woocommerce-simple-auctions/js/jquery.countdown.min.js"></script> <!--maybe you shouldn't hotlink this file ;-) -->
 </head>
 <body>
 <div id="defaultCountdown"></div>
@@ -25,7 +25,7 @@
 
     $(function () {
         $("#defaultCountdown").countdown({
-            until: new Date("Jun 24, 2022 16:00:00 +0000"),
+            until: new Date("Jun 24, 2025 16:00:00 +0000"),
             serverSync: serverTime
         });
     });

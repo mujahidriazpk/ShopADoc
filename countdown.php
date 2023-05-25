@@ -7,22 +7,22 @@ echo $client_address;
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<script type='text/javascript' src='https://woocommerce-642855-2098160.cloudwaysapps.com/wp-includes/js/jquery/jquery.min.js?ver=3.6.0' id='jquery-core-js'></script>
-<script type='text/javascript' src='https://woocommerce-642855-2098160.cloudwaysapps.com/wp-content/plugins/woocommerce-simple-auctions/js/jquery.countdown.min.js?ver=1.2.27' id='simple-auction-countdown-js'></script>
+<script type='text/javascript' src='http://3.86.45.79/wp-includes/js/jquery/jquery.min.js?ver=3.6.0' id='jquery-core-js'></script>
+<script type='text/javascript' src='http://3.86.45.79/wp-content/plugins/woocommerce-simple-auctions/js/jquery.countdown.min.js?ver=1.2.27' id='simple-auction-countdown-js'></script>
 <script type='text/javascript' id='simple-auction-countdown-language-js-extra'>
 /* <![CDATA[ */
 var countdown_language_data = {"labels":{"Years":"Years","Months":"Months","Weeks":"Weeks","Days":"Days","Hours":"Hours","Minutes":"Minutes","Seconds":"Seconds"},"labels1":{"Year":"Year","Month":"Month","Week":"Week","Day":"Day","Hour":"Hour","Minute":"Minute","Second":"Second"},"compactLabels":{"y":"y","m":"m","w":"w","d":"d"}};
 /* ]]> */
 </script>
-<script type='text/javascript' src='https://woocommerce-642855-2098160.cloudwaysapps.com/wp-content/plugins/woocommerce-simple-auctions/js/jquery.countdown.language.js?ver=1.2.27' id='simple-auction-countdown-language-js'></script>
+<script type='text/javascript' src='https://staging.shopadoc.com/wp-content/plugins/woocommerce-simple-auctions/js/jquery.countdown.language.js?ver=1.2.27' id='simple-auction-countdown-language-js'></script>
 <script type='text/javascript' id='simple-auction-frontend-js-extra'>
 /* <![CDATA[ */
 var data = {"finished":"Auction has finished!","gtm_offset":"-8","started":"Auction has started! Please refresh your page.","no_need":"No need to bid. Your bid is winning!","compact_counter":"no","outbid_message":"","interval":"1"};
 var SA_Ajax = {"ajaxurl":"\/auction-5417\/removal-1-tooth-bone-graft-8\/?wsa-ajax","najax":"1","last_activity":"1636519428","focus":"yes"};
 /* ]]> */
 </script>
-<link rel='stylesheet'  href='https://woocommerce-642855-2098160.cloudwaysapps.com/wp-content/plugins/woocommerce-simple-auctions/css/frontend.css?ver=5.8.1' type='text/css' media='all' />
-<link rel='stylesheet' id='child-style-css'  href='https://woocommerce-642855-2098160.cloudwaysapps.com/wp-content/themes/dokan-child/style.css?ver=1636456456' type='text/css' media='all' />
+<link rel='stylesheet'  href='https://staging.shopadoc.com/wp-content/plugins/woocommerce-simple-auctions/css/frontend.css?ver=5.8.1' type='text/css' media='all' />
+<link rel='stylesheet' id='child-style-css'  href='https://staging.shopadoc.com/wp-content/themes/dokan-child/style.css?ver=1636456456' type='text/css' media='all' />
 <title>Countdown</title>
 </head>
 
@@ -47,7 +47,7 @@ $diff = $diff + $time_taken;*/
 <script >
 //time.is/UTC
 //var countDownDate = new Date("Jan 21, 2022 15:37:25").getTime();
-var countDownDate = Date.parse("march 30, 2022 15:37:25")/1000;
+var countDownDate = Date.parse("march 30, 2025 15:37:25")/1000;
 const str = new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' ,hour12: false });
 var now = Date.parse(str)/1000;
 //var now = new Date(str).getTime();

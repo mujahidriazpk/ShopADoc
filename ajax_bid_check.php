@@ -38,9 +38,9 @@ if(isset($_REQUEST['mode']) && $_REQUEST['mode']=='checkBidUpdate'){
 			if($content_decode->curent_bid != $_REQUEST['current_bid'] && strlen($contents) > 0){
 				global $connection;
 				$db_server = "localhost";
-				$db_user = "zvdtvwubwd";		// The user that has access to your database
-				$db_password = "BRm6DBMtku";		// The password for the user that has access to your database
-				$db_name = "zvdtvwubwd";
+				$db_user = "gddwwykpfm";		// The user that has access to your database
+				$db_password = "8cK5GTxtnS";		// The password for the user that has access to your database
+				$db_name = "gddwwykpfm";
 				$connection = mysqli_connect($db_server, $db_user, $db_password, $db_name);
 				if(mysqli_connect_errno()){
 				  echo "Failed to connect to MySQL: " . mysqli_connect_error();

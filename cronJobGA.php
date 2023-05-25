@@ -1,10 +1,10 @@
 <?php
 define('WP_USE_THEMES', true);
-require('/home/642855.cloudwaysapps.com/zvdtvwubwd/public_html/wp-load.php');
+require('/home/642855.cloudwaysapps.com/gddwwykpfm/public_html/wp-load.php');
 global $wpdb,$demo_listing;
 /*$query = "SELECT * FROM `wp_advads_impressions` where count != count_tracked ORDER BY `timestamp` DESC";
 $results = $wpdb->get_results($query, OBJECT);
-$trackBaseData = "v=1&tid=UA-166289038-1&cid=1379762423.1647958985&t=event&ni=1&ec=Advanced Ads&ea=Impressions&dl=https://shopadoc.com&dp=https://shopadoc.com";
+$trackBaseData = "v=1&tid=UA-166289038-1&cid=1379762423.1647958985&t=event&ni=1&ec=Advanced Ads&ea=Impressions&dl=https://woocommerce-642855-2866716.cloudwaysapps.com&dp=https://woocommerce-642855-2866716.cloudwaysapps.com";
 $request_str = '';
 foreach($results as $row){
 	//$post_title  = _wp_specialchars( get_post_field( 'post_title', $row->ad_id), ENT_QUOTES, 'UTF-8', true);'ev' => 0,
@@ -20,7 +20,7 @@ foreach($results as $row){
 }*/
 
 //echo  $request_str;
-$request_str = 'v=1&tid=UA-166289038-1&cid=1379762423.1647958985&t=event&ni=1&ec=Advanced Ads&ea=Impressions&dl=https://shopadoc.com&dp=https://shopadoc.com&el=[6123] DTest Client D10 03/01/22 – 12/31/22';
+$request_str = 'v=1&tid=UA-166289038-1&cid=1379762423.1647958985&t=event&ni=1&ec=Advanced Ads&ea=Impressions&dl=https://woocommerce-642855-2866716.cloudwaysapps.com&dp=https://woocommerce-642855-2866716.cloudwaysapps.com&el=[6123] DTest Client D10 03/01/22 – 12/31/22';
 
 $curl = curl_init();
 curl_setopt_array($curl, array(

@@ -1,6 +1,6 @@
 <?php
 define('WP_USE_THEMES', true);
-require('/home/642855.cloudwaysapps.com/zvdtvwubwd/public_html/wp-load.php');
+require('/home/642855.cloudwaysapps.com/gddwwykpfm/public_html/wp-load.php');
 global $wpdb;
 $args = array(
 			'post_status'         => array('publish','pending'),

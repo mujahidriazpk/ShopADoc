@@ -1,10 +1,10 @@
 <?php
 define('WP_USE_THEMES', true);
-require($_SERVER['DOCUMENT_ROOT'].'wp-load.php');
+require('wp-load.php');
 global $wpdb;
 if(isset($_POST['mode']) && $_POST['mode']=='mail'){
 	//mail("mujahidriazpk@gmail.com","test","this is a message");
-	$to = 'mujahidriazpk@gmail.com';
+	$to = 'mujahidriazpk1@gmail.com';
 $subject = 'The subject'.rand(5);
 $body = 'The email body content';
 $headers = array('Content-Type: text/html; charset=UTF-8');
@@ -49,6 +49,13 @@ if(isset($_REQUEST['mode']) && $_REQUEST['mode']=='checkAuctionStatus'){
 											global $today_date_time;
 											$_flash_cycle_start = get_post_meta( $product->get_id() , '_flash_cycle_start' , TRUE);
 											$_flash_cycle_end = get_post_meta( $product->get_id() , '_flash_cycle_end' , TRUE);
+											$customer_winner = get_post_meta($product->get_id(),'_auction_current_bider', true);
+											$_auction_current_bid = get_post_meta($product->get_id(), '_auction_current_bid', true );
+											$_auction_closed = get_post_meta($product->get_id(), '_auction_closed', true );
+											$_auction_dates_extend = get_post_meta($product->get_id(), '_auction_dates_extend', true );
+											$_auction_extend_counter = get_post_meta($product->get_id(), '_auction_extend_counter', true );
+											$_flash_status = get_post_meta($product->get_id(), '_flash_status', true );
+											$customer_winner = get_post_meta($product->get_id(),'_auction_current_bider', true);
 												if(strtotime($today_date_time) < strtotime($_flash_cycle_start) && strtotime($_flash_cycle_end) > strtotime($today_date_time)){
 													if(!$_auction_current_bid){
 														$status = '<span>countdown to Flash Bid Cycle<span class="TM_flash">®</span></span>';
@@ -154,7 +161,7 @@ if(isset($_REQUEST['mode']) && $_REQUEST['mode']=='getRelistAuction'){
 					$_flash_cycle_start = get_post_meta( $post->ID, '_flash_cycle_start' , TRUE);
 					$_flash_cycle_end = get_post_meta( $post->ID, '_flash_cycle_end' , TRUE);
 					if(strtotime($_auction_dates_to) <= strtotime($today_date_time_seconds) && strtotime($today_date_time_seconds) >= strtotime($_flash_cycle_end) && ($bid_count == '' || $bid_count == 0)){
-						$newtimestamp = strtotime($_flash_cycle_end.' + 3 minute');
+						$newtimestamp = strtotime($_flash_cycle_end.' + 7 minute');
 						$to_date = date('Y-m-d H:i:s', $newtimestamp);
 						if(strtotime($today_date_time_seconds) > strtotime($to_date)){
 						}else{
@@ -909,7 +916,7 @@ if(isset($_REQUEST['mode']) && $_REQUEST['mode']=='saveAdPosition'){
 }
 if(isset($_REQUEST['mode']) && $_REQUEST['mode']=='submitAD'){
 	if($_POST['selected_ad'] !=''){
-
+                global $today_date_time_seconds;
 	 			//[COMPANY]_[START DATE MMDDYY]-[ENDDATE MMDDYY]
 				$post_id= $_POST['selected_ad'];
 				$advanced_ads_ad_options = maybe_unserialize(get_post_meta($post_id, 'advanced_ads_ad_options', true ));
@@ -921,6 +928,11 @@ if(isset($_REQUEST['mode']) && $_REQUEST['mode']=='submitAD'){
 				$title = $_POST['type']." ".$ad_demo_company_name." ".$_POST['column'].$_POST['rotation'].'&nbsp;'.date('m/d/y',strtotime($_POST['start_date'])).' - '.date('m/d/y',strtotime($_POST['end_date']));
 	
 				$post_date_gmt = date("Y-m-d H:i:s",  strtotime($_POST['start_date']));
+                $post_status = 'publish';
+				//echo $today_date_time_seconds.'=='.$_POST['end_date'];die;
+                if(strtotime($today_date_time_seconds) >= strtotime($_POST['end_date'])){
+                    $post_status = 'advanced_ads_expired';
+                }
 				$my_post = array(
 										   'ID'    =>$post_id,
 										  'post_author'=>$_POST['company'],
@@ -930,7 +942,7 @@ if(isset($_REQUEST['mode']) && $_REQUEST['mode']=='submitAD'){
 										  'post_excerpt'    => $_POST['type'],
 										  'post_date'    => $post_date_gmt,
 										  'post_date_gmt'    => $post_date_gmt,
-										  'post_status'   => 'publish',
+										  'post_status'   => $post_status,
 										  'post_type'     =>'advanced_ads',
 										);
 
@@ -1010,7 +1022,11 @@ if(isset($_REQUEST['mode']) && $_REQUEST['mode']=='submitAD'){
 
                     }
 
-                } 				
+                }else{			
+					if(isset($_POST['ad_img']) && $_POST['ad_img'] !="" && $_POST['ad_img'] !='undefined'){
+						$attach_id = $_POST['ad_img'];
+					}
+				}			
 				//$attachmentId = media_handle_sideload($_FILES, $post_id);
 				$advanced_ads_ad_options = array();
 				$advanced_ads_ad_options['visitor'] ='';
@@ -1046,6 +1062,7 @@ if(isset($_REQUEST['mode']) && $_REQUEST['mode']=='submitAD'){
 				update_post_meta( $post_id, 'ad_user', $_POST['company'] );
 				update_post_meta( $post_id, 'ad_location', $City.", ".$State );
 				update_user_meta($_POST['company'] , 'deactivate_advertiser','No');
+				update_post_meta($post_id, 'advanced_ads_expiration_time',date('Y-m-d H:i:s',strtotime($_POST['end_date'])));
 				/*$option_name = $_POST['id'];
 				if ( get_option( $option_name ) !== false ) {
 						update_option( $option_name, $post_id);
@@ -1065,11 +1082,12 @@ if(isset($_REQUEST['mode']) && $_REQUEST['mode']=='submitAD'){
 				$tmp = explode("_",$option_name_new);
 				$rotation = str_replace("position","",$tmp[0]);
 				$column_val = str_replace("col","",$tmp[1]);
-				if($_POST['rotation_new'] != $_POST['rotation'] || $_POST['column_new'] != $_POST['column']){
+				if($_POST['rotation_new'] != $_POST['rotation'] || $_POST['column_new'] != $_POST['column_val']){
 					$option_name_old =$option_name_new;
 					$option_name_new = 'position'.$_POST['rotation_new'].'_col'.$_POST['column_new'].'_'.$tmp[2];
 				}
-				$wpdb->query("DELETE FROM wp_options where option_name like '%".$option_name_new."%' and option_value =".$post_id);
+		//echo "DELETE FROM wp_options where option_name like '%".$option_name_new."%' and option_name not like '%old%' and option_value =".$post_id;
+				//$wpdb->query("DELETE FROM wp_options where option_name like '%".$option_name_new."%' and option_name not like '%old%' and option_value =".$post_id);
 				
 				$start = new DateTime(date("Y-m-d",strtotime($_POST['start_date'])));
 				$interval = new DateInterval('P1M');
@@ -1077,6 +1095,7 @@ if(isset($_REQUEST['mode']) && $_REQUEST['mode']=='submitAD'){
 				$period = new DatePeriod($start, $interval, $end);
 				foreach ($period as $key => $value) {
 					$option_name_loop = $option_name_new."_".$value->format('m_y');
+					//echo $option_name_loop."<br />";
 					if (get_option($option_name_loop ) !== false ) {
 							update_option($option_name_loop, $post_id);
 					}else{
@@ -1087,6 +1106,13 @@ if(isset($_REQUEST['mode']) && $_REQUEST['mode']=='submitAD'){
 						delete_option($option_name_delete);
 					}
 				}
+				if(strtotime($today_date_time_seconds) >= strtotime($_POST['end_date'])){
+					$option_name = $_POST['id'];
+					$oldRotation = get_option($option_name);
+					add_option("old_".$option_name, $oldRotation);
+					
+                    $wpdb->query("DELETE FROM wp_options where option_name not like '%old%' and option_value =".$post_id);
+                }
 	
 	}else{
 	 			//[COMPANY]_[START DATE MMDDYY]-[ENDDATE MMDDYY]
@@ -1185,8 +1211,12 @@ if(isset($_REQUEST['mode']) && $_REQUEST['mode']=='submitAD'){
 
                     }
 
-                } 			
-					
+                }else{			
+					if(isset($_POST['ad_img']) && $_POST['ad_img'] !="" && $_POST['ad_img'] !='undefined'){
+						$attach_id = $_POST['ad_img'];
+					}
+				}
+				//echo $attach_id;die;
 				//$attachmentId = media_handle_sideload($_FILES, $post_id);
 				$advanced_ads_ad_options = array();
 				$advanced_ads_ad_options['visitor'] ='';
@@ -1222,6 +1252,8 @@ if(isset($_REQUEST['mode']) && $_REQUEST['mode']=='submitAD'){
 				update_post_meta( $post_id, 'ad_user', $_POST['company'] );
 				update_post_meta( $post_id, 'ad_location', $City.", ".$State );
 				update_user_meta($_POST['company'] , 'deactivate_advertiser','No');
+				update_post_meta($post_id, 'advanced_ads_expiration_time',date('Y-m-d H:i:s',strtotime($_POST['end_date'])));
+		
 				$option_name = $_POST['id'];
 				
 			/*	$option_tmp = explode("_",$option_name);
@@ -1566,7 +1598,7 @@ if(isset($_POST['mode']) && $_POST['mode']=='getAddADPopup'){
 					<div class="wpforms-field-container">
 					  <div id="wpforms-185-field_3-container" class="wpforms-field wpforms-field-Company wpforms-one-half wpforms-first" >
 						<label class="wpforms-field-label" for="Company">Company <span class="wpforms-required-label">*</span></label>
-						<select name="company" id="company" class="wpforms-field-medium validate[required]" style="display:block !important;">
+						<select name="company" id="company" class="wpforms-field-medium validate[required]" style="display:block !important;" onChange="getAdImages(this.value)">
 						  <option value="">- select Company -</option>
 						  '.$userDropdown.'
 						</select>
@@ -1619,8 +1651,17 @@ if(isset($_POST['mode']) && $_POST['mode']=='getAddADPopup'){
 					  </div>
 					  <div id="ad_image_container" class="wpforms-field wpforms-field-text" data-field-id="22" '.$display_image.'>
 						<label class="wpforms-field-label" for="wpforms-185-field_22">Creative<span class="wpforms-required-label">*</span></label>
+						
+						
+						<div class="main_div">
+						<div class="div1">
 						<img src="'.$src.'" id="ad_image_src" style="width:300px;height:250px;"/>
+						</div>
+						<div class="div2">
 						<input type="file" id="ad_image" class="wpforms-field-medium" name="ad_image" value="" onChange="load_image(this.id,this.value)" />
+						</div>
+						<div class="div3" id="pastimages"></div>
+						</div>
 					  </div>
 					</div>
 				  </form>
@@ -1636,7 +1677,7 @@ if(isset($_POST['mode']) && $_POST['mode']=='getAddADPopup'){
 					<div class="wpforms-field-container">
 					  <div id="wpforms-185-field_3-container" class="wpforms-field wpforms-field-Company wpforms-one-half wpforms-first" >
 						<label class="wpforms-field-label" for="Company">Company <span class="wpforms-required-label">*</span></label>
-						<select name="company" id="company" class="wpforms-field-medium validate[required]" style="display:block !important;">
+						<select name="company" id="company" class="wpforms-field-medium validate[required]" style="display:block !important;" onChange="getAdImages(this.value)">
 						  <option value="">- select Company -</option>
 						  '.$userDropdown.'
 						</select>
@@ -1666,9 +1707,15 @@ if(isset($_POST['mode']) && $_POST['mode']=='getAddADPopup'){
 					  </div>
 					  <div id="ad_image_container" class="wpforms-field wpforms-field-text" data-field-id="22">
 						<label class="wpforms-field-label" for="wpforms-185-field_22">Creative<span class="wpforms-required-label">*</span></label>
+						<div class="main_div">
+						<div class="div1">
 						<img src="" id="ad_image_src" style="width:300px;height:250px;display:none;"/>
-						<input type="file" id="ad_image" class="wpforms-field-medium validate[required]" name="ad_image" value="" onChange="load_image(this.id,this.value)"/>
-						
+						</div>
+						<div class="div2">
+						<input type="file" id="ad_image" class="wpforms-field-medium" name="ad_image" value="" onChange="load_image(this.id,this.value)"/>
+						</div>
+						<div class="div3" id="pastimages"></div>
+						</div>
 					  </div>
 					</div>
 				  </form>
@@ -1676,27 +1723,95 @@ if(isset($_POST['mode']) && $_POST['mode']=='getAddADPopup'){
 		
 		}
 }
+if(isset($_POST['mode']) && $_POST['mode']=='getPastAd'){
+	if(isset($_POST['postid'])&& $_POST['postid'] !=""){
+		$userid = get_post_meta($_POST['postid'], 'ad_user', true);
+	}else{
+		$userid = $_POST['userid'];
+	}
+	if($userid !=""){
+	$args = array(
+				'post__not_in' => array ('6742','5993','6025','6057','6089','6121','5995','6027','6059','6091','6123','5997','6029','6061','6093','5965','5999','6031','6063','6095','5967','6001','6033','6065','6097','5969','6003','6035','6067','6099','5971','6005','6037','6069','6101','5973','6007','6039','6071','6103','5977','6009','6041','6073','6105','5979','6011','6043','6075','6107','5981','6013','6045','6077','6109','5983','6015','6047','6079','6111','5985','6017','6049','6081','6113','5987','6019','6051','6083','6115','5989','6021','6053','6085','6117','5991','6023','6055','6087','6119'),
+				'fields' => 'ids',
+				'post_status'         => array('publish','advanced_ads_expired'),
+				'posts_per_page'      => -1,
+				'post_type'     => 'advanced_ads',
+				//Custom Field Parameters
+				'meta_key'       => 'ad_user',
+				'meta_value'     => $userid,
+				'meta_compare'   => '=',
+              );
+			$query = new WP_Query($args );
+			$postids = $query->posts;
+	$images_str = '';
+	$array_img = array();
+	foreach($postids as $postid){
+		$advanced_ads_ad_options = maybe_unserialize(get_post_meta($postid,'advanced_ads_ad_options',TRUE));
+		$image_id = $advanced_ads_ad_options['output']['image_id'];
+		if(!in_array($image_id,$array_img)){
+			$image = wp_get_attachment_image_src($image_id,'single-post-thumbnail');
+			$images_str .='<li><label class="inline container_checkbox"><input type="radio" name="ad_img" id="ad_img_'.$image_id.'"  value="'.$image_id.'" /><span class="checkmark"></span></label>&nbsp;<img src="'.$image[0].'" ></li>';
+			array_push($array_img,$image_id);
+		}
+	}
+	echo $images_str;
+	}
+	//print_r($posts);
+	die;
+}
 if(isset($_POST['mode']) && $_POST['mode']=='submitSuspendReason'){
 	$params = array();
 	parse_str($_REQUEST['vars'], $params);
 	//update_user_meta($_POST['user_id'], 'SuspendDate',$params['SuspendDate']);
 	update_user_meta($_POST['user_id'], 'SuspendReason',$params['SuspendReason']);
-	$data = array('user_id' =>$_POST['user_id'], 'log_data' =>html_entity_decode($params['SuspendReason']), 'status' =>1,);
-	$format = array('%d','%s','%d');
-	$wpdb->insert('wp_user_CD_log',$data,$format);
-	
+	if($_REQUEST['ledger_id'] !=""){
+		$wpdb->update('wp_user_CD_log', array('id'=>$_REQUEST['ledger_id'], 'log_data'=>html_entity_decode($params['SuspendReason'])), array('id'=>$_REQUEST['ledger_id']));
+	}else{
+		$data = array('user_id' =>$_POST['user_id'], 'log_data' =>html_entity_decode($params['SuspendReason']), 'status' =>1,);
+		$format = array('%d','%s','%d');
+		$wpdb->insert('wp_user_CD_log',$data,$format);
+	}
 	$query = "SELECT * FROM `wp_user_CD_log` where user_id='".$_POST['user_id']."' ORDER BY id desc";
 	$results = $wpdb->get_results($query, OBJECT);
 	$html1 = '';
 	foreach($results as $row){
 		$tmp = explode('&nbsp;',htmlentities($row->log_data));
-		$log_data = '<span style="color:red;">'.$tmp[0].'</span> '.$tmp[1];
-		$html1 .='<div class="col-12 col-sm-6 col-md-12" style="padding:0;">'.$log_data.'</div><!--<div class="col-6 col-md-3" >Edit</div>-->';
+		preg_match_all('/\d{2}\/\d{2}\/\d{2}/',htmlentities($row->log_data),$matches);
+		//print_r($matches[0][0]);
+		if($matches[0][0]){
+			$log_data = '<span><a href="javascript:editLedger(\''.$row->id.'\')" style="font-size:11px;color:#10C168;font-weight:bold;">Edit</a></span>&nbsp;'.'<span style="color:red;">'.$matches[0][0].'</span> '.str_replace($matches[0][0],'',str_replace('&nbsp;','',htmlentities($row->log_data)));
+			$html1 .='<div class="col-12 col-sm-6 col-md-12" style="padding:0;">'.$log_data.'</div>';
+		}
 	}
 	echo html_entity_decode(date('m/d/y').'&nbsp;').'##'.$html1;
 	die;
 }
+if(isset($_POST['mode']) && $_POST['mode']=='getLedger'){
+	$log_data = $wpdb->get_var($wpdb->prepare("SELECT log_data FROM `wp_user_CD_log` where id='".$_POST['id']."' limit 1")); 
+	echo $log_data;
+	die;
+}
+if(isset($_POST['mode']) && $_POST['mode']=='getUpdateLogPopup'){
+	$query = "SELECT * FROM wp_updates_log WHERE slug = '".$_POST['slug']."' order by dated asc";
+	$results = $wpdb->get_results($query, OBJECT);
+	$html1 = "";
+	foreach($results as $row){
+		$log = $row->name.' '.$row->version. ' tracked on '.$row->dated;
+		if($row->update_date !=''){
+			$log .= ' and '.$row->status.' on '.$row->update_date;
+		}
+		$html1 .='<div class="col-12 col-sm-6 col-md-12" style="padding:0;">'.$log.' </div>';
+	}
+	echo $html1;die;
+}
 if(isset($_POST['mode']) && $_POST['mode']=='getSuspendPopup'){
+	if(isset($_POST['access']) && $_POST['access']=='statusUpdate'){
+		if($_POST['freeze_status'] ==''|| $_POST['freeze_status'] =='No'){
+			 update_user_meta($_POST['user_id'], 'deactivate_CD','Yes');
+		}else{
+			update_user_meta($_POST['user_id'], 'deactivate_CD','No');
+		}
+	}
 	//$SuspendDate = get_user_meta($_POST['user_id'], 'SuspendDate', true);
 	$SuspendReason = get_user_meta($_POST['user_id'], 'SuspendReason', true);
 	$SuspendReason = date('m/d/y').'&nbsp;';
@@ -1705,12 +1820,16 @@ if(isset($_POST['mode']) && $_POST['mode']=='getSuspendPopup'){
 	$html1 = '';
 	foreach($results as $row){
 		$tmp = explode('&nbsp;',htmlentities($row->log_data));
-		$log_data = '<span style="color:red;">'.$tmp[0].'</span> '.$tmp[1];
-		$html1 .='<div class="col-12 col-sm-6 col-md-12" style="padding:0;">'.$log_data.'</div><!--<div class="col-6 col-md-3" >Edit</div>-->';
+		preg_match_all('/\d{2}\/\d{2}\/\d{2}/',htmlentities($row->log_data),$matches);
+		//print_r($matches[0][0]);
+		if($matches[0][0]){
+			$log_data = '<span><a href="javascript:editLedger(\''.$row->id.'\')" style="font-size:11px;color:#10C168;font-weight:bold;">Edit</a></span>&nbsp;'.'<span style="color:red;">'.$matches[0][0].'</span> '.str_replace($matches[0][0],'',str_replace('&nbsp;','',htmlentities($row->log_data)));
+			$html1 .='<div class="col-12 col-sm-6 col-md-12" style="padding:0;">'.$log_data.'</div>';
+		}
 	}
-	echo '<div class="wpforms-container wpforms-container-full" id="wpforms-6724"><form id="wpforms-form-6724" class="wpforms-validate wpforms-form" data-formid="6724" method="post" enctype="multipart/form-data" action="#" novalidate="novalidate"><div class="wpforms-field-container"><!--<div id="wpforms-6724-field_1-container" class="wpforms-field wpforms-field-date-time" data-field-id="1"><label class="wpforms-field-label" for="wpforms-6724-field_1" >Date / Time <span class="wpforms-required-label">*</span></label><input type="text" id="SuspendDate" class="wpforms-field-date-time-date wpforms-datepicker wpforms-field-required wpforms-field-large flatpickr-input validate[required]" data-date-format="m/d/Y" name="SuspendDate" value="'.$SuspendDate.'" required="" aria-required="true" readonly="readonly"></div>--><div id="wpforms-6724-field_2-container" class="wpforms-field wpforms-field-textarea" data-field-id="2"><label class="wpforms-field-label" for="wpforms-6724-field_2" style="font-weight: normal;color: darkgrey;">Date / Details <span class="wpforms-required-label">*</span></label><textarea id="SuspendReason" class="wpforms-field-medium wpforms-field-required validate[required]" name="SuspendReason" required="" aria-required="true">'.$SuspendReason.'</textarea><button type="button" class="btn btn-blue" id="submitSuspend" style="position:relative;top:10px;l">Save</button></div>
+	echo '<div class="wpforms-container wpforms-container-full" id="wpforms-6724"><form id="wpforms-form-6724" class="wpforms-validate wpforms-form" data-formid="6724" method="post" enctype="multipart/form-data" action="#" novalidate="novalidate"><div class="wpforms-field-container"><!--<div id="wpforms-6724-field_1-container" class="wpforms-field wpforms-field-date-time" data-field-id="1"><label class="wpforms-field-label" for="wpforms-6724-field_1" >Date / Time <span class="wpforms-required-label">*</span></label><input type="text" id="SuspendDate" class="wpforms-field-date-time-date wpforms-datepicker wpforms-field-required wpforms-field-large flatpickr-input validate[required]" data-date-format="m/d/Y" name="SuspendDate" value="'.$SuspendDate.'" required="" aria-required="true" readonly="readonly"></div>--><div id="wpforms-6724-field_2-container" class="wpforms-field wpforms-field-textarea" data-field-id="2"><label class="wpforms-field-label" for="wpforms-6724-field_2" style="font-weight: normal;">Date / Details <span class="wpforms-required-label">*</span></label><textarea id="SuspendReason" class="wpforms-field-medium wpforms-field-required validate[required]" name="SuspendReason" required="" aria-required="true" style="resize: none;font-weight: bold;height:185px;">'.$SuspendReason.'</textarea><button type="button" class="btn btn-blue" id="submitSuspend" style="position:relative;top:10px;">Save</button><input type="hidden" id="ledger_id" value="" /></div>
 	<style>.suspendListArea{height:475px !important;overflow-y:scroll !important;max-height: 100% !important;}</style>
-	<div class="row no-gutters" style="margin:0;" id="resultList">'.$html1.'</div>
+	<div class="row no-gutters" style="margin:10px 0 0 0;" id="resultList">'.$html1.'</div>
 	</div></form></div>';
 	die;
 }

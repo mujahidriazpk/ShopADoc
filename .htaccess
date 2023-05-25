@@ -2,7 +2,7 @@ AuthType Basic
 AuthName "Live Site"
 AuthUserFile "passwd"
 <IfModule mod_headers.c>
-        Header always set X-Frame-Options "ALLOW-FROM https://staging.shopadoc.com"
+        Header always set X-Frame-Options "ALLOW-FROM http://staging.shopadoc.com"
 
 </IfModule>
 #Header always append X-Frame-Options ALLOW-FROM staging.shopadoc.com
@@ -11,15 +11,22 @@ AuthUserFile "passwd"
 # The directives (lines) between "BEGIN WordPress" and "END WordPress" are
 # dynamically generated, and should only be modified via WordPress filters.
 # Any changes to the directives between these markers will be overwritten.
+
 <IfModule mod_rewrite.c>
 RewriteEngine On
-RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+#RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 RewriteBase /
+
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
 RewriteRule ^index\.php$ - [L]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule . /index.php [L]
+
 </IfModule>
+
 
 # END WordPress
 
@@ -31,5 +38,3 @@ RewriteRule . /index.php [L]
   AddHandler application/x-httpd-ea-php71 .php .php7 .phtml
 </IfModule>
 # php -- END cPanel-generated handler, do not edit
-
-

@@ -1,0 +1,92 @@
+<html>
+ <head>
+	 <script type='text/javascript' src='https://staging.shopadoc.com/wp-includes/js/jquery/jquery.min.js?ver=1670841609' id='jquery-core-js'></script>
+	 <style type="text/css">
+		 body.fullscreen .topExit{
+			 display: block !important;
+			 float:left;width:100%;height:60px;
+			 position: absolute;top: 0px;
+			 color: #fff;
+			text-align: center;
+		 }
+		 body.fullscreen .topExit .topExitInner{
+			width: 100%;
+			text-align: center;
+			 position: relative;
+			 top: 48px;
+		 }
+	 </style>
+ </head>
+ <body id="videoElement">
+	 <div class="topExit" style="display: none;">
+		 <div class="topExitInner"><a href="" onClick="document.exitFullscreen()"><img src="exit.png" alt="exit" title="exit" width="45px"/></a></div>
+	</div>
+    <!--<video id="videoElement" width="400" height="250" controls="true" src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4"></video> -->
+    <button id="full_screen">Go full screen</button>
+	 <script type="text/javascript">
+		 function enterFullScreen(element) {
+			  if(element.requestFullscreen) {
+				element.requestFullscreen();
+			  }else if (element.mozRequestFullScreen) {
+				element.mozRequestFullScreen();     // Firefox
+			  }else if (element.webkitRequestFullscreen) {
+				  //alert("i am in mac");
+				element.webkitRequestFullscreen();  // Safari
+			  }else if(element.msRequestFullscreen) {
+				element.msRequestFullscreen();      // IE/Edge
+			  }
+			 	
+		 	};
+
+			let btn = document.getElementById("full_screen");
+			btn.addEventListener("click", function(){
+			  let videoEle = document.querySelector('body');
+			  enterFullScreen(videoEle);
+			});
+
+			document.addEventListener('fullscreenchange', (event) => {
+			  if (document.fullscreenElement) {
+				console.log('Entered fullscreen:', document.fullscreenElement);
+				  /*jQuery('body').addClass('fullscreen');
+				  jQuery('.topExit').hover(
+					  function () {
+						  jQuery('.topExit .topExitInner').css({"display":"block"});
+					   }, 
+
+					   function () {
+						  jQuery('.topExit .topExitInner').css({"display":"none"});
+					   }
+					);*/
+			  } else {
+				/*jQuery('body').removeClass('fullscreen');
+				jQuery('.topExit').hover(
+				  function () {
+					  jQuery('.topExit .topExitInner').css({"display":"block"});
+				   }, 
+
+				   function () {
+					  jQuery('.topExit .topExitInner').css({"display":"none"});
+				   }
+				);*/
+				console.log('Exited fullscreen.');
+			  }
+			});
+		 
+		jQuery(document).on('webkitfullscreenchange', function() {
+			if(navigator.platform.indexOf('Mac') > -1){
+   				  jQuery('body').addClass('fullscreen');
+				  jQuery('.topExit,.topExitInner').css({"display":"block"});
+				 /* jQuery('.topExit').hover(
+					  function () {
+						  jQuery('.topExit .topExitInner').css({"display":"block"});
+					   }, 
+
+					   function () {
+						  jQuery('.topExit .topExitInner').css({"display":"none"});
+					   }
+					);*/
+			}
+		});
+	 </script>
+ </body>
+</html>

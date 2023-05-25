@@ -1,24 +1,99 @@
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-	<head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Fix tap for button at the bottom in iOS Safari when the toolbar is gone</title>
-	
-	</head>
-	<body onload="autoNotify()">
-<!--Play the audio file on pageload  -->
+<script type='text/javascript' src='https://code.jquery.com/jquery-2.2.4.min.js' id='jquery-core-js' ></script>
+<script type='text/javascript' src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js' id='jquery-core-js' ></script>
 
-<audio id="notifypop" loop="loop" autoplay="autoplay"> <!--Source the audio file. -->
-      <source src="path/sound.ogg" type="audio/ogg">
-      <source src="http://woocommerce-401140-1262735.cloudwaysapps.com/wp-content/uploads/sounds/auctionLive-full.mp3" type="audio/mp3">
-    </audio>
-    <script type="text/javascript">
-	var popupsound = document.getElementById("notifypop");
-
-	function autoNotify() {
-	   popupsound.play(); //play the audio file
+<link  rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css' type='text/css' media='all' />
+<style type="text/css">
+.social-nav {
+    position: fixed;
+    top: 100px;
+    left: 0;
+}
+.social-nav ul {
+    list-style: none;
+    padding: 0;
+}
+.social-nav ul a span {
+    background: #0000ff;
+    display: inline-block;
+    vertical-align: middle;
+    position: relative;
+    z-index: 10;
+}
+.social-nav ul a span svg {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 250ms ease;
+}
+.social-nav ul a span .icon {
+    width: 50px;
+    height: 50px;
+}
+.social-nav ul a span .flyout {
+    transform: translateX(-100%);
+    transition: all 250ms ease;
+    line-height: 50px;
+    position: absolute;
+    white-space: nowrap;
+    padding: 0 15px;
+    z-index: 9;
+    color: #ffffff;
+}
+.social-nav ul a:hover {
+    transform: translateX(0px);
+    padding-right: 0px;
+}
+.social-nav ul a:hover svg {
+    opacity: 1;
+}
+.social-nav ul a:hover span.flyout {
+    transform: translateX(0%);
+}
+.sticky-nav .social-nav a {
+    transform: translateX(-35px);
+    padding-right: 20px;
+}
+.sticky-nav .social-nav a svg {
+    opacity: 0;
+}
+</style>
+<script type="text/javascript">
+	$(document).ready(function(){
+		$('.toggle-scroll').click(function(e){
+			$('.body').toggleClass('sticky-nav');
+		})
+		 $('.topExit').hover(
+				
+               function () {
+                  $('.topExit .topExitInner').css({"display":"block"});
+               }, 
+				
+               function () {
+                  $('.topExit .topExitInner').css({"display":"none"});
+               }
+            );
+	})
+</script>
+<style type="text/css">
+	.topExit:hover .topExitInner{
+		display: block;
 	}
-	</script>
-</body>
-</html>
+</style>
+<div class="body container">
+	<div style="float:left;width:100%;height:30px" class="topExit">&nbsp;
+		<div style="width: 100%;text-align: center;display: none;" class="topExitInner">Exit</div>
+	</div>
+  <button class="btn btn-primary toggle-scroll">simulate scroll</button>
+  <div class="social-nav">
+    <ul>
+      <li> <a href="#"><span class="icon">
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" width="26" height="26" viewBox="0 0 266.893 266.895" enable-background="new 0 0 266.893 266.895" xml:space="preserve">
+          <path id="f" fill="#FFFFFF" d="M182.409,262.307v-99.803h33.499l5.016-38.895h-38.515V98.777c0-11.261,3.127-18.935,19.275-18.935  l20.596-0.009V45.045c-3.562-0.474-15.788-1.533-30.012-1.533c-29.695,0-50.025,18.126-50.025,51.413v28.684h-33.585v38.895h33.585  v99.803H182.409z"/>
+        </svg>
+        </span><span class="flyout">zu Facebook</span></a> </li>
+      <li> </li>
+    </ul>
+  </div>
+</div>

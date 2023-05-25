@@ -1,6 +1,6 @@
 <?php
 define('WP_USE_THEMES', true);
-require('/home/642855.cloudwaysapps.com/zvdtvwubwd/public_html/wp-load.php');
+require('/var/www/html/shopadoc/wp-load.php');
 global $wpdb,$demo_listing,$today_date_time_seconds;
 //$today_date_time_seconds = '2025-07-20 07:28:10';
 $args_user = array('role'    => 'customer','orderby' => 'user_nicename','order'   => 'ASC');

@@ -1,5 +1,5 @@
 <?php
-@include '/home/642855.cloudwaysapps.com/zvdtvwubwd/public_html/malcare-waf.php';
+@include '/var/www/html/shopadoc/malcare-waf.php';
 
 define( 'WP_CACHE', false ); 
 
@@ -37,15 +37,15 @@ define( 'WP_CACHE', false );
 
 /** The name of the database for WordPress */
 
-define('DB_NAME', 'zvdtvwubwd');
+define('DB_NAME', 'gddwwykpfm');
 
 /** MySQL database username */
 
-define('DB_USER', 'zvdtvwubwd');
+define('DB_USER', 'gddwwykpfm');
 
 /** MySQL database password */
 
-define('DB_PASSWORD', 'BRm6DBMtku');
+define('DB_PASSWORD', '8cK5GTxtnS');
 
 /** MySQL hostname */
 
@@ -141,7 +141,7 @@ define( 'WP_REDIS_CONFIG', [
    'token' => "e279430effe043b8c17d3f3c751c4c0846bc70c97f0eaaea766b4079001c",
    'host' => '127.0.0.1',
    'port' => 6379,
-   'database' => 0, 
+   'database' => "6716", 
    'timeout' => 2.5,
    'read_timeout' => 2.5,
    'split_alloptions' => true,
@@ -162,4 +162,5 @@ if ( !defined('ABSPATH') )
         define('ABSPATH', dirname(__FILE__) . '/');
 /** Sets up WordPress vars and included files. */
 require_once(ABSPATH . 'wp-settings.php');
-define('DOMAIN_CURRENT_SITE', 'shopadoc.com');
+/**define('DOMAIN_CURRENT_SITE', 'shopadoc.com');*/
+define('DOMAIN_CURRENT_SITE', 'staging.shopadoc.com');

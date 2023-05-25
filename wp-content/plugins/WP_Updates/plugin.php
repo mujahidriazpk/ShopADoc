@@ -19,8 +19,8 @@ class Updates_List extends WP_List_Table {
 	public function __construct() {
 
 		parent::__construct( [
-			'singular' => __( 'Updates', 'sp' ), //singular name of the listed records
-			'plural'   => __( 'Updates', 'sp' ), //plural name of the listed records
+			'singular' => __( 'Plugin Updates', 'sp' ), //singular name of the listed records
+			'plural'   => __( 'Plugin Updates', 'sp' ), //plural name of the listed records
 			'ajax'     => false //does this table support ajax?
 		] );
 
@@ -228,8 +228,8 @@ class SP_Plugin_Updates {
 	public function plugin_menu() {
 
 		$hook = add_menu_page(
-			'Updates',
-			'Updates',
+			'Plugin Updates',
+			'Plugin Updates',
 			'shopadoc_admin_cap',
 			'updates',
 			[ $this, 'plugin_settings_page' ]
@@ -253,13 +253,13 @@ class SP_Plugin_Updates {
 
 <div class="wrap"> 
   
-  <h2>Updates</h2>
+  <h2>Plugin Updates</h2>
   <style type="text/css">
-  		#toplevel_page_admin-page-updates a{
+  		#toplevel_page_admin-page-updates ul.wp-submenu li.wp-first-item,#toplevel_page_admin-page-updates .wp-menu-name{
 			background: #2271b1 !important;
 			color: #fff !important;
 			}
-			#toplevel_page_admin-page-updates a:after {
+			#toplevel_page_admin-page-updates .wp-menu-name:after{
 			right: 0;
 			border: solid 8px transparent;
 			content: " ";
@@ -324,8 +324,9 @@ class SP_Plugin_Updates {
 					$plugin_data = (object) _get_plugin_data_markup_translate( $plugin_file, (array) $plugin_data, false, true );
 					$Name = $plugin_data->Name;
 					$slug = str_replace(" ","-",str_replace(" – ","-",strtolower($plugin_data->Name)));
-					$version = $wpdb->get_var("SELECT version FROM wp_updates_log WHERE slug = '".$slug."' ");
-					if($version!=$plugin_data->Version){
+					$status_count = $wpdb->get_var("SELECT COUNT(*) FROM wp_updates_log WHERE slug = '".$slug."' and status != 'Archive'");
+					$version = $wpdb->get_var("SELECT version FROM wp_updates_log WHERE slug = '".$slug."'");
+					if($version!=$plugin_data->Version && $status_count > 0){
 						 $rowcount = $wpdb->get_var("SELECT COUNT(*) FROM wp_updates_log WHERE slug = '".$slug."' ");
 						  if($rowcount > 0){
 								$wpdb->update('wp_updates_log', array('name'=>$Name,'slug'=>$slug, 'version'=>$plugin_data->Version, 'status'=>''), array('slug'=>$slug));
@@ -376,9 +377,9 @@ class SP_Plugin_Updates {
                 <input type="hidden" name="log_ids[]" value="<?php echo $row->id;?>" />
               <input type="hidden" name="version_<?php echo $row->id;?>" value="<?php echo $row->version;?>" /></td>
                 <td><strong><?php if($status==''){ echo $row->name."<br />".date("Y/m/d",strtotime($row->dated));}?></strong></td>
-                <td>&nbsp;<?php if($status=='Essential'){ echo $row->name; echo '<span class="black">&nbsp;&nbsp;'.date("m/d/y",$row->update_date).'</span>';}?></td>
-                <td>&nbsp;<?php if($status=='Completed'){ echo $row->name; echo '<span class="green">&nbsp;&nbsp;'.date("m/d/y",$row->update_date).'</span>';}?></td>
-                <td>&nbsp;<?php if($status=='Non-Essential'){ echo '<span class="red">'.$row->name; echo '&nbsp;&nbsp;'.date("m/d/y",$row->update_date).'</span>';}?></td>
+                <td>&nbsp;<?php if($status=='Essential'){ echo $row->name; echo '<span class="black">&nbsp;&nbsp;'.date("m/d/y",strtotime($row->update_date)).'</span>';}?></td>
+                <td>&nbsp;<?php if($status=='Completed'){ echo $row->name; echo '<span class="green">&nbsp;&nbsp;'.date("m/d/y",strtotime($row->update_date)).'</span>';}?></td>
+                <td>&nbsp;<?php if($status=='Non-Essential'){ echo '<span class="red">'.$row->name; echo '&nbsp;&nbsp;'.date("m/d/y",strtotime($row->update_date)).'</span>';}?></td>
               </tr>
               <?php }?>
             </tbody>

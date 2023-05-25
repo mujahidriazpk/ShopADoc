@@ -209,7 +209,7 @@ class MultipleChoiceButton
 			$info = '<div class="question-mark">B</div>';
 			$info .= '<div class="sgpb-info-wrapper">';
 			$info .= '<span class="infoSelectRepeat samefontStyle sgpb-info-text" style="display: none;">';
-			$info .= @$field['label']['info'];
+			$info .= $field['label']['info'];
 			$info .= '</span>';
 			$info .= '</div>';
 		}
@@ -283,7 +283,7 @@ class MultipleChoiceButton
 			$info = '<div class="question-mark">B</div>';
 			$info = '<div class="sgpb-info-wrapper">';
 			$info = '<span class="infoSelectRepeat samefontStyle sgpb-info-text" style="display: none;">';
-			$info .= @$field['label']['info'];
+			$info .= $field['label']['info'];
 			$info = '</span>';
 			$info .= '</div>';
 		}

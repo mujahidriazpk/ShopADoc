@@ -58,12 +58,12 @@ class Group_Control_Posts extends Group_Control_Base {
 		$fields = [];
 
 		$fields['post_type'] = [
-			'label' => __( 'Source', 'elementor-pro' ),
+			'label' => esc_html__( 'Source', 'elementor-pro' ),
 			'type' => Controls_Manager::SELECT,
 		];
 
 		$fields['posts_ids'] = [
-			'label' => __( 'Search & Select', 'elementor-pro' ),
+			'label' => esc_html__( 'Search & Select', 'elementor-pro' ),
 			'type' => Module::QUERY_CONTROL_ID,
 			'post_type' => '',
 			'options' => [],
@@ -77,7 +77,7 @@ class Group_Control_Posts extends Group_Control_Base {
 		];
 
 		$fields['authors'] = [
-			'label' => __( 'Author', 'elementor-pro' ),
+			'label' => esc_html__( 'Author', 'elementor-pro' ),
 			'label_block' => true,
 			'type' => Module::QUERY_CONTROL_ID,
 			'multiple' => true,
@@ -108,8 +108,8 @@ class Group_Control_Posts extends Group_Control_Base {
 
 		$post_types_options = $post_types;
 
-		$post_types_options['by_id'] = __( 'Manual Selection', 'elementor-pro' );
-		$post_types_options['current_query'] = __( 'Current Query', 'elementor-pro' );
+		$post_types_options['by_id'] = esc_html__( 'Manual Selection', 'elementor-pro' );
+		$post_types_options['current_query'] = esc_html__( 'Current Query', 'elementor-pro' );
 
 		$fields['post_type']['options'] = $post_types_options;
 
@@ -254,8 +254,10 @@ class Group_Control_Posts extends Group_Control_Base {
 		$post__not_in = [];
 		if ( ! empty( $settings['exclude'] ) ) {
 			if ( in_array( 'current_post', $settings['exclude'], true ) ) {
-				if ( wp_doing_ajax() && ! empty( $_REQUEST['post_id'] ) ) {
-					$post__not_in[] = $_REQUEST['post_id'];
+				$post_id = Utils::_unstable_get_super_global_value( $_REQUEST, 'post_id' );
+
+				if ( wp_doing_ajax() && $post_id ) {
+					$post__not_in[] = $post_id;
 				} elseif ( is_singular() ) {
 					$post__not_in[] = get_queried_object_id();
 				}

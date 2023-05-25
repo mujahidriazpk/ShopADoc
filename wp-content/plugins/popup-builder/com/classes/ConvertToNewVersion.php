@@ -206,8 +206,10 @@ class ConvertToNewVersion
 		}
 		$newCounter = array();
 		foreach ($oldCounter as $key => $value) {
-			$newId = @$idsMapping[$key];
-			$newCounter[$newId] = $value;
+			if (isset($idsMapping[$key])){
+				$newId = $idsMapping[$key];
+				$newCounter[$newId] = $value;
+			}
 		}
 
 		update_option('SgpbCounter', $newCounter);
@@ -276,11 +278,11 @@ class ConvertToNewVersion
 		if (!empty($options['sgpb-option-exit-intent-enable'])) {
 			$eventsInitialData[0][] = array(
 				'param' => 'exitIntent',
-				'value' => @$options['sgpb-option-exit-intent-type'],
+				'value' => isset($options['sgpb-option-exit-intent-type']) ? $options['sgpb-option-exit-intent-type'] : '',
 				'hiddenOption' => array(
-					'sgpb-exit-intent-expire-time' => @$options['sgpb-exit-intent-expire-time'],
-					'sgpb-exit-intent-cookie-level' => @$options['sgpb-exit-intent-cookie-level'],
-					'sgpb-exit-intent-soft-from-top' => @$options['sgpb-exit-intent-soft-from-top']
+					'sgpb-exit-intent-expire-time' => isset($options['sgpb-exit-intent-expire-time']) ? $options['sgpb-exit-intent-expire-time'] : '',
+					'sgpb-exit-intent-cookie-level' => isset($options['sgpb-exit-intent-cookie-level']) ? $options['sgpb-exit-intent-cookie-level'] : '',
+					'sgpb-exit-intent-soft-from-top' => isset($options['sgpb-exit-intent-soft-from-top']) ? $options['sgpb-exit-intent-soft-from-top'] : ''
 				)
 			);
 		}
@@ -296,7 +298,7 @@ class ConvertToNewVersion
 		if (!empty($options['sgpb-inactivity-status'])) {
 			$eventsInitialData[0][] = array(
 				'param' => 'inactivity',
-				'value' => @$options['sgpb-inactivity-timer'],
+				'value' => isset($options['sgpb-inactivity-timer']) ? $options['sgpb-inactivity-timer'] : '',
 				'hiddenOption' => array()
 			);
 		}
@@ -305,7 +307,7 @@ class ConvertToNewVersion
 		if (!empty($options['sgpb-onscroll-status'])) {
 			$eventsInitialData[0][] = array(
 				'param' => 'onScroll',
-				'value' => @$options['sgpb-onscroll-percentage'],
+				'value' => isset($options['sgpb-onscroll-percentage']) ? $options['sgpb-onscroll-percentage'] : '',
 				'hiddenOption' => array()
 			);
 		}
@@ -359,8 +361,8 @@ class ConvertToNewVersion
 			}
 			$conditions['sgpb-conditions'][0][] = array(
 				'param' => 'groups_countries',
-				'operator' => @$options['sgpb-allow-countries'],
-				'value' => explode(',', @$options['sgpb-countries-iso'])
+				'operator' => isset($options['sgpb-allow-countries']) ? $options['sgpb-allow-countries'] : '',
+				'value' => explode(',', (isset($options['sgpb-countries-iso']) ? $options['sgpb-countries-iso'] : ''))
 			);
 		}
 
@@ -415,7 +417,7 @@ class ConvertToNewVersion
 		if (!empty($options['allPagesStatus'])) {
 
 			if ($options['allPages'] == 'selected') {
-				$savedPages = (array)@$options['allSelectedPages'];
+				$savedPages = isset($options['allSelectedPages']) ? (array)$options['allSelectedPages'] : array();
 				$savedPagesValues = array_values($savedPages);
 
 				// -1 mean saved for home page
@@ -547,7 +549,7 @@ class ConvertToNewVersion
 	 */
 	private function filterOptions($options)
 	{
-		if (@$options['effect'] != 'No effect') {
+		if (isset($options['effect']) && $options['effect'] != 'No effect') {
 			$options['sgpb-open-animation'] = 'on';
 		}
 
@@ -559,7 +561,7 @@ class ConvertToNewVersion
 			$options['sgTheme3BorderColor'] = '#000000';
 		}
 
-		if (@$options['popupContentBackgroundRepeat'] != 'no-repeat' && $options['popupContentBackgroundSize'] == 'auto') {
+		if (isset($options['popupContentBackgroundRepeat']) && ($options['popupContentBackgroundRepeat'] != 'no-repeat' && $options['popupContentBackgroundSize'] == 'auto')) {
 			$options['popupContentBackgroundSize'] = 'repeat';
 		}
 		$themeNumber = 1;

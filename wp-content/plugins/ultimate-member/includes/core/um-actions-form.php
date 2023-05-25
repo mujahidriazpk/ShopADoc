@@ -620,7 +620,15 @@ function um_submit_form_errors_hook_( $args ) {
 					}
 				}
 
-				if ( isset( $array['force_good_pass'] ) && $array['force_good_pass'] == 1 ) {
+				if ( isset( $array['force_good_pass'] ) && $array['force_good_pass'] && ! empty( $args['user_password'] ) ) {
+					if ( isset( $args['user_login'] ) && strpos( strtolower( $args['user_login'] ), strtolower( $args['user_password'] )  ) > -1 ) {
+						UM()->form()->add_error( 'user_password', __( 'Your password cannot contain the part of your username', 'ultimate-member' ));
+					}
+
+					if ( isset( $args['user_email'] ) && strpos( strtolower( $args['user_email'] ), strtolower( $args['user_password'] )  ) > -1 ) {
+						UM()->form()->add_error( 'user_password', __( 'Your password cannot contain the part of your email address', 'ultimate-member' ));
+					}
+
 					if ( ! UM()->validation()->strong_pass( $args[ $key ] ) ) {
 						UM()->form()->add_error( $key, __( 'Your password must contain at least one lowercase letter, one capital letter and one number', 'ultimate-member' ) );
 					}
@@ -702,7 +710,7 @@ function um_submit_form_errors_hook_( $args ) {
 							break;
 
 						case 'youtube_url':
-							if ( ! UM()->validation()->is_url( $args[ $key ], 'youtube.com' ) ) {
+							if ( ! UM()->validation()->is_url( $args[ $key ], 'youtube.com' ) && ! UM()->validation()->is_url( $args[ $key ], 'youtu.be' ) ) {
 								UM()->form()->add_error( $key, sprintf( __( 'Please enter a valid %s username or profile URL', 'ultimate-member' ), $array['label'] ) );
 							}
 							break;
@@ -738,20 +746,8 @@ function um_submit_form_errors_hook_( $args ) {
 							}
 							break;
 
-						case 'google_url':
-							if ( ! UM()->validation()->is_url( $args[ $key ], 'plus.google.com' ) ) {
-								UM()->form()->add_error( $key, sprintf( __( 'Please enter a valid %s username or profile URL', 'ultimate-member' ), $array['label'] ) );
-							}
-							break;
-
 						case 'linkedin_url':
 							if ( ! UM()->validation()->is_url( $args[ $key ], 'linkedin.com' ) ) {
-								UM()->form()->add_error( $key, sprintf( __( 'Please enter a valid %s username or profile URL', 'ultimate-member' ), $array['label'] ) );
-							}
-							break;
-
-						case 'vk_url':
-							if ( ! UM()->validation()->is_url( $args[ $key ], 'vk.com' ) ) {
 								UM()->form()->add_error( $key, sprintf( __( 'Please enter a valid %s username or profile URL', 'ultimate-member' ), $array['label'] ) );
 							}
 							break;
@@ -759,6 +755,27 @@ function um_submit_form_errors_hook_( $args ) {
 						case 'discord':
 							if ( ! UM()->validation()->is_discord_id( $args[ $key ] ) ) {
 								UM()->form()->add_error( $key, __( 'Please enter a valid Discord ID', 'ultimate-member' ) );
+							}
+							break;
+
+						case 'tiktok_url':
+
+							if ( ! UM()->validation()->is_url( $args[ $key ], 'tiktok.com' ) ) {
+								UM()->form()->add_error( $key, sprintf( __( 'Please enter a valid %s profile URL', 'ultimate-member' ), $array['label'] ) );
+							}
+							break;
+
+						case 'twitch_url':
+
+							if ( ! UM()->validation()->is_url( $args[ $key ], 'twitch.tv' ) ) {
+								UM()->form()->add_error( $key, sprintf( __( 'Please enter a valid %s profile URL', 'ultimate-member' ), $array['label'] ) );
+							}
+							break;
+
+						case 'reddit_url':
+
+							if ( ! UM()->validation()->is_url( $args[ $key ], 'reddit.com' ) ) {
+								UM()->form()->add_error( $key, sprintf( __( 'Please enter a valid %s profile URL', 'ultimate-member' ), $array['label'] ) );
 							}
 							break;
 
@@ -806,7 +823,7 @@ function um_submit_form_errors_hook_( $args ) {
 									$args['user_id'] = um_get_requested_user();
 								}
 
-								$email_exists =  email_exists( $args[ $key ] );
+								$email_exists = email_exists( $args[ $key ] );
 
 								if ( $args[ $key ] == '' && in_array( $key, array( 'user_email' ) ) ) {
 									UM()->form()->add_error( $key, __( 'You must provide your email', 'ultimate-member' ) );
@@ -870,7 +887,7 @@ function um_submit_form_errors_hook_( $args ) {
 								}
 							}
 							break;
-							
+
 						case 'alphabetic':
 
 							if ( $args[ $key ] != '' ) {
@@ -878,7 +895,7 @@ function um_submit_form_errors_hook_( $args ) {
 								if ( ! preg_match( '/^\p{L}+$/u', str_replace( ' ', '', $args[ $key ] ) ) ) {
 									UM()->form()->add_error( $key, __( 'You must provide alphabetic letters', 'ultimate-member' ) );
 								}
-								
+
 							}
 
 							break;

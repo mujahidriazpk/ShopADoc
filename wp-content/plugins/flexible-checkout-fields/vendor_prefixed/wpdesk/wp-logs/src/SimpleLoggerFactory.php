@@ -26,15 +26,29 @@ final class SimpleLoggerFactory implements \FcfVendor\WPDesk\Logger\LoggerFactor
         if ($this->logger) {
             return $this->logger;
         }
-        $logger = new \FcfVendor\Monolog\Logger($this->channel);
-        if ($this->options->use_wc_log && \function_exists('wc_get_logger')) {
-            $logger->pushHandler(new \FcfVendor\WPDesk\Logger\WC\WooCommerceHandler(\wc_get_logger(), $this->channel));
+        $this->logger = new \FcfVendor\Monolog\Logger($this->channel);
+        if ($this->options->use_wc_log) {
+            if (\function_exists('wc_get_logger')) {
+                $this->create_wc_handler();
+            } else {
+                \add_action('woocommerce_init', [$this, 'create_wc_handler']);
+            }
         }
         // Adding WooCommerce logger may have failed, if so add WP by default.
-        if ($this->options->use_wp_log || empty($logger->getHandlers())) {
-            $logger->pushHandler($this->get_wp_handler());
+        if ($this->options->use_wp_log || empty($this->logger->getHandlers())) {
+            $this->logger->pushHandler($this->get_wp_handler());
         }
-        return $this->logger = $logger;
+        return $this->logger;
+    }
+    /**
+     * @internal
+     */
+    public function create_wc_handler()
+    {
+        while (!$this->options->use_wp_log && !empty($this->logger->getHandlers())) {
+            $this->logger->popHandler();
+        }
+        $this->logger->pushHandler(new \FcfVendor\WPDesk\Logger\WC\WooCommerceHandler(\wc_get_logger(), $this->channel));
     }
     private function get_wp_handler() : \FcfVendor\Monolog\Handler\HandlerInterface
     {

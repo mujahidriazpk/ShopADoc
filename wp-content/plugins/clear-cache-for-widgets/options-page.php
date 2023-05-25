@@ -121,12 +121,18 @@ function ccfm_options_do_page() {
             <h3>Status</h3>
             <p>
             <?php 
+                $additional_caches = ccfm_clear_addtional_cache( false );
                 $cache_name = ccfm_get_cache_system_name();
-                if ( !empty( $cache_name ) ) :
+                if ( !empty( $cache_name ) || !empty( $additional_caches ) ) :
                     $timestamp = get_option( '_ccfm_style_timestamp_theme', 0 );
-
-            ?>
-                <?php _e( 'Cache will be cleared for:', 'ccfm' ); ?> <strong><?php echo $cache_name; ?></strong>
+                ?>
+                <?php _e( 'Cache will be cleared for:', 'ccfm' ); ?><br>
+                <?php if ( !empty( $cache_name ) ) : ?>
+                    <strong><?php echo $cache_name; ?></strong><br>
+                <?php endif; ?>
+                <?php foreach ( $additional_caches as $slug ) : ?>
+                    <strong><?php echo ccfm_additional_caching_name( $slug ); ?></strong><br>
+                <?php endforeach; ?>
                 <br>
                 <?php if ( !empty( $timestamp ) ) : 
                     $date_string = get_date_from_gmt( date( 'Y-m-d H:i:s', $timestamp ), get_option( 'date_format' ) . ' ' . get_option( 'time_format' ) );

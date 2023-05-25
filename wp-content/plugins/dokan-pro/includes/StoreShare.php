@@ -66,7 +66,7 @@ class StoreShare {
             wp_enqueue_script( 'dokan-social-script' );
             wp_enqueue_style( 'dokan-social-style' );
             wp_enqueue_style( 'dokan-magnific-popup' );
-            wp_enqueue_script( 'dokan-popup' );
+            wp_enqueue_script( 'dokan-magnific-popup' );
             wp_enqueue_style( 'dokan-social-theme-minimal' );
         }
 

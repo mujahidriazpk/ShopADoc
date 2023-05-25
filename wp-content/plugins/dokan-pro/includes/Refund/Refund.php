@@ -698,7 +698,32 @@ class Refund extends DokanModel {
              */
             remove_action( 'woocommerce_order_status_changed', [ dokan()->commission, 'calculate_gateway_fee' ], 100 );
 
-            $parent_order_id = wp_get_post_parent_id( $this->get_order_id() );
+            /**
+             * Stock management for a sub-order is handled from parent order.
+             * We need to pass the refund line items for the parent order so that restock order item function work correctly.
+             * Shipping refund line items would be difficult to map out with parent shipping line item, so we are intentionally leaving it out.
+             */
+            $line_items_product_map = [];
+            foreach ( $order->get_items( 'line_item' ) as $item ) {
+                if ( ! array_key_exists( $item->get_id(), $line_items ) ) {
+                    continue;
+                }
+
+                $line_items_product_map[ $item['product_id'] ] = $item->get_id();
+            }
+
+            $parent_order_id   = wp_get_post_parent_id( $this->get_order_id() );
+            $parent_order      = wc_get_order( $parent_order_id );
+            $parent_line_items = [];
+
+            foreach ( $parent_order->get_items( 'line_item' ) as $item ) {
+                if ( ! array_key_exists( $item['product_id'], $line_items_product_map ) ) {
+                    continue;
+                }
+
+                $line_item_id                         = $line_items_product_map[ $item['product_id'] ];
+                $parent_line_items[ $item->get_id() ] = $line_items[ $line_item_id ];
+            }
 
             // Create the refund object for parent order.
             $parent_refund = wc_create_refund(
@@ -706,9 +731,9 @@ class Refund extends DokanModel {
                     'amount'         => $this->get_refund_amount(),
                     'reason'         => $this->get_refund_reason(),
                     'order_id'       => $parent_order_id,
-                    'line_items'     => [],
+                    'line_items'     => $parent_line_items,
                     'refund_payment' => $api_refund,
-                    'restock_items'  => false,
+                    'restock_items'  => true,
                 ]
             );
 
@@ -728,7 +753,6 @@ class Refund extends DokanModel {
                 return new WP_Error( 'dokan_pro_refund_error_processing', __( 'This refund is failed to process.', 'dokan' ) );
             }
 
-            $parent_order         = wc_get_order( $parent_order_id );
             $payment_method_title = $parent_order->get_payment_method_title();
             $parent_order->add_order_note(
                 sprintf(

@@ -23,6 +23,7 @@ class Settings {
     public function __construct() {
         // Added multiple fields for store open close multiple time settings.
         add_filter( 'dokan_pro_scripts', [ $this, 'register_scripts' ] );
+        add_action( 'wp_enqueue_scripts', [ $this, 'load_frontend_scripts' ] );
         add_filter( 'dokan_store_time', [ $this, 'save_store_times' ] );
         add_filter( 'dokan_is_store_open', [ $this, 'check_seller_store_is_open' ], 10, 3 );
 
@@ -47,12 +48,42 @@ class Settings {
 
         $scripts['dokan-pro-store-open-close-time'] = [
             'src'       => DOKAN_PRO_PLUGIN_ASSEST . '/js/dokan-pro-store-open-close-time' . $suffix . '.js',
-            'deps'      => [ 'jquery' ],
+            'deps'      => [ 'jquery', 'dokan-minitoggle' ],
             'version'   => defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? time() : DOKAN_PRO_PLUGIN_VERSION,
             'in_footer' => true,
         ];
 
         return $scripts;
+    }
+
+    /**
+     * Load frontend scripts
+     *
+     * @since 3.7.6
+     *
+     * @return void
+     */
+    public function load_frontend_scripts() {
+        global $wp;
+
+        if ( ! isset( $wp->query_vars['settings'] ) || $wp->query_vars['settings'] !== 'store' ) {
+            return;
+        }
+
+        $data = [
+            'step'           => 30,
+            'format'         => wc_time_format(),
+            'placeholder'    => '00:00',
+            'selectDefault'  => __( 'Select your store open days', 'dokan' ),
+            'openingMaxTime' => ! is_tweleve_hour_format() ? '23:30' : '11:30 pm',
+            'openingMinTime' => ! is_tweleve_hour_format() ? '00:00' : '12:00 am',
+            'closingMaxTime' => ! is_tweleve_hour_format() ? '23:59' : '11:59 pm',
+            'closingMinTime' => ! is_tweleve_hour_format() ? '00:29' : '12:29 am',
+        ];
+
+        wp_localize_script( 'dokan-pro-store-open-close-time', 'dokanMultipleTime', $data );
+        wp_enqueue_script( 'dokan-pro-store-open-close-time' );
+        wp_enqueue_style( 'dokan-select2-css' );
     }
 
     /**
@@ -69,12 +100,10 @@ class Settings {
             return;
         }
 
-        $dokan_store_times = [];
-        $store_days        = ! empty( $_POST['store_day'] ) ? wc_clean( wp_unslash( $_POST['store_day'] ) ) : [];
-
+        $store_days = ! empty( $_POST['store_day'] ) ? wc_clean( wp_unslash( $_POST['store_day'] ) ) : [];
         foreach ( dokan_get_translated_days() as $day => $value ) {
-            if ( ! in_array( $day, $store_days, true ) ) {
-                $dokan_store_times[ $day ] = [
+            if ( ! $store_days[ $day ] ) {
+                $dokan_store_time[ $day ] = [
                     'status'       => 'close',
                     'opening_time' => [],
                     'closing_time' => [],
@@ -85,47 +114,16 @@ class Settings {
 
             $opening_times = ! empty( $_POST['opening_time'][ $day ] ) ? wc_clean( wp_unslash( $_POST['opening_time'][ $day ] ) ) : [];
             $closing_times = ! empty( $_POST['closing_time'][ $day ] ) ? wc_clean( wp_unslash( $_POST['closing_time'][ $day ] ) ) : [];
-            $store_status  = 'open';
 
             // Save working status & opening, closing times array in 12 hours format.
-            $dokan_store_times[ $day ] = [
-                'status'       => $store_status,
-                'opening_time' => $this->get_formatted_store_times( $store_status, $opening_times ),
-                'closing_time' => $this->get_formatted_store_times( $store_status, $closing_times ),
+            $dokan_store_time[ $day ] = [
+                'status'       => 'open',
+                'opening_time' => ! empty( $opening_times ) ? dokan_convert_date_format( $opening_times, 'g:i a', 'g:i a' ) : [],
+                'closing_time' => ! empty( $closing_times ) ? dokan_convert_date_format( $closing_times, 'g:i a', 'g:i a' ) : [],
             ];
         }
 
-        return $dokan_store_times;
-    }
-
-    /**
-     * Save store opening or closing times in 12 hours format.
-     *
-     * @since 3.5.0
-     *
-     * @param string $store_status
-     * @param array  $time_types   eg: $opening_times or $closing_times
-     *
-     * @return array
-     */
-    public function get_formatted_store_times( $store_status, $time_types ) {
-        $times = [];
-
-        foreach ( $time_types as $time_type ) {
-            $formatted_time = '';
-
-            if ( 'open' === $store_status && ! empty( $time_type ) ) {
-                $formatted_time = \DateTimeImmutable::createFromFormat(
-                    wc_time_format(),
-                    $time_type,
-                    new \DateTimeZone( dokan_wp_timezone_string() )
-                )->format( 'g:i a' );
-            }
-
-            $times[] = $formatted_time;
-        }
-
-        return $times;
+        return $dokan_store_time;
     }
 
     /**
@@ -156,10 +154,10 @@ class Settings {
             return false;
         }
 
-        // Get store opening time
+        // Get store opening, closing time
         $opening_times = ! empty( $dokan_store_times[ $today ]['opening_time'] ) ? $dokan_store_times[ $today ]['opening_time'] : [];
-        // Get closing time
         $closing_times = ! empty( $dokan_store_times[ $today ]['closing_time'] ) ? $dokan_store_times[ $today ]['closing_time'] : [];
+
         if ( empty( $opening_times ) || empty( $closing_times ) ) {
             return false;
         }
@@ -171,7 +169,6 @@ class Settings {
         }
 
         $times_length = count( $opening_times );
-
         for ( $i = 1; $i < $times_length; $i++ ) {
             // Convert to timestamp
             $opening_time = $current_time->modify( $opening_times[ $i ] );
@@ -196,24 +193,16 @@ class Settings {
      * @return string
      */
     public function update_store_time_template( $template ) {
-        global $wp;
-
-        if ( isset( $wp->query_vars['settings'] ) && $wp->query_vars['settings'] !== 'store' ) {
-            return;
-        }
-
         $data = [
-            'step'           => 30,
-            'format'         => wc_time_format(),
-            'placeholder'    => '00:00',
-            'selectDefault'  => __( 'Select your store open days', 'dokan' ),
-            'openingMaxTime' => ! is_tweleve_hour_format() ? '23:30' : '11:30 pm',
-            'openingMinTime' => ! is_tweleve_hour_format() ? '00:00' : '12:00 am',
-            'closingMaxTime' => ! is_tweleve_hour_format() ? '23:59' : '11:59 pm',
-            'closingMinTime' => ! is_tweleve_hour_format() ? '00:29' : '12:29 am',
+            'place_end'     => __( 'Closes at', 'dokan' ),
+            'add_action'    => __( 'Add hours', 'dokan' ),
+            'place_start'   => __( 'Opens at', 'dokan' ),
+            'fullDayString' => __( 'Full Day', 'dokan' ),
         ];
 
         wp_localize_script( 'dokan-pro-store-open-close-time', 'dokanMultipleTime', $data );
+        wp_enqueue_style( 'dokan-minitoggle' );
+        wp_enqueue_script( 'dokan-minitoggle' );
         wp_enqueue_script( 'dokan-pro-store-open-close-time' );
 
         // Load store open close action button from here.
@@ -226,23 +215,19 @@ class Settings {
      * @since 3.5.0
      *
      * @param array $args
-     * @param array $dokan_store_info
      *
      * @return array
      */
-    public function update_store_time_template_args( $args, $dokan_store_info ) {
-        $args = [
-            'pro'                   => true,
-            'label_end'             => __( 'Closing time(s)', 'dokan' ),
-            'store_info'            => $dokan_store_info,
-            'dokan_days'            => dokan_get_translated_days(),
-            'active_day'            => [],
-            'label_start'           => __( 'Opening time(s)', 'dokan' ),
-            'settings_label'        => __( 'Choose Business Days', 'dokan' ),
-            'store_day_placeholder' => __( 'Select your store open days', 'dokan' ),
+    public function update_store_time_template_args( $args ) {
+        $pro_args = [
+            'pro'         => true,
+            'all_day'     => __( 'Full Day', 'dokan' ),
+            'place_end'   => __( 'Closes at', 'dokan' ),
+            'add_action'  => __( 'Add hours', 'dokan' ),
+            'place_start' => __( 'Opens at', 'dokan' ),
         ];
 
-        return $args;
+        return array_merge( $pro_args, $args );
     }
 
     /**
@@ -272,8 +257,12 @@ class Settings {
         for ( $index = 1; $index < $times_length; ++$index ) {
             $args = [
                 'pro'              => true,
-                'current_day'      => $current_day,
                 'index'            => $index,
+                'status'           => $store_status,
+                'place_end'        => __( 'Closes at', 'dokan' ),
+                'add_action'       => __( 'Add hours', 'dokan' ),
+                'place_start'      => __( 'Opens at', 'dokan' ),
+                'current_day'      => $current_day,
                 'dokan_store_time' => $dokan_store_time,
             ];
 

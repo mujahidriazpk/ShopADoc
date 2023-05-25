@@ -5,12 +5,12 @@ namespace WeDevs\Dokan\Product;
 use WeDevs\Dokan\ProductCategory\Helper;
 
 /**
-* Admin Hooks
-*
-* @package dokan
-*
-* @since 3.0.0
-*/
+ * Admin Hooks
+ *
+ * @since   3.0.0
+ *
+ * @package dokan
+ */
 class Hooks {
 
     /**
@@ -48,7 +48,7 @@ class Hooks {
 
         global $wpdb;
 
-        $return_result              = array();
+        $return_result              = [];
         $return_result['type']      = 'error';
         $return_result['data_list'] = '<li> ' . __( 'Products not found with this search', 'dokan-lite' ) . ' </li>';
         $output                     = '';
@@ -59,7 +59,8 @@ class Hooks {
 
         $keyword  = wc_clean( wp_unslash( $_POST['search_term'] ) ); //phpcs:ignore
         $store_id = intval( wp_unslash( $_POST['store_id'] ) ); //phpcs:ignore
-        $keyword  = '%' . $wpdb->esc_like( $keyword ) . '%';
+        // escaping keyword
+        $keyword_escaped = '%' . $wpdb->esc_like( $keyword ) . '%';
 
         $querystr = $wpdb->prepare(
             "SELECT DISTINCT posts.ID
@@ -76,13 +77,13 @@ class Hooks {
                 AND posts.post_type   = 'product'
                 AND posts.post_author = %d
                 ORDER BY posts.post_date DESC LIMIT 100",
-            $keyword,
-            $keyword,
-            $keyword,
+            $keyword_escaped,
+            $keyword_escaped,
+            $keyword_escaped,
             $store_id
         );
 
-        $query_results = $wpdb->get_results( $querystr );
+        $query_results = apply_filters( 'dokan_store_product_search_results', $wpdb->get_results( $querystr ), $store_id, $keyword ); // phpcs:ignore
 
         if ( empty( $query_results ) ) {
             echo wp_json_encode( $return_result );
@@ -129,7 +130,7 @@ class Hooks {
                 $output .= '<div class="dokan-ls-product-categories">';
                 foreach ( $categories as $category ) {
                     if ( $category->parent ) {
-                        $parent  = get_term_by( 'id', $category->parent, 'product_cat' );
+                        $parent = get_term_by( 'id', $category->parent, 'product_cat' );
                         $output .= '<span>' . $parent->name . '</span>';
                     }
                     $output .= '<span>' . $category->name . '</span>';
@@ -175,7 +176,8 @@ class Hooks {
         ?>
         <div class="dokan-store-products-filter-area dokan-clearfix">
             <form class="dokan-store-products-ordeby" method="get">
-                <input type="text" name="product_name" class="product-name-search dokan-store-products-filter-search"  placeholder="<?php esc_attr_e( 'Enter product name', 'dokan-lite' ); ?>" autocomplete="off" data-store_id="<?php echo esc_attr( $store_id ); ?>">
+                <input type="text" name="product_name" class="product-name-search dokan-store-products-filter-search" placeholder="<?php esc_attr_e( 'Enter product name', 'dokan-lite' ); ?>" autocomplete="off"
+                        data-store_id="<?php echo esc_attr( $store_id ); ?>">
                 <div id="dokan-store-products-search-result" class="dokan-ajax-store-products-search-result"></div>
                 <input type="submit" name="search_store_products" class="search-store-products dokan-btn-theme" value="<?php esc_attr_e( 'Search', 'dokan-lite' ); ?>">
 
@@ -185,8 +187,8 @@ class Hooks {
                             <option value="<?php echo esc_attr( $id ); ?>" <?php selected( $orderby_options['orderby'], $id ); ?>><?php echo esc_html( $name ); ?></option>
                         <?php endforeach; ?>
                     </select>
-                    <?php endif; ?>
-                <input type="hidden" name="paged" value="1" />
+                <?php endif; ?>
+                <input type="hidden" name="paged" value="1"/>
             </form>
         </div>
         <?php
@@ -241,7 +243,7 @@ class Hooks {
             }
         }
 
-        wp_redirect( add_query_arg( array( 'message' => 'product_deleted' ), dokan_get_navigation_url( 'products' ) ) );
+        wp_safe_redirect( add_query_arg( [ 'message' => 'product_deleted' ], dokan_get_navigation_url( 'products' ) ) );
         exit;
     }
 

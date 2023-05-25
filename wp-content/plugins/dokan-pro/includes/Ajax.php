@@ -461,8 +461,9 @@ class Ajax {
 
         // set stock status options
         $stock_status_options = array(
-            'instock'    => __( 'In stock', 'dokan' ),
-            'outofstock' => __( 'Out of stock', 'dokan' )
+            'instock'     => __( 'In stock', 'dokan' ),
+            'outofstock'  => __( 'Out of stock', 'dokan' ),
+            'onbackorder' => __( 'On backorder', 'dokan' ),
         );
 
         $parent_data = array(
@@ -536,7 +537,8 @@ class Ajax {
                     '_stock_status'          => '',
                     '_backorders'            => null,
                     '_tax_class'             => null,
-                    '_variation_description' => ''
+                    '_variation_description' => '',
+                    '_low_stock_amount'      => ''
                 );
 
                 foreach ( $variation_fields as $field => $value ) {
@@ -558,6 +560,7 @@ class Ajax {
                 $variation_data['shipping_class'] = $shipping_classes && ! is_wp_error( $shipping_classes ) ? current( $shipping_classes )->term_id : '';
                 $variation_data['menu_order']     = $variation->menu_order;
                 $variation_data['_stock']         = '' === $variation_data['_stock'] ? '' : wc_stock_amount( $variation_data['_stock'] );
+                $variation_data['_low_stock_amount'] = '' === $variation_data['_low_stock_amount'] ? '' : wc_format_decimal( $variation_data['_low_stock_amount'] );
 
                 dokan_get_template_part( 'products/edit/html-product-variation', '', array(
                     'pro'                => true,
@@ -579,14 +582,15 @@ class Ajax {
      * Save variations via AJAX.
      */
     public static function save_variations() {
-        ob_start();
-
+        // Checking nonce and security.
         check_ajax_referer( 'save-variations', 'security' );
 
         // Check permissions again and make sure we have what we need
         if ( ! current_user_can( 'dokandar' ) || empty( $_POST ) || empty( $_POST['product_id'] ) ) {
             die( -1 );
         }
+
+        ob_start();
 
         $product_id   = absint( $_POST['product_id'] );
         $product_type = empty( $_POST['product_type'] ) ? 'simple' : sanitize_title( stripslashes( $_POST['product_type'] ) );
@@ -1677,6 +1681,7 @@ class Ajax {
             $variation_data['shipping_class'] = $shipping_classes && ! is_wp_error( $shipping_classes ) ? current( $shipping_classes )->term_id : '';
             $variation_data['menu_order']     = $variation->menu_order;
             $variation_data['_stock']         = wc_stock_amount( $variation_data['_stock'] );
+            $variation_data['_low_stock_amount'] = wc_format_localized_decimal( $variation_data['_low_stock_amount'] );
 
             // Get tax classes
             $tax_classes           = WC_Tax::get_tax_classes();
@@ -1698,8 +1703,9 @@ class Ajax {
 
             // set stock status options
             $stock_status_options = array(
-                'instock'    => __( 'In stock', 'dokan' ),
-                'outofstock' => __( 'Out of stock', 'dokan' )
+                'instock'     => __( 'In stock', 'dokan' ),
+                'outofstock'  => __( 'Out of stock', 'dokan' ),
+                'onbackorder' => __( 'On backorder', 'dokan' ),
             );
 
             // Get attributes

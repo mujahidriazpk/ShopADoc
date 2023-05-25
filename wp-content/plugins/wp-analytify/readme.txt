@@ -3,8 +3,8 @@ Contributors: hiddenpearls, Asif2BD, desideveloper
 Donate link: https://paypal.me/Analytify
 Tags: google analytics, google analytics dashboard, google analytics stats, WordPress Analytics, analytics, tracking, analytify, install analytics, e-commerce, track, track visitor, statistics, campaign tracking, analytics campaigns, best google analytics, enhanced ecommerce tracking, email analytics report, google analytics export,
 Requires at least: 3.6
-Tested up to: 6.0
-Stable tag: 4.2.2
+Tested up to: 6.2
+Stable tag: 5.0.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -303,6 +303,14 @@ We listen to each of our users and are active (Monday to Friday) at the <a href=
 
 == Changelog ==
 
+= 5.0.0 - 2023-04-18 =
+* New Feature: Google Analytics GA4 integration is added.
+* New Feature: Google Search Console (webmasters) Integrated.
+* Enhancement: Pageload speed improvement.
+* Enhancement: UI Improvements.
+
+= 4.2.3 - 2022-08-22 =
+* Bug Fix: Added a security check to prevent unauthorized access to Analytify's delete cache method.
 
 = 4.2.2 - 2022-07-06 =
 * Bug Fix: use the wp_date() function to fetch the WordPress settings date instead of date() in php. Props to [@generosus](https://profiles.wordpress.org/generosus/) for reporting this bug. 
@@ -862,8 +870,8 @@ We listen to each of our users and are active (Monday to Friday) at the <a href=
 
 == Upgrade Notice ==
 
-= 4.2.2 =
-* [Important Update] Upgrade Analytify - Google Analytics WordPress Plugin.
+= 5.0.0 =
+* [Important Message] Upgrade attentively 5.0 - Google Analytics GA4 Integration is being rollout.
 
 
 == Notes ==

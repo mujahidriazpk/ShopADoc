@@ -3,7 +3,7 @@
 textarea{padding:inherit!important;border:1px
 solid #ccc;margin-bottom:10px;width:100%;box-sizing:border-box;font-family:Arial;color:#2C3E50;font-size:13px}.sgpb-form-wrapper .sgpb-field-textarea-wrapper,
 .sgpb-form-wrapper .sgpb-field-dropdown-wrapper{margin:5px
-auto !important}.sgpb-form-wrapper input[type="submit"],
+auto}.sgpb-form-wrapper input[type="submit"],
 .sgpb-form-wrapper input[type="button"]{cursor:pointer}.sgpb-form-wrapper input[type="submit"]:hover{filter:brightness(90%);-ms-filter:brightness(90%)}.sgpb-form-wrapper{text-align:center}.sgpb-subscription-form
 label.error{text-align:inherit;color:red;display:block;margin:5px
 0}.sgpb-form-wrapper input[type="text"],

@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                     <div class="dokan-w8">
                         <strong class="dokan-inline-edit-section-title"><?php esc_html_e( 'Product categories', 'dokan' ); ?></strong>
                             <?php
-                            $data = Helper::get_saved_products_category();
+                            $data = Helper::get_saved_products_category( 0, false );
                             $data['from'] = 'bulk_product';
                             $data['hide_cat_title'] = 'yes';
 
@@ -69,7 +69,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                                     <?php endforeach; ?>
                                 </select>
                                 <?php /* translators: %s is woocommerce currency symbol. */ ?>
-                                <input type="text" name="_regular_price" id="_regular_price" class="dokan-mt10 dokan-form-control dokan-hide" placeholder="<?php printf( esc_attr__( 'Enter price (%s)', 'dokan' ), get_woocommerce_currency_symbol() ); ?>" value="" />
+                                <input type="text" name="_regular_price" id="dokan_bulk_regular_price" class="dokan-mt10 dokan-form-control dokan-hide" placeholder="<?php printf( esc_attr__( 'Enter price (%s)', 'dokan' ), get_woocommerce_currency_symbol() ); ?>" value="" />
                             </div>
                         </div>
                         <div class="dokan-inline-edit-field-row dokan-clearfix">
@@ -83,7 +83,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                                     <?php endforeach; ?>
                                 </select>
                                 <?php /* translators: %s is woocommerce currency symbol. */ ?>
-                                <input type="text" name="_sale_price" id="_sale_price" class="dokan-mt10 dokan-form-control dokan-hide" placeholder="<?php printf( esc_attr__( 'Enter sale price (%s)', 'dokan' ), get_woocommerce_currency_symbol() ); ?>" value="" />
+                                <input type="text" name="_sale_price" id="dokan_bulk_sale_price" class="dokan-mt10 dokan-form-control dokan-hide" placeholder="<?php printf( esc_attr__( 'Enter sale price (%s)', 'dokan' ), get_woocommerce_currency_symbol() ); ?>" value="" />
                             </div>
                         </div>
                         <?php if ( wc_tax_enabled() ) : ?>

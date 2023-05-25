@@ -21,6 +21,7 @@ $userSavedRoles = get_option('sgpb-user-roles');
 		<div class="sgpb-width-50 sgpb-padding-20">
 			<p class="sgpb-header-h1 sgpb-margin-top-20 sgpb-margin-bottom-50"><?php esc_html_e('General Settings', SG_POPUP_TEXT_DOMAIN); ?></p>
 			<form method="POST" action="<?php echo esc_url_raw(admin_url().'admin-post.php?action=sgpbSaveSettings')?>">
+				<?php wp_nonce_field('sgpbSaveSettings', 'sgpb_saveSettings_nonce'); ?>
 				<div class="formItem">
 					<p class="subFormItem__title sgpb-flex-220"><?php esc_html_e('Enable DEBUG MODE', SG_POPUP_TEXT_DOMAIN)?>:</p>
 					<div class="sgpb-onOffSwitch">

@@ -134,7 +134,6 @@ class Guzzle implements HttpClientInterface
                     ]);
                     break;
                 case 'PUT':
-                case 'PATCH':
                 case 'POST':
                     $body_type = $multipart ? 'multipart' : 'form_params';
 

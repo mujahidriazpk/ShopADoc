@@ -19,6 +19,7 @@ class SgpbPopupExtensionRegister
 				/*  $blog -> List of WP_Site objects for wp > 4.6 otherwise, an associative array of WP_Site data as arrays. */
 				$blogId = is_object($blog)?$blog->blog_id:$blog['blog_id'];
 				switch_to_blog($blogId);
+				self::registerPlugin($pluginName, $classPath, $className, $options);
 			}
 			return;
 		}

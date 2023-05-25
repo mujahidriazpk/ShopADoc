@@ -50,7 +50,7 @@ function dashboard_widgets_suite_feed_box_content() {
 			
 			$return .= '<li>';
 			$return .= '<span class="dws-feed-box-title"><a target="_blank" rel="noopener noreferrer" href="'. esc_url($item->get_permalink()) .'">'. esc_attr($item->get_title()) .'</a></span> ';
-			$return .= '<span class="dws-feed-box-date">'. date_i18n('j F Y @ g:i a', $item->get_date('U')) .'</span> ';
+			$return .= '<span class="dws-feed-box-date">'. date_i18n('F j, Y @ g:i a', $item->get_date('U')) .'</span> ';
 			
 			if ($feed_excerpt) $return .= '<span class="dws-feed-box-excerpt">'. simplepie_shorten($item->get_description(), $feed_length) .'</span>';
 			

@@ -16,7 +16,7 @@ final class DashboardWidget {
     public function add_widget() {
         wp_add_dashboard_widget(
             self::ID,
-            __( 'Expand your business with WP Desk', 'wpdesk_ltv_dashboard_widget' ),
+            __( 'Grow your business with WP Desk', 'wpdesk_ltv_dashboard_widget' ),
             [ $this, 'widget_output' ],
             null,
             null,

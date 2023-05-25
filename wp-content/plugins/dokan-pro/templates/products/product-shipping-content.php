@@ -138,7 +138,7 @@ $tab_desc               = $is_shipping_disabled ? __( 'Manage tax for this produ
                             </div>
 
                             <div class="dokan-form-group dokan-w3 last-child">
-                                <label class="dokan-control-label" for="dps_additional_qty"><?php esc_html_e( 'Processing Time', 'dokan' ); ?></label>
+                                <label class="dokan-control-label" for="_dps_processing_time"><?php esc_html_e( 'Processing Time', 'dokan' ); ?></label>
                                 <select name="_dps_processing_time" id="_dps_processing_time" class="dokan-form-control">
                                     <?php foreach ( $processing_time as $processing_key => $processing_value ) : ?>
                                         <option value="<?php echo $processing_key; ?>" <?php selected( $porduct_shipping_pt, $processing_key ); ?>><?php echo $processing_value; ?></option>

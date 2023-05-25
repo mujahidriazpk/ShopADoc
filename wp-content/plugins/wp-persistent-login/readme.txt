@@ -3,8 +3,8 @@ Contributors: lukeseager, freemius
 Donate link: 
 Tags: login, active logins, sessions, session management
 Requires at least: 5.0
-Tested up to: 6.0.0
-Stable tag: 2.0.8
+Tested up to: 6.2
+Stable tag: 2.0.13
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -32,7 +32,7 @@ For added security, users can visit their Profile page in the WP Admin area to s
 
 ## NEW: Active Logins
 * Option to limit the number of active logins to 1 per user
-* Old logins will end automatically if the limit is reached, forcing only one active login at a time
+* New logins can be blocked, or the users oldest login ended automatically.
 
 ### Top Tip
 Once the plugin is installed, click the **End all Sessions** button on the plugin settings page to encourage users to login again and be kept logged in forever!
@@ -49,7 +49,7 @@ These plugins are supported out of the box. No hassle and no settings to change!
 This plugin honours the 'Remember Me' checkbox. It is checked by default, but if it is unchecked the user won't be remembered.
 
 ### Premium Version
-There is a premium version of the plugin for those who want more control. 
+There is a premium version of the plugin for those who want more control. Visit [persistentlogin.com](https://persistentlogin.com) to learn more.
 
 The premium plan offers the following features:
 
@@ -66,8 +66,8 @@ The premium plan offers the following features:
 
 ##### Premium Active Login Features
 * Control which roles have active login limits applied
-* Select aexactly how many active logins users are allowed
-* Auto-logout old logins when the limit is reached, or let the user decide
+* Select exactly how many active logins users are allowed
+* When the limit is reached: Auto-logout oldest login, let the user decide which session to end, or block the login.
 
 == Installation ==
 
@@ -145,6 +145,8 @@ A premium version of the plugin is available if you want to:
 * All future features and updates (with a valid licence)
 * Priority Support direct from within WP admin
 
+Visit [persistentlogin.com](https://persistentlogin.com) to learn more.
+
 == Screenshots ==
 
 1. Dashboard stats of logged in users
@@ -154,6 +156,31 @@ A premium version of the plugin is available if you want to:
 5. Active Login settings (premium)
 
 == Changelog == 
+
+= 2.0.13 =
+* Updating browser detection library.
+* Fix: Fixed PHP notice of undefined array index.
+* Updating freemius SDK.
+
+= 2.0.12 = 
+* Updating Freemius SDK to latest version.
+* Further update to support Wordfence and Yoast SEO.
+* Updating translation files and text domain to work with .po and .mo files for internationalisation. 
+* Adding English (UK) translation file.
+
+= 2.0.11 = 
+* Fix: Fix for 500 server error when Wordfence and Yoast SEO are activated.
+
+= 2.0.10 =
+* Fix: Fixes PHP 8.0.0 requirement for composer dependancy.
+
+= 2.0.9 =
+* Added option to block logins when Active Login limit is reached.
+* Added additional PHP filter for invalid session counts.
+* Updated browser detection library to latest version.
+* Various performance improvements.
+* Tested to WP 6.1.1
+* Tested to PHP 8.0.22
 
 = 2.0.8 =
 * Minor performance improvements.

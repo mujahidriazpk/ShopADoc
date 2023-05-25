@@ -5,7 +5,7 @@ Plugin URI: http://theandystratton.com/pagerestrict
 Description: Restrict certain pages to logged in users
 Author: Matt Martz & Andy Stratton
 Author URI: http://theandystratton.com
-Version: 2.5.4
+Version: 2.5.5
 
     Page Restrict is released under the GNU Lesser General Public License (LGPL)
 	http://www.gnu.org/licenses/lgpl-3.0.txt

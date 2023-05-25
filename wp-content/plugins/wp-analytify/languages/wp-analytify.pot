@@ -1665,25 +1665,25 @@ msgstr ""
 msgid "Did you know that Average Session Duration of this page is"
 msgstr ""
 
-#: views/default/admin/system-stats.php:21
+#: views/default/admin/tech-stats.php:21
 msgid "Browsers statistics"
 msgstr ""
 
-#: views/default/admin/system-stats.php:24
-#: views/default/admin/system-stats.php:59
-#: views/default/admin/system-stats.php:90
+#: views/default/admin/tech-stats.php:24
+#: views/default/admin/tech-stats.php:59
+#: views/default/admin/tech-stats.php:90
 msgid "Visits"
 msgstr ""
 
-#: views/default/admin/system-stats.php:56
+#: views/default/admin/tech-stats.php:56
 msgid "Operating system statistics"
 msgstr ""
 
-#: views/default/admin/system-stats.php:87
+#: views/default/admin/tech-stats.php:87
 msgid "Mobile device statistics"
 msgstr ""
 
-#: views/default/admin/system-stats.php:115
+#: views/default/admin/tech-stats.php:115
 msgid "Top Web Browsers, Operating Systems, and Mobile Devices"
 msgstr ""
 

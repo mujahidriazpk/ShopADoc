@@ -16,7 +16,7 @@
  * Plugin Name:       WP Terms Popup
  * Plugin URI:        https://termsplugin.com
  * Description:       Ask users to agree to a popup before they are allowed to view your site.
- * Version:           2.5.1
+ * Version:           2.6.0
  * Author:            Link Software LLC
  * Author URI:        https://linksoftwarellc.com
  * License:           GPL-2.0+
@@ -33,7 +33,7 @@ if (!defined('WPINC')) {
 /**
  * Currently plugin version.
  */
-define('WP_TERMS_POPUP_VERSION', '2.5.1');
+define('WP_TERMS_POPUP_VERSION', '2.6.0');
 
 /**
  * The code that runs during plugin activation.

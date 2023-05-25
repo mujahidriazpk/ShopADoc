@@ -9,3 +9,9 @@ h3.termstitle { text-align: center; padding: 1%; margin: -16px -16px 30px -16px 
 #wp-terms-popup-after-content { padding-bottom: 16px; }
 #wp-terms-popup-after-content.sticky { position: sticky; position: -webkit-sticky; bottom: -16px; padding: 8px 0; background-color: #ffffff; }
 #wp-terms-popup-after-content.sticky form { margin: 0; }
+
+.wptpa-dropdowns { width: 90%; margin: 1em 5%; border: 0; }
+.wptpa-dropdowns tr, .wptpa-dropdowns td { border: 0; }
+.wptpa-dropdowns td { width: 33%; font-family: inherit; }
+.wptpa-dropdowns .wptpa-dropdown { width: 100% !important; }
+.termspopupcontainer .tthebutton .termsagree:disabled, .termspopupcontainer .tthebutton .termsagree[disabled] { opacity: 0.25; cursor: pointer; }

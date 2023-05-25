@@ -618,13 +618,16 @@ class AdminCoupons {
      * @return boolean
      */
     public function coupon_is_valid_for_product( $valid, $product, $coupon ) {
-        if ( ! $valid ) {
+        if ( false === $valid ) {
             return $valid;
         }
 
         $vendors  = array( intval( get_post_field( 'post_author', $product->get_id() ) ) );
         $products = array( $product->get_id() );
 
+        if ( $product->get_parent_id() > 0 ) {
+            $products[] = $product->get_parent_id();
+        }
         return dokan_pro()->coupon->is_admin_coupon_valid( $coupon, $vendors, $products );
     }
 

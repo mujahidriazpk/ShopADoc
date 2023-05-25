@@ -184,14 +184,11 @@ if ( ! class_exists( 'WP_Analytify_Settings' ) ) {
 		 *
 		 * @return array settings fields
 		 */
-		function get_settings_fields() {
+		public function get_settings_fields() {
 
-			if ( isset( $_GET['page'] ) && 'analytify-settings' === $_GET['page'] ) {
-				$_profile_otions = WP_ANALYTIFY_FUNCTIONS::fetch_profiles_list_summary();
-			} else {
-				$_profile_otions = array();
-			}
-      
+			$ga_properties_and_profiles = WP_ANALYTIFY_FUNCTIONS::fetch_ga_properties();
+
+
 			$settings_fields = array(
 				'wp-analytify-authentication' => array(
 					array(
@@ -208,7 +205,7 @@ if ( ! class_exists( 'WP_Analytify_Settings' ) ) {
 						'label' => __( 'Install Google Analytics tracking code', 'wp-analytify' ),
 						'desc'  => apply_filters( 'analytify_install_ga_text', __( 'Insert Google Analytics (GA) JavaScript code between the HEADER tags in your website. Uncheck this option if you have already inserted the GA code.', 'wp-analytify' ) ),
 						'type'  => 'checkbox',
-						'default' => 'on'
+						'default' => 'on',
 					),
 					array(
 						'name'    => 'exclude_users_tracking',
@@ -222,20 +219,20 @@ if ( ! class_exists( 'WP_Analytify_Settings' ) ) {
 					array(
 						'name'    => 'profile_for_posts',
 						'label'   => __( 'Profile for posts (Backend/Front-end)', 'wp-analytify' ),
-						'desc'    => __( 'Select your Google Analytics website profile for Analytify front-end/back-end statistics. <br /><strong>Note:</strong> Not seeing new GA4 properties in the above list? See <a href="https://analytify.io/doc/how-to-integrate-analytify-with-google-analytics-4-ga4/" target="_blank">why and how to fix it</a>.', 'wp-analytify' ),
+						'desc'    => __( 'Select your Google Analytics website profile/stream for Analytify front-end/back-end statistics. <br /><strong>Note:</strong> Choose UA or GA4 properties from the above list.', 'wp-analytify' ),
 						'type'    => 'select_profile',
 						'default' => 'Choose profile for posts',
-						'options' => $_profile_otions,
+						'options' => $ga_properties_and_profiles,
 						'size'    => '',
 					),
 
 					array(
 						'name'    => 'profile_for_dashboard',
 						'label'   => __( 'Profile for dashboard', 'wp-analytify' ),
-						'desc'    => __( 'Select your Google Analytics website profile for Analytify dashboard statistics. <br /><strong>Note:</strong> Not seeing new GA4 properties in the above list? See <a href="https://analytify.io/doc/how-to-integrate-analytify-with-google-analytics-4-ga4/" target="_blank">why and how to fix it</a>.', 'wp-analytify' ),
+						'desc'    => __( 'Select your Google Analytics website profile/stream for Analytify dashboard statistics. <br /><strong>Note:</strong> Not seeing new GA4 properties in the above list? See <a href="https://analytify.io/doc/how-to-integrate-analytify-with-google-analytics-4-ga4/" target="_blank">why and how to fix it</a>.', 'wp-analytify' ),
 						'type'    => 'select_profile',
 						'default' => 'Choose profile for dashboard',
-						'options' => $_profile_otions,
+						'options' => $ga_properties_and_profiles,
 					),
 					array(
 						'name'  => 'hide_profiles_list',
@@ -303,14 +300,39 @@ if ( ! class_exists( 'WP_Analytify_Settings' ) ) {
 				),
 				'wp-analytify-advanced'       => array(
 					array(
+						'name'  => 'google_analytics_version',
+						'label' => __( 'Google Analytics Version', 'wp-analytify' ),
+						'desc'  => apply_filters( 'analytify_google_analytics_version_text', __( 'Select either Google Analytics 4(GA4) or Universal Analytics(UA)', 'wp-analytify' ) ),
+						'type'  => 'select',
+						'options' => array(
+							'ga4'	=> 'GA4 - Google Analytics 4',
+							'ga3'	=> 'UA - Universal Analytics (legacy)'
+						),
+						'default' => $this->get_default_ga_version(),
+					),
+					array(
 						'name'  => 'gtag_tracking_mode',
 						'label' => __( 'Tracking mode', 'wp-analytify' ),
 						'desc'  => apply_filters( 'analytify_gtag_tracking_mode_text', __( 'Recommended: Upgrade to the gtag.js tracking mode for the latest Google Analytics tracking features.', 'wp-analytify' ) ),
 						'type'  => 'select',
 						'options' => array(
-							'ga'	=> 'analytics.js',
+							'ga'	=> 'analytics.js (legacy)',
 							'gtag'	=> 'gtag.js'
 						),
+					),
+					array(
+						'name'  => 'ga4_web_data_stream',
+						'label' => __( 'Data Streams', 'wp-analytify' ),
+						'desc'  => apply_filters( 'analytify_gtag_tracking_mode_text', __( 'Choose GA4 data/web stream to use for website tracking.', 'wp-analytify' ) ),
+						'type'  => 'select_streams',
+						'options' => WPANALYTIFY_Utils::fetch_ga4_streams(),
+					),
+					array(
+						'name'  => 'measurement_protocol_secret',
+						'label' => __( 'Measurement Protocol Secret', 'wp-analytify' ),
+						'desc'  => __( 'Analytify creates measurement protocol secret itself, however you can also create your own secret key.', 'wp-analytify' ),
+						'type'  => 'text',
+						'class' => 'measurement_protocol_secret',
 					),
 					array(
 						'name'  => 'user_advanced_keys',
@@ -346,6 +368,13 @@ if ( ! class_exists( 'WP_Analytify_Settings' ) ) {
 
 				),
 			);
+
+			// Don't render the mp secret and data streams field if the version is ga3(Universal Analytics).
+
+			if( 'ga3' === WPANALYTIFY_Utils::get_ga_mode() ) {
+				unset($settings_fields['wp-analytify-advanced'][2], $settings_fields['wp-analytify-advanced'][3]);
+			}
+
 
 			// if ( get_option( 'pa_google_token' ) ) {
 				$advance_setting_fields = array(
@@ -445,14 +474,17 @@ if ( ! class_exists( 'WP_Analytify_Settings' ) ) {
 		 * registers them to WordPress and ready for use.
 		 */
 		function admin_init() {
+			global $pagenow;
+			WPANALYTIFY_Utils::handle_ga4_exceptions();
+			if ( ('admin.php' === $pagenow) && ( 'analytify-settings' === $_GET['page'] ) || 'options.php' === $pagenow ) {
+				$this->set_sections($this->get_settings_sections());
+				$this->set_fields($this->get_settings_fields());
 
-			$this->set_sections( $this->get_settings_sections() );
-			$this->set_fields( $this->get_settings_fields() );
-
-			// register settings sections
-			// creates our settings in the options table
-			foreach ( $this->settings_sections as $section ) {
-				register_setting( $section['id'], $section['id'], array( $this, 'sanitize_options' ) );
+				// register settings sections
+				// creates our settings in the options table
+				foreach ($this->settings_sections as $section) {
+					register_setting($section['id'], $section['id'], array( $this, 'sanitize_options' ));
+				}
 			}
 		}
 
@@ -559,6 +591,28 @@ if ( ! class_exists( 'WP_Analytify_Settings' ) ) {
 
 			return $desc;
 		}
+
+		/**
+		 * 
+		 * Get the default option for google analytics version.
+		 * 'ga4' if the install is new or the previous version
+		 * is equal or older then 5.0.0.
+		 * 
+	     * @since 5.0.0
+		 */
+
+		public function get_default_ga_version() {
+
+			$ga_version = 'ga4';
+			$old_version = get_option('WP_ANALYTIFY_PLUGIN_VERSION_OLD');
+			if ( empty( $old_version ) || version_compare( $old_version , '5.0.0' ) >= 0 ) {
+				$ga_version = 'ga4';
+			} else {
+				$ga_version = 'ga3';
+			}
+			return $ga_version;
+
+		 }
 
 		/**
 		 * Displays a text field for a settings field
@@ -790,9 +844,10 @@ if ( ! class_exists( 'WP_Analytify_Settings' ) ) {
 		          $selected = ( $key == $vals['type'] ) ? 'selected' : '';
 		          $html .= sprintf( '<option value="%s" %s>%s</option>', $key, $selected, $value['title'] );
 		        }
-
+				// check if id exists otherwise select the default id from $available_dimensions array.
+				$val_id = isset( $vals['id'] ) ? $vals['id'] : ( isset( $vals['type'] ) ? $available_dimensions[ $vals['type'] ]['id'] : '' );
 		        $html .= '</select></td>';
-		        $html .= sprintf( '<td><input type="number" class="dimension-id" name="%1$s[%2$s]['.$count.'][id]" id="%1$s[%2$s]" value="'.$vals['id'].'" required></td>', $args['section'], $args['id'] );
+		        $html .= sprintf( '<td><input type="number" class="dimension-id" name="%1$s[%2$s]['.$count.'][id]" id="%1$s[%2$s]" value="' . $val_id . '" required></td>', $args['section'], $args['id'] );
 		        $html .= '<td><span class="wp-analytify-rmv-dimension"></span></td>
 		        </tr>';
 
@@ -805,6 +860,71 @@ if ( ! class_exists( 'WP_Analytify_Settings' ) ) {
 
 		  echo $html;
 		}
+
+		/**
+		 * Displays repeater settings field for dimensions (ga v4)
+		 *
+		 * @param array $args settings field args
+		 */
+		function callback_ga_dimensions_repeater( $args ) {
+			$html = '';
+			$count = 0;
+			$available_dimensions = array();
+  
+			foreach ( $args['options'] as $key => $value ) {
+			  if ( true !== $value['is_enable'] ) {
+				continue;
+			  }
+  
+			  $available_dimensions[$key] = $value;
+			}
+  
+			wp_add_inline_script( 'analytify_dimension_script', '
+				var wpAnalytifyDimensionOptions = ' . json_encode($available_dimensions) . ';
+			' );
+			?>
+  
+			<?php
+			$html .= '<table id="wp-analytify-dimension-table">
+			<thead>
+			  <tr>
+				<th>' . __( 'Type', 'wp-analytify' ) . '</th>
+			  </tr>
+			</thead>
+			<tbody>';
+  
+			$current_values = $this->get_option( $args['id'], $args['section'], $args['std'] );
+			$current_values = array_values( $current_values );
+  
+			if ( empty( $current_values ) ) {
+			  $html .= '';
+			} else {
+				foreach( $current_values as $current_value => $vals ) {
+				  $html .= '<tr class="single_dimension"><td>';
+				  $html .= sprintf( '<select class="select-dimension" name="%1$s[%2$s]['.$count.'][type]" id="%1$s[%2$s]">', $args['section'], $args['id'] );
+  
+				  foreach ( $args['options'] as $key => $value ) {
+							  if ( ( 'seo_score' === $key || 'focus_keyword' === $key ) && ! class_exists( 'WPSEO_Frontend' ) ) {
+								  continue;
+							  }
+							  
+					$selected = ( $key == $vals['type'] ) ? 'selected' : '';
+					$html .= sprintf( '<option value="%s" %s>%s</option>', $key, $selected, $value['title'] );
+				  }
+  
+				  $html .= '</select></td>';
+				  $html .= '<td><span class="wp-analytify-rmv-dimension"></span></td>
+				  </tr>';
+  
+				  $count++;
+				}
+			}
+  
+			$html .= '<div class="inside">'.$args['desc'].'</div>';
+			$html .= '</tbody></table><button type="button" class="button wp-analytify-add-dimension">Add Dimension</button>';
+  
+			echo $html;
+		  }
 
 		/**
 		 * Displays emails receivers settings field.
@@ -943,34 +1063,57 @@ if ( ! class_exists( 'WP_Analytify_Settings' ) ) {
 		}
 
 		/**
+		 * Displays a selectbox for ga4 streams
+		 *
+		 * @param array $args streams settings field args
+		 */
+		function callback_select_streams( $args ) {
+
+			$value = esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
+			$size  = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : 'regular';
+			$html  = sprintf( '<select class="%1$s analytify-settings-select" name="%2$s[%3$s]" id="%2$s[%3$s]">', $size, $args['section'], $args['id'] );
+
+			foreach ( $args['options'] as $key => $label ) {
+				$html .= sprintf( '<option value="%s"%s>%s</option>', $key, selected( $key, $value, false ), $label );
+			}
+
+			$html .= sprintf( '</select>' );
+			$html .= $this->get_field_description( $args );
+
+			echo $html;
+		}
+
+		/**
 		 * Displays a selectbox for a settings field
 		 *
 		 * @param array $args settings field args
 		 */
-		function callback_select_profile( $args ) {
-			
-			print('<pre>');
-			//print_r($args);
-			print('</pre>');
+		public function callback_select_profile( $args ) {
 
 			if ( $exception = $GLOBALS['WP_ANALYTIFY']->get_exception() ) {
-				//print_r($exception);
 				if ( isset( $exception[0]['reason'] ) && $exception[0]['reason'] == 'dailyLimitExceeded' ) {
 					$link = 'https://analytify.io/doc/fix-403-daily-limit-exceeded/';
 					printf( __( '%5$s%1$sDaily Limit Exceeded:%2$s This Indicates that user has exceeded the daily quota (either per project or per view (profile)). Please %3$sfollow this tutorial%4$s to fix this issue. let us know this issue (if it still doesn\'t work) in the Help tab of Analytify->settings page.%6$s', 'wp-analytify' ), '<b>', '</b>', '<a href="' . $link . '" target="_blank">', '</a>', '<p class="description" style="color:#ed1515">', '</p>' );
 					return;
 				} elseif ( isset( $exception[0]['reason'] ) && $exception[0]['reason'] == 'insufficientPermissions' && $exception[0]['domain'] == 'global' ) {
 					echo '<p class="description" style="color:#ed1515">Insufficient Permissions: ' . $exception[0]['message'] . ' <br>Check out <a href="https://analytify.io/setup-account-google-analytics/" target="_blank">this guide here</a> to setup it properly.</p>';
-					//echo "<ul><li>Your Email doesn't have a Google Analytics account? Set up a Googel Analytics here.</li>
-					//		<li>You might be using New Google Analytics 4 Tracking? Connect GA4 with Universal Property here.</li>
-					//		<li>Your Email doesn't have permissions to fetch Google Analytics data? No website profile is associated with this email address.</li>
-					//		</ul>";
 					return;
 				} elseif ( isset(  $exception[0]['reason'] ) && $exception[0]['reason'] == 'unexpected_profile_error' ) {
 					echo '<p class="description" style="color:#ed1515">An unexpected error occurred while getting profiles list from the Google Analytics account. <br> let us know this issue from the Help tab.</p>';
 					return;
+				} elseif( isset(  $exception[0]['reason'] ) && $exception[0]['reason'] == 'ACCESS_TOKEN_SCOPE_INSUFFICIENT' ) {
+					echo '<p class="description" style="color:#ed1515">Insufficient Permissions: ' . $exception[0]['message'] . ' <br>Check out <a href="https://analytify.io/setup-account-google-analytics/" target="_blank">this guide here</a> to setup it properly.</p>';
+					return;
+				} else {
+					echo '<p class="description" style="color:#ed1515">' . $exception[0]['reason'] . ' : ' . $exception[0]['message'] . ' </p>';
 				}
-				else{
+			}
+			// Exception handling added for ga4.
+			if( $exception = $GLOBALS['WP_ANALYTIFY']->get_ga4_exception() ) {
+				if( isset(  $exception[0]['reason'] ) && $exception[0]['reason'] == 'ACCESS_TOKEN_SCOPE_INSUFFICIENT' ) {
+					echo '<p class="description" style="color:#ed1515">Insufficient Permissions: ' . $exception[0]['message'] . ' <br>Check out <a href="https://analytify.io/setup-account-google-analytics/" target="_blank">this guide here</a> to setup it properly.</p>';
+					return;
+				} elseif( isset( $exception[0]['reason'] ) ) {
 					echo '<p class="description" style="color:#ed1515">' . $exception[0]['reason'] . ' : ' . $exception[0]['message'] . ' </p>';
 				}
 			}
@@ -982,48 +1125,50 @@ if ( ! class_exists( 'WP_Analytify_Settings' ) ) {
 			$_analytify_setting = get_option( 'wp-analytify-profile' );
 
 			if ( isset( $_analytify_setting['hide_profiles_list'] ) && $_analytify_setting['hide_profiles_list'] === 'on' ) {
-
 				$html .= '<option value="' . $value . '" selected>' . WP_ANALYTIFY_FUNCTIONS::search_profile_info( $value, 'websiteUrl' ) . ' (' . WP_ANALYTIFY_FUNCTIONS::search_profile_info( $value, 'name' ) . ')' . '</option>';
 			} else {
 
-				if ( isset( $args['options']->items ) ) {
-
-					$html .= '<option value="">' . $args['std'] . '</option>';
-					foreach ( $args['options']->getItems() as  $account ) {
-
-						foreach ( $account->getWebProperties() as  $property ) {
-
-							$html .= '<optgroup label=" ' . $property->getName() . ' ">';
-
-							foreach ( $property->getProfiles() as $profile ) {
-								$html .= sprintf( '<option value="%1$s" %2$s>%3$s (%4$s)</option>', $profile->getId(), selected( $value, $profile->getId(), false ), $profile->getName(), $property->getId() );
-
+				$html       .= '<option value="">' . $args['std'] . '</option>';
+				$is_ga4_mode =  'ga4' === WPANALYTIFY_Utils::get_ga_mode() ? true : false;
+				
+				if( $is_ga4_mode && isset( $args['options']['GA4'] ) && ! empty( $args['options']['GA4'] ) ) {
+					foreach ( $args['options']['GA4'] as $account => $properties ) {
+						$html .= '<optgroup label=" ' . $account . ' ">';
+							foreach ( $properties as $property_id => $property ) {
+								$html .= sprintf( '<option value="%1$s" %2$s>%3$s (%4$s)</option>', $property_id, selected( $value, $property_id, false ), $property['name'], $property['code'] );
 								// Update the UA code in option on setting save for proile_for_posts.
-								if ( $value === $profile->getId() && 'profile_for_posts' === $args['id'] ) {
-									update_option( 'analytify_ua_code', $property->getId() );
-								}
+								// if ( $value == $property_id && 'profile_for_posts' === $args['id'] ) {
+								// 	update_option( 'analytify_ua_code', $property['code'] );
+								// }
 							}
-						}
-
 						$html .= '</optgroup>';
 					}
+				} elseif ( isset( $args['options']['UA'] ) && ! empty( $args['options']['UA'] ) ) {
+					foreach ( $args['options']['UA'] as $account => $properties ) {
+						$html .= '<optgroup label=" ' . $account . ' ">';
+							foreach ( $properties as $property_id => $property ) {
+								$html .= sprintf( '<option value="%1$s" %2$s>%3$s (%4$s)</option>', $property_id, selected( $value, $property_id, false ), $property['name'], $property['code'] );
+								// Update the UA code in option on setting save for proile_for_posts.
+								if ( $value == $property_id && 'profile_for_posts' === $args['id'] ) {
+									update_option( 'analytify_ua_code', $property['code'] );
+								}
+							}
+						$html .= '</optgroup>';
+					}
+				
 				}
-				// else{
-				// $html .= '<option value="">no profiles found</option>';
-				// }
 			}
 
 			$html .= sprintf( '</select>' );
 
 			// If no website is registered on Google Analytics for this user, Show this warning message.
 			if ( ! $args['options'] ) {
-				$html .= '<p class="description" style="color:#ed1515">No Website is registered with your Email at <a href="https://analytics.google.com/">Google Analytics</a>.<br /> Please setup your site first, Check out this guide <a href="https://analytify.io/setup-account-google-analytics/">here</a> to setup it properly.</p>';
+				/*$html .= '<p class="description" style="color:#ed1515">' . wp_sprintf(  '', $args ) . '</p>';
+				esc_html__( 'No Website is registered with your Email at <a href="https://analytics.google.com/">Google Analytics</a>.<br /> Please setup your site first, Check out this guide <a href="https://analytify.io/setup-account-google-analytics/">here</a> to setup it properly.', $domain:string )*/
 			}
-			else if ( isset($args['options']->totalResults) && ($args['options']->totalResults < 1 ) ) {
-				
+			else if ( isset($args['options']->totalResults) && ($args['options']->totalResults < 1 ) ) {				
 				$html .= $this->get_field_description( $args );
 				$html .= '<p class="description" style="color:#ed1515">Google Analytics account ' . $args['options']->username . ' doesn\'t have any UA property.<br /> See <a href="https://analytify.io/how-to-setup-your-account-at-google-analytics/" target="_blank">why and how to fix it</a>.</p>';
-
 			}  else {
 				// Show description.
 				$html .= $this->get_field_description( $args );
@@ -1031,7 +1176,6 @@ if ( ! class_exists( 'WP_Analytify_Settings' ) ) {
 
 			echo $html;
 		}
-
 
 		/**
 		 * Displays a textarea for a settings field
@@ -1248,7 +1392,10 @@ if ( ! class_exists( 'WP_Analytify_Settings' ) ) {
 			<div class="wp-analytify-delete-cache">
 				<form class="" action="<?php echo admin_url( 'admin-post.php' ); ?>" method="post">
 					<input type="hidden" name="action" value="analytify_delete_cache">
-					<button type="submit" class="wp-analytify-delete-cache-button button">Delete Cache</button>
+					<?php
+					wp_nonce_field( 'analytify_delete_cache', 'analytify_delete_cache_nonce' );
+					?>
+					<button type="submit" class="wp-analytify-delete-cache-button button"><?php esc_html_e( 'Refresh Statistics', 'wp-analytify' ); ?></button>
 				</form>
 			</div>
 
@@ -1325,7 +1472,7 @@ if ( ! class_exists( 'WP_Analytify_Settings' ) ) {
 			?>
 			
 			<div class="analytify-email-promo-contianer">
-				<img src="<?php echo ANALYTIFY_PLUGIN_URL . 'assets/images/email-promo.png'; ?>" alt="">
+				<img src="<?php echo ANALYTIFY_PLUGIN_URL . 'assets/img/email-promo.png'; ?>" alt="">
 				<div class="analytify-email-premium-overlay">
 					<div class="analytify-email-premium-popup">
 						<h3 class="analytify-promo-popup-heading"><?php _e( 'Unlock weekly and monthly reports', 'wp-analytify' ); ?></h3>
@@ -1611,8 +1758,12 @@ if ( ! class_exists( 'WP_Analytify_Settings' ) ) {
 									// do_action( 'wsa_form_bottom_' . $form['id'], $form );
 									?>
 
-									<div style="padding-left: 10px">
+									<div id='profile-save-button-wrapper' style="padding-left: 10px;">
 										<?php submit_button(); ?>
+										<div id="setup-wait-message-disabled">
+											<img src="<?php echo ANALYTIFY_PLUGIN_URL . 'assets/img/loaaader.gif' ?>">
+											<p>Hold on! It may take upto 2 minutes (max) while we setup GA4 tracking.</p>
+										</div>
 									</div>
 								</form>
 
@@ -1632,7 +1783,11 @@ if ( ! class_exists( 'WP_Analytify_Settings' ) ) {
 			// echo $this->pro_features();
 		}
 
-		// unset profiles & hidden check on logout
+		/**
+		 * Unset profiles and options data to logout from Google Analytics.
+		 *
+		 * @return void
+		 */
 		function process_logout() {
 
 			if ( isset( $_POST['wp_analytify_log_out'] ) ) {
@@ -1644,7 +1799,16 @@ if ( ! class_exists( 'WP_Analytify_Settings' ) ) {
 				unset( $_analytify_profile['profile_for_dashboard'] );
 
 				update_option( 'wp-analytify-profile', $_analytify_profile );
+				// delete_option( 'analytify_using_ua' );
+				delete_option( 'wp-analytify-mode' );
+				delete_option( 'analytify-deprecated-auth' );
+				delete_option( 'analytify-ga-properties-summery' );
 				delete_option( 'analytify_profile_exception' );
+				delete_option( 'analytify_ga4_exception' );
+				delete_option( 'analytify_ga4_exceptions' );
+				delete_option( 'analytify-ga4-streams' );
+				delete_option( 'analytify_tracking_property_info' );
+				delete_option( 'analytify_reporting_property_info' );
 				delete_option( 'profiles_list_summary_backup' );
 				delete_transient( 'analytify_quota_exception' );
 			}
@@ -1743,11 +1907,17 @@ if ( ! class_exists( 'WP_Analytify_Settings' ) ) {
 		 *
 		 * @since 2.1.23
 		 */
-		function analytify_delete_cache() {
+		public function analytify_delete_cache() {
+
+			if ( isset( $_POST['analytify_delete_cache_nonce'] ) && wp_verify_nonce( $_POST['analytify_delete_cache_nonce'], 'analytify_delete_cache' ) ) {
+				delete_transient( 'analytify_quota_exception' );
+				global $wpdb;
+				$esc_key = '%' . $wpdb->esc_like( '_analytify_transient' ) . '%';
+				$query   = $wpdb->prepare( "DELETE FROM `{$wpdb->prefix}options` WHERE option_name LIKE %s", $esc_key );
+				$wpdb->query( $query );
+			}
+
 			status_header( 200 );
-			delete_transient( 'analytify_quota_exception' );
-			global $wpdb;
-			$wpdb->query( "DELETE FROM `{$wpdb->prefix}options` WHERE `option_name` LIKE ('%\_analytify_transient\_%')" );
 			wp_redirect( admin_url( 'admin.php?page=analytify-settings' ) );
 			die();
 		}

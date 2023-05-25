@@ -120,8 +120,12 @@ class SGPBTable extends SGPBListTable
 		if (!empty($orderby) && !empty($order)) {
 			$query .= ' ORDER BY '.$orderby.' '.$order;
 		}
-
-		$paged = isset($_GET["paged"]) ? (int)sanitize_text_field($_GET["paged"]) : '';
+		$this->set_pagination_args(array(
+			"total_items" => $totalItems,
+			"total_pages" => $totalPages,
+			"per_page" => $perPage,
+		));
+		$paged = $this->get_pagenum();
 
 		if (empty($paged) || !is_numeric($paged) || $paged <= 0) {
 			$paged = 1;
@@ -132,12 +136,6 @@ class SGPBTable extends SGPBListTable
 			$offset = ($paged - 1) * $perPage;
 			$query .= ' LIMIT '.(int)$offset.','.(int)$perPage;
 		}
-
-		$this->set_pagination_args(array(
-			"total_items" => $totalItems,
-			"total_pages" => $totalPages,
-			"per_page" => $perPage,
-		));
 
 		$columns = $this->get_columns();
 		$hidden = array();

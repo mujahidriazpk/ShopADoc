@@ -51,7 +51,7 @@ class RefundController extends WP_REST_Controller {
                     'status' => [
                         'type'        => 'string',
                         'description' => __( 'Refund status', 'dokan' ),
-                        'enum'        => array_keys( dokan_pro()->refund->get_statuses() ),
+                        'enum'        => ! empty( dokan_pro()->refund ) ? array_keys( dokan_pro()->refund->get_statuses() ) : [],
                         'required'    => false,
                     ],
                     'search' => [
@@ -525,7 +525,7 @@ class RefundController extends WP_REST_Controller {
                 'status' => [
                     'description' => __( 'Refund status', 'dokan' ),
                     'type'        => 'string',
-                    'enum'        => array_keys( dokan_pro()->refund->get_statuses() ),
+                    'enum'        => ! empty( dokan_pro()->refund ) ? array_keys( dokan_pro()->refund->get_statuses() ) : [],
                     'context'     => [ 'view', 'edit' ],
                 ],
                 'method' => [

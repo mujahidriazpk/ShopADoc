@@ -38,7 +38,7 @@ class SGPBMenu
 
 	    add_filter('nav_menu_css_class', array($this, 'addPopupTriggeringClass'), 10, 2);
 	    add_filter('wp_setup_nav_menu_item', array($this, 'addCustomNavFields'));
-	   //Mujahid Code to fix issue after update
+	    //Mujahid Code to fix issue after update
 
 	    //add_filter('sgpbLoadablePopups', array($this, 'addPopupToLoad'));
     }
@@ -50,6 +50,9 @@ class SGPBMenu
 	 */
 	public function addPopupTriggeringClass($classes, $menuItem)
     {
+	    if (!isset($menuItem->sgpbPopupId)) {
+		    return $classes;
+	    }
         $popupId = $menuItem->sgpbPopupId;
         if ($popupId && !in_array('sg-popup-id-'.$popupId, $classes)) {
 	        array_push($classes, 'sg-popup-id-'.$popupId);

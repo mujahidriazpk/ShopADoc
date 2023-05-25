@@ -510,6 +510,9 @@ class SP_Plugin_Auction {
 				.error,.notice{display:none;}
 				#6036312b3586a{}
 				.widefat th,.widefat th.sortable, .widefat th.sorted{padding:8px 1px !important;}
+	  			.widefat td, .widefat th {
+    						padding: 8px 1px !important;
+				}
 			</style>
   <?php 
 				if (isset($_REQUEST["action"]) && ($_REQUEST["action"]=='publish' || $_REQUEST["action"] =='Suspend')) {
@@ -533,7 +536,7 @@ class SP_Plugin_Auction {
           <form method="post" style="float:none;margin:0 auto;width:55%;padding:50px 0;" id="searchForm">
             <?php $search_str = ( isset( $_REQUEST['search_str'] ) && $_REQUEST['search_str'] ) ? $_REQUEST['search_str'] : '';?>
             <input type="text" class="validate[required]" name="search_str" id="search_str" value="<?php echo $search_str;?>" style="width:79%; margin-right: 1%;padding:10px;float:left;" data-prompt-position="topLeft:0,3"/>
-            <input type="submit" name="submit" value="Search" class="btn btn-primary" style="padding: 15px 10px;float:left;width:20%;"/>
+            <input type="submit" name="submit" value="Search" class="btn btn-primary" style="padding: 10px 10px;float:left;width:auto;"/>
           </form>
           <script type="text/javascript">
 		  	jQuery("#searchForm").validationEngine({'custom_error_messages' : {
@@ -555,12 +558,12 @@ class SP_Plugin_Auction {
               <tr>
                 <th scope="col" id="6036312b3586a" class="manage-column column-6036312b3586a  desc" style="padding:8px 10px !important;"><span>Start Date</span></th>
                 <th scope="col" id="name" class="manage-column column-name column-primary  desc"><span>Service</span></th>
-                <th scope="col" id="price" class="manage-column column-price sortable desc"><span>Ask / Bid</span></th>
+                <th scope="col" id="price" class="manage-column column-price sortable desc" style="text-align:center;"><span>Ask / Bid</span></th>
                 <!--<th scope="col" id="5fc7b856ae0bc" class="manage-column column-5fc7b856ae0bc">Auction #</th>-->
-                <th scope="col" id="6036312b3a9dc" class="manage-column column-6036312b3a9dc">City</th>
-                <th scope="col" id="60e5c718d8654" class="manage-column column-60e5c718d8654">State</th>
-                <th scope="col" id="6036312b3ad5c" class="manage-column column-6036312b3ad5c">Zip</th>
-                <th scope="col" id="6039002027393" class="manage-column column-6039002027393">Status</th>
+                <th scope="col" id="6036312b3a9dc" class="manage-column column-6036312b3a9dc" style="text-align:center;">City</th>
+                <th scope="col" id="60e5c718d8654" class="manage-column column-60e5c718d8654" style="text-align:center;">State</th>
+                <th scope="col" id="6036312b3ad5c" class="manage-column column-6036312b3ad5c" style="text-align:center;">Zip</th>
+                <th scope="col" id="6039002027393" class="manage-column column-6039002027393" style="text-align:center;" width="10%">Status</th>
                 <th scope="col" id="603906d6d0106" class="manage-column column-603906d6d0106" style="text-align:center;">Client</th>
                 <th scope="col" id="60390b3f8622a" class="manage-column column-60390b3f8622a" style="text-align:center;">Dentist</th>
               </tr>
@@ -649,21 +652,21 @@ class SP_Plugin_Auction {
 
 			?>
               <tr id="post-<?php echo $auction->ID;?>" class="iedit author-other level-0 post-<?php echo $auction->ID;?> type-product status-publish has-post-thumbnail hentry product_cat-retrofit-upper-or-lower-denture-to-implants-by-locator-attachments" data-id="<?php echo $auction->ID;?>">
-                <td class="6036312b3586a column-6036312b3586a column-meta" data-colname="Start Date"><?php echo date('m/d/y',strtotime($_auction_dates_from_org));?></td>
-                <td class="name column-name has-row-actions column-primary" data-colname="Service"><strong><a class="row-title" href="/auction-<?php echo $auction->ID;?>/<?php echo $auction->post_name;?>/"><?php echo $auction->post_title;?></a></strong>
-                  <div class="row-actions"><span class="id">ID: <?php echo $auction->ID;?> | </span><!--<span class="edit"><a href="/wp-admin/post.php?post=<?php echo $auction->ID;?>&amp;action=edit" aria-label="Edit “<?php echo $auction->post_title;?>”">Edit</a> | --></span><span class="view"><a href="/auction-<?php echo $auction->ID;?>/<?php echo $auction->post_name;?>/" rel="bookmark" aria-label="View “<?php echo $auction->post_title;?>”">View</a> | </span>
+                <td class="6036312b3586a column-6036312b3586a column-meta" data-colname="Start Date" style="padding:8px 10px !important;"><?php echo date('m/d/y',strtotime($_auction_dates_from_org));?></td>
+                <td class="name column-name has-row-actions column-primary" data-colname="Service"><strong><a class="row-title" href="/auction-<?php echo $auction->ID;?>/<?php echo $auction->post_name;?>/" target="_blank"><?php echo $auction->post_title;?></a></strong>
+                  <div class="row-actions"><span class="id">XX-<?php echo $auction->ID;?> | </span><!--<span class="edit"><a href="/wp-admin/post.php?post=<?php echo $auction->ID;?>&amp;action=edit" aria-label="Edit “<?php echo $auction->post_title;?>”">Edit</a> | --></span><span class="view"><a href="/auction-<?php echo $auction->ID;?>/<?php echo $auction->post_name;?>/" rel="bookmark" aria-label="View “<?php echo $auction->post_title;?>”" target="_blank" target="_blank">View</a> | </span>
                     <?php if($auction->post_status == 'pending'){?>
                     <span class="publish"><a href="/wp-admin/admin.php?page=auctions&post=<?php echo $auction->ID;?>&action=publish" rel="bookmark" aria-label="publish “<?php echo $auction->post_title;?>”">Publish</a></span>
                     <?php }else{?>
                     <span class="Suspend"><a href="/wp-admin/admin.php?page=auctions&post=<?php echo $auction->ID;?>&action=Suspend" rel="bookmark" aria-label="Suspend “<?php echo $auction->post_title;?>”">Suspend</a></span>
                     <?php }?>
                   </div></td>
-                <td class="price column-price" data-colname="Ask Fee / Current Bid"><?php echo str_replace(" ","",str_replace("Current Bid:","",$product->get_price_html())); ?></td>
+                <td class="price column-price" data-colname="Ask Fee / Current Bid" style="text-align:center;"><?php echo str_replace(" ","",str_replace("Current Bid:","",$product->get_price_html())); ?></td>
                 <!--<td class="5fc7b856ae0bc column-5fc7b856ae0bc column-meta" data-colname="Auction #"><?php echo $auction_no;?></td>-->
-                <td class="6036312b3a9dc column-6036312b3a9dc column-meta" data-colname="City"><?php echo $auction_city;?></td>
-                <td class="60e5c718d8654 column-60e5c718d8654 column-shortcode" data-colname="State"><?php echo $US_state[$auction_state];?></td>
-                <td class="6036312b3ad5c column-6036312b3ad5c column-meta" data-colname="Zip"><?php echo $auction_zip_code;?></td>
-                <td class="6039002027393 column-6039002027393 column-shortcode" data-colname="Status"><?php echo $status;?></td>
+                <td class="6036312b3a9dc column-6036312b3a9dc column-meta" data-colname="City" style="text-align:center;"><?php echo $auction_city;?></td>
+                <td class="60e5c718d8654 column-60e5c718d8654 column-shortcode" data-colname="State" style="text-align:center;"><?php echo $US_state[$auction_state];?></td>
+                <td class="6036312b3ad5c column-6036312b3ad5c column-meta" data-colname="Zip" style="text-align:center;"><?php echo $auction_zip_code;?></td>
+                <td class="6039002027393 column-6039002027393 column-shortcode" data-colname="Status" style="text-align:center;" width="10%"><?php echo $status;?></td>
                 <td class="603906d6d0106 column-603906d6d0106 column-shortcode" data-colname="Client" align="center"><a onClick="openUser('<?php echo $auction->post_author;?>','client');" href="javascript:"><strong>C</strong></a></td>
                 <td class="60390b3f8622a column-60390b3f8622a column-shortcode" data-colname="Dentist" align="center"><?php echo $Dentist;?></td>
               </tr>
@@ -675,30 +678,30 @@ class SP_Plugin_Auction {
           <table class="wp-list-table widefat fixed striped table-view-list posts">
             <thead>
               <tr>
-                <th scope="col" id="6036312b3586a" class="manage-column column-6036312b3586a  desc" style="padding:8px 5px !important;"><span>Start Date</span></th>
+                <th scope="col" id="6036312b3586a" class="manage-column column-6036312b3586a  desc" style="padding:8px 10px !important;" ><span>Start Date</span></th>
                 <th scope="col" id="name" class="manage-column column-name column-primary  desc"><span>Service</span></th>
-                <th scope="col" id="price" class="manage-column column-price sortable desc"><span>Ask / Bid</span></th>
+                <th scope="col" id="price" class="manage-column column-price sortable desc" style="text-align:center;"><span>Ask / Bid</span></th>
                 <!--<th scope="col" id="5fc7b856ae0bc" class="manage-column column-5fc7b856ae0bc">Auction #</th>-->
-                <th scope="col" id="6036312b3a9dc" class="manage-column column-6036312b3a9dc">City</th>
-                <th scope="col" id="60e5c718d8654" class="manage-column column-60e5c718d8654">State</th>
-                <th scope="col" id="6036312b3ad5c" class="manage-column column-6036312b3ad5c">Zip</th>
-                <th scope="col" id="6039002027393" class="manage-column column-6039002027393">Status</th>
-                <th scope="col" id="603906d6d0106" class="manage-column column-603906d6d0106" style="text-align:center;">Client</th>
-                <th scope="col" id="60390b3f8622a" class="manage-column column-60390b3f8622a" style="text-align:center;">Dentist</th>
+                <th scope="col" id="6036312b3a9dc" class="manage-column column-6036312b3a9dc" style="text-align:center;">City</th>
+                <th scope="col" id="60e5c718d8654" class="manage-column column-60e5c718d8654" style="text-align:center;">State</th>
+                <th scope="col" id="6036312b3ad5c" class="manage-column column-6036312b3ad5c" style="text-align:center;">Zip</th>
+                <th scope="col" id="6039002027393" class="manage-column column-6039002027393" style="text-align:center;" width="10%">Status</th>
+                <th scope="col" id="603906d6d0106" class="manage-column column-603906d6d0106" style="text-align:center;" style="text-align:center;">Client</th>
+                <th scope="col" id="60390b3f8622a" class="manage-column column-60390b3f8622a" style="text-align:center;" style="text-align:center;">Dentist</th>
               </tr>
             </thead>
             <tbody id="the-list">
              
               <tr id="post" class="iedit author-other level-0 post type-product status-publish has-post-thumbnail hentry product_cat-retrofit-upper-or-lower-denture-to-implants-by-locator-attachments">
-                <td class="6036312b3586a column-6036312b3586a column-meta" data-colname="Start Date">-</td>
+                <td class="6036312b3586a column-6036312b3586a column-meta" data-colname="Start Date" style="padding:8px 10px !important;">-</td>
                 <td class="name column-name has-row-actions column-primary" data-colname="Service">-</td>
-                <td class="price column-price" data-colname="Ask Fee / Current Bid">-</td>
-                <td class="6036312b3a9dc column-6036312b3a9dc column-meta" data-colname="City">-</td>
-                <td class="60e5c718d8654 column-60e5c718d8654 column-shortcode" data-colname="State">-</td>
-                <td class="6036312b3ad5c column-6036312b3ad5c column-meta" data-colname="Zip">-</td>
-                <td class="6039002027393 column-6039002027393 column-shortcode" data-colname="Status">-</td>
-                <td class="603906d6d0106 column-603906d6d0106 column-shortcode" data-colname="Client" align="center">-</td>
-                <td class="60390b3f8622a column-60390b3f8622a column-shortcode" data-colname="Dentist" align="center">-</td>
+                <td class="price column-price" data-colname="Ask Fee / Current Bid" style="text-align:center;">-</td>
+                <td class="6036312b3a9dc column-6036312b3a9dc column-meta" data-colname="City" style="text-align:center;">-</td>
+                <td class="60e5c718d8654 column-60e5c718d8654 column-shortcode" data-colname="State" style="text-align:center;">-</td>
+                <td class="6036312b3ad5c column-6036312b3ad5c column-meta" data-colname="Zip" style="text-align:center;">-</td>
+                <td class="6039002027393 column-6039002027393 column-shortcode" data-colname="Status" style="text-align:center;" width="10%">-</td>
+                <td class="603906d6d0106 column-603906d6d0106 column-shortcode" data-colname="Client" align="center" style="text-align:center;">-</td>
+                <td class="60390b3f8622a column-60390b3f8622a column-shortcode" data-colname="Dentist" align="center" style="text-align:center;">-</td>
               </tr>
             </tbody>
           </table>

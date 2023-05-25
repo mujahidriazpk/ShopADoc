@@ -411,9 +411,12 @@ class SP_Plugin_CDUSER {
 
 <div class="wrap">
   <h2>Client / Dentist</h2>
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.css" rel="stylesheet" type='text/css'>
   <script type="text/javascript" src="<?php echo get_template_directory_uri(); ?>-child/autosuggest/js/bsn.AutoSuggest_2.1.3.js" charset="utf-8"></script>
   <link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>-child/autosuggest/css/autosuggest_inquisitor.css" type="text/css" />
   <style type="text/css">
+	  .jconfirm .suspendpopup div.jconfirm-closeIcon{right:0px !important;}
+	  .spiral_bookle{margin-top:3px !important;}
   				#toplevel_page_admin-page-CDUSER a{
 			background: #2271b1 !important;
 			color: #fff !important;
@@ -484,8 +487,8 @@ class SP_Plugin_CDUSER {
 					margin-right:16.6% !important;
 				}
 			</style>
-            <link rel='stylesheet' id='simple_tooltips_style-css'  href='https://shopadoc.com/wp-content/plugins/simple-tooltips/zebra_tooltips.css?ver=1659441620' type='text/css' media='all' />
-            <script type='text/javascript' src='https://shopadoc.com/wp-content/plugins/simple-tooltips/zebra_tooltips.js?ver=1659441620' id='simple_tooltips_base-js'></script>
+            <link rel='stylesheet' id='simple_tooltips_style-css'  href='https://woocommerce-642855-2866716.cloudwaysapps.com/wp-content/plugins/simple-tooltips/zebra_tooltips.css?ver=1659441620' type='text/css' media='all' />
+            <script type='text/javascript' src='https://woocommerce-642855-2866716.cloudwaysapps.com/wp-content/plugins/simple-tooltips/zebra_tooltips.js?ver=1659441620' id='simple_tooltips_base-js'></script>
   <?php 
 				if (isset($_POST["submit"])) {
 					$sub = $_POST["submit"];
@@ -507,7 +510,7 @@ class SP_Plugin_CDUSER {
             <?php $firstname = ( isset( $_REQUEST['firstname'] ) && $_REQUEST['firstname'] ) ? $_REQUEST['firstname'] : '';?>
             <?php $lastname = ( isset( $_REQUEST['lastname'] ) && $_REQUEST['lastname'] ) ? $_REQUEST['lastname'] : '';?>
             <div style="float:left;width:10%;padding:10px;text-align:right;">
-            	<label style="font-size:14px;padding:10px 0;"><strong>Name</strong></label>
+            	<label style="font-size:23px;padding:0px 0;"><strong>Name</strong></label>
             </div>
             <div style="float:left;width:40%;padding:10px;">
             	<input type="search" name="firstname" id="firstname" value="<?php echo $firstname;?>" style="width:100%;"/>
@@ -517,8 +520,8 @@ class SP_Plugin_CDUSER {
             <input type="search" name="lastname" id="lastname" value="<?php echo $lastname;?>" style="width:100%;" />
             <label class="secLabel">Last</label>
             </div>
-            <div style="float:left;width:10%;padding:10px;">
-            	<input type="submit" name="submit" value="Search" class="btn btn-primary"/>
+            <div style="float:left;width:10%;padding:10px 0;">
+            	<input type="submit" name="submit" value="Search" class="btn btn-primary" style="width:100%;"/>
             </div>
           </form>
           <?php 
@@ -536,11 +539,13 @@ class SP_Plugin_CDUSER {
                 <th scope="col" align="center"><span>Date Processed</span></th>
                 <th scope="col" align="center">Auction #</th>
                 <th scope="col" align="center">Payor</th>
-                <th scope="col" align="center">Status</th>
+                <th scope="col" align="center" width="8%;" >Status</th>
+				<th scope="col" align="left" width="5%;">&nbsp;</th>
               </tr>
             </thead>
             <tbody id="the-list">
-            <?php foreach($item['user_data'] as $user){
+            <?php 
+				global $wpdb; foreach($item['user_data'] as $user){
 				$userArray = get_user_by( 'id', $user->ID );
 				// Get all customer orders
 				$customer_orders = get_posts(array(
@@ -552,14 +557,39 @@ class SP_Plugin_CDUSER {
 					'post_type' => wc_get_order_types(),
 					'post_status' => array_keys(wc_get_order_statuses()), 'post_status' => array('wc-processing'),
 				));
-			
+					
+				$query_auctions = 'SELECT post_id FROM wp_postmeta where meta_key = "_auction_max_current_bider" and meta_value = "'.$user->ID.'"';
+				$results_auctions = $wpdb->get_results($query_auctions, OBJECT);
+				$auctions_count = $wpdb->num_rows;
+					
 				$Order_Array = array();
 				foreach ($customer_orders as $customer_order) {
 					$orderq = wc_get_order($customer_order);
 					$order_ref =get_post_meta($orderq->get_id(), 'order_ref_#',true);
 					$items = $orderq->get_items();
+					$Auction_id = '';
 					foreach ( $items as $item ) {
-						$Auction_id = $item->get_meta('Auction #');
+						if($item->get_meta('Auction #') !=""){
+							$Auction_id = '<a href="admin.php?page=auctions&search_str='.$item->get_meta('Auction #').'" title="'.$item->get_meta('Auction #').'" target="_blank">'.$item->get_meta('Auction #')."</a>";
+							$Auction_id_flag = 'fill';
+						}else{
+							$Auction_id_flag = 'empty';
+						}
+					}
+					$auction_ids = array();
+					$auction_no_link = '';
+					if($Auction_id_flag =='empty'){
+						if($auctions_count > 0){
+							foreach($results_auctions as $results_auction){
+								$auction_no =get_post_meta($results_auction->post_id, 'auction_#',true);
+								if($auction_no){
+									$auction_no_link .= '<a href="admin.php?page=auctions&search_str='.$auction_no.'" title="'.$auction_no.'" target="_blank">'.$auction_no.'</a><br />';
+									array_push($auction_ids,$auction_no);
+								}
+							}
+							//$auction_id = implode(',',$auction_ids);
+							//echo implode(',',$auction_ids);
+						}
 					}
 					$Order_Array[] = array(
 						"order_ref" => $order_ref,
@@ -568,6 +598,10 @@ class SP_Plugin_CDUSER {
 						"Value" => $orderq->get_total(),
 						"Date" => $orderq->get_date_modified()->date_i18n('m/d/y'),
 					);
+					if($Auction_id ==''){
+						//$Order_Array[0]['Auction_id'] = implode(',',$auction_ids);
+						$Order_Array[0]['Auction_id'] = $auction_no_link;
+					}
 					$Order_Array[0]['display_name'] = $userArray->display_name;
 					$deactivate_CD =  get_user_meta($userArray->ID, 'deactivate_CD', true );
 					if($userArray->roles[0]=='seller'){
@@ -578,6 +612,7 @@ class SP_Plugin_CDUSER {
 						}else{
 							$Order_Array[0]['status'] =  '<span class="circle_green">&nbsp;</span>';
 						}
+						 $Order_Array[0]['popup_ledger'] = '&nbsp;<a onClick="openLedger(\''. $userArray->ID.'\',\'client\');" href="javascript:"><img src="'.home_url('wp-content/plugins/WP_CDUSER/spiral_bookle.png').'" alt="spiral_bookle" title="spiral_bookle" height="" width="18px" class="spiral_bookle"/></a>';
 					}
 					if($userArray->roles[0]=='customer'){
 						$Order_Array[0]['popup']  = '<a onClick="openUserCD(\''. $userArray->ID.'\',\'dentist\',\''. $deactivate_CD.'\');" href="javascript:"><strong>D</strong></a>';
@@ -587,6 +622,7 @@ class SP_Plugin_CDUSER {
 						}else{
 							$Order_Array[0]['status'] = '<span class="circle_green">&nbsp;</span>';
 						}
+						$Order_Array[0]['popup_ledger'] = '&nbsp;<a onClick="openLedger(\''. $userArray->ID.'\',\'dentist\');" href="javascript:"><img src="'.home_url('wp-content/plugins/WP_CDUSER/spiral_bookle.png').'" alt="spiral_bookle" title="spiral_bookle" height="" width="18px" class="spiral_bookle"/></a>';
 					}			
 				}
 				
@@ -599,9 +635,10 @@ class SP_Plugin_CDUSER {
                                 <td align="center"><?php echo $order['display_name'];?></td>
                                 <td align="center"><a href="admin.php?page=orders&search_str=<?php echo $order['order_ref'];?>" title="<?php echo $order['order_ref'];?>" target="_new"><?php echo $order['order_ref'];?></a></td> 
                                 <td align="center"><?php echo $order['Date'];?></td>
-                                <td align="center"><?php if($order['Auction_id']!=""){?><a href="admin.php?page=auctions&search_str=<?php echo $order['Auction_id'];?>" title="<?php echo $order['Auction_id'];?>" target="_new"><?php echo $order['Auction_id'];?></a><?php }else{?>&mdash;<?php }?></td>
+                                <td align="center"><?php if($order['Auction_id']!=""){?><?php echo $order['Auction_id'];?><?php }else{?>&mdash;<?php }?></td>
                                 <td align="center"><?php echo $order['popup'];?></td>
                                 <td align="center"><?php echo $order['status'];?></td>
+							    <td align="left" style="text-align: left !important;"><?php echo $order['popup_ledger'];?></td>
                           </tr>
                       <?php }?>
                   <?php }?>
@@ -609,9 +646,11 @@ class SP_Plugin_CDUSER {
 					  $deactivate_CD =  get_user_meta($userArray->ID, 'deactivate_CD', true );
 					  if($userArray->roles[0]=='seller'){
 						  $popup = '<a onClick="openUserCD(\''. $userArray->ID.'\',\'client\',\''. $deactivate_CD.'\');" href="javascript:"><strong>C</strong></a>';
+						  $popup_ledger = '&nbsp;<a onClick="openLedger(\''. $userArray->ID.'\',\'client\');" href="javascript:"><img src="'.home_url('wp-content/plugins/WP_CDUSER/spiral_bookle.png').'" alt="spiral_bookle" title="spiral_bookle" height="" width="18px" class="spiral_bookle"/></a>';
 					  }
 					  if($userArray->roles[0]=='customer'){
 						  $popup = '<a onClick="openUserCD(\''. $userArray->ID.'\',\'dentist\',\''. $deactivate_CD.'\');" href="javascript:"><strong>D</strong></a>';
+						  $popup_ledger = '&nbsp;<a onClick="openLedger(\''. $userArray->ID.'\',\'dentist\');" href="javascript:"><img src="'.home_url('wp-content/plugins/WP_CDUSER/spiral_bookle.png').'" alt="spiral_bookle" title="spiral_bookle" height="" width="18px" class="spiral_bookle"/></a>';
 					  }
 					if($deactivate_CD=='Yes'){
 						$status =  '<span class="circle_red">&nbsp;</span>';
@@ -626,6 +665,7 @@ class SP_Plugin_CDUSER {
                             <td align="center">&mdash;</td>
                             <td align="center"><?php echo $popup;?></td>
                             <td align="center"><?php echo $status;?></td>
+							<td align="left" style="text-align: left !important;"><?php echo $popup_ledger;?></td>
                       </tr>
                   <?php }?>
               <?php }?>
@@ -640,6 +680,21 @@ class SP_Plugin_CDUSER {
   </div>
 </div>
 <script type="text/javascript">
+			function editLedger(id){
+				jQuery.ajax({	
+				url:'<?php echo get_site_url();?>/ajax.php',	
+				type:'POST',
+				data:{'mode':'getLedger','id':id,'type':'edit'},
+				beforeSend: function() {},
+				complete: function() {
+				},
+				success:function (data){
+					jQuery('#SuspendReason').val(data);
+					jQuery('#ledger_id').val(id);
+				}
+		
+				});
+			}
 			var options = {
 						script:"/autosuggest.php?json=true&field=city&",
 						varname:"input",

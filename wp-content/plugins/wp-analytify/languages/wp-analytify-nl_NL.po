@@ -1224,25 +1224,25 @@ msgstr "Wist u dat"
 msgid "people landed at this page directly."
 msgstr "personen die direct op deze pagina binnenkwamen."
 
-#: views/default/admin/system-stats.php:20
+#: views/default/admin/tech-stats.php:20
 msgid "Browsers statistics"
 msgstr "Browser statistieken"
 
-#: views/default/admin/system-stats.php:21
-#: views/default/admin/system-stats.php:53
-#: views/default/admin/system-stats.php:81
+#: views/default/admin/tech-stats.php:21
+#: views/default/admin/tech-stats.php:53
+#: views/default/admin/tech-stats.php:81
 msgid "Visits"
 msgstr "Bezoeken"
 
-#: views/default/admin/system-stats.php:52
+#: views/default/admin/tech-stats.php:52
 msgid "Operating system statistics"
 msgstr "Besturingssystemen statistieken"
 
-#: views/default/admin/system-stats.php:80
+#: views/default/admin/tech-stats.php:80
 msgid "Mobile device statistics"
 msgstr "Mobiele apparaten statistieken"
 
-#: views/default/admin/system-stats.php:106
+#: views/default/admin/tech-stats.php:106
 msgid "Listing statistics of top Mobile, Browsers and Operating System Stats."
 msgstr "Statistieken weergeven van top Mobiel, Browsers en Besturingssystemen "
 

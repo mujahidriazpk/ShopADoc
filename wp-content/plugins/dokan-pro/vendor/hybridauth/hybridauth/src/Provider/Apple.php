@@ -7,9 +7,8 @@
 
 namespace Hybridauth\Provider;
 
-use Composer\InstalledVersions;
-use Exception;
-use Firebase\JWT\ExpiredException;
+use Hybridauth\Exception\InvalidArgumentException;
+use Hybridauth\Exception\UnexpectedApiResponseException;
 use Hybridauth\Exception\InvalidApplicationCredentialsException;
 use Hybridauth\Exception\UnexpectedValueException;
 
@@ -20,8 +19,8 @@ use Hybridauth\User;
 use phpseclib\Crypt\RSA;
 use phpseclib\Math\BigInteger;
 
-use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
+use \Firebase\JWT\JWT;
+use \Firebase\JWT\JWK;
 
 /**
  * Apple OAuth2 provider adapter.
@@ -101,13 +100,6 @@ class Apple extends OAuth2
     {
         parent::initialize();
         $this->AuthorizeUrlParameters['response_mode'] = 'form_post';
-
-        if ($this->isRefreshTokenAvailable()) {
-            $this->tokenRefreshParameters += [
-                'client_id' => $this->clientId,
-                'client_secret' => $this->clientSecret,
-            ];
-        }
     }
 
     /**
@@ -118,7 +110,7 @@ class Apple extends OAuth2
         $keys = $this->config->get('keys');
         $keys['secret'] = $this->getSecret();
         $this->config->set('keys', $keys);
-        parent::configure();
+        return parent::configure();
     }
 
     /**
@@ -178,7 +170,7 @@ class Apple extends OAuth2
             // validate the token signature and get the payload
             $publicKeys = $this->apiRequest('keys');
 
-            JWT::$leeway = 120;
+            \Firebase\JWT\JWT::$leeway = 120;
 
             $error = false;
             $payload = null;
@@ -196,20 +188,18 @@ class Apple extends OAuth2
                     );
                     $pem = $rsa->getPublicKey();
 
-                    $payload = ($this->getJwtVersion() < '6.2') ?
-                        JWT::decode($id_token, $pem, ['RS256']) :
-                        JWT::decode($id_token, new Key($pem, 'RS256'));
+                    $payload = JWT::decode($id_token, $pem, ['RS256']);
                     break;
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     $error = $e->getMessage();
-                    if ($e instanceof ExpiredException) {
+                    if ($e instanceof \Firebase\JWT\ExpiredException) {
                         break;
                     }
                 }
             }
 
             if ($error && !$payload) {
-                throw new Exception($error);
+                throw new \Exception($error);
             }
         }
 
@@ -295,10 +285,5 @@ class Apple extends OAuth2
         $secret = JWT::encode($data, $key_content, 'ES256', $key_id);
 
         return $secret;
-    }
-
-    private function getJwtVersion()
-    {
-        return InstalledVersions::getVersion('firebase/php-jwt');
     }
 }

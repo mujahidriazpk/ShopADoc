@@ -15,7 +15,7 @@
 		  class="web-el-text"
 		  align="left"
 		  style='font-size: 13px;  line-height: 22px; word-break: break-word;
-		<?php echo 'font-family: ' . wp_kses_post( $attrs['family'] ); ?>;
+		<?php echo 'font-family: ' . wp_kses_post( str_replace( '"', '', $attrs['family'] ) ); ?>;
 		<?php echo esc_attr( 'padding: ' . $attrs['paddingTop'] . 'px ' . $attrs['paddingRight'] . 'px ' . $attrs['paddingBottom'] . 'px ' . $attrs['paddingLeft'] . 'px;' ); ?>
 		<?php echo esc_attr( 'color: ' . $attrs['textColor'] ); ?>;
 		'
@@ -28,7 +28,7 @@
 		if ( isset( $h[0] ) && ! empty( $h[0] ) ) {
 			$newh             = substr( $h[0], 0, -2 );
 			$newh[10]         = '\'';
-			$newh            .= ';font-family: ' . wp_kses_post( $attrs['family'] ) . ';\'>';
+			$newh            .= ';font-family: ' . wp_kses_post( str_replace( '"', '', $attrs['family'] ) ) . ';\'>';
 			$attrs['content'] = str_replace( $h, $newh, $attrs['content'] );
 		}
 		echo wp_kses_post( $attrs['content'] );

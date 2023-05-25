@@ -639,11 +639,12 @@ function dashboard_widgets_suite_get_database_infos() { ?>
 	
 	<p><span class="fa fa-info-circle"></span> <strong><?php esc_html_e('Database Info', 'dashboard-widgets-suite'); ?></strong></p>
 	<ul>
-		<li><?php esc_html_e('Database: ', 'dashboard-widgets-suite'); echo dashboard_widgets_suite_get_database_name(); ?></li>
-		<li><?php esc_html_e('Version: ',  'dashboard-widgets-suite'); echo dashboard_widgets_suite_get_database_version(); ?></li>
-		<li><?php esc_html_e('Uptime: ',   'dashboard-widgets-suite'); echo dashboard_widgets_suite_get_database_uptime(); ?></li>
-		<li><?php esc_html_e('Hostname: ', 'dashboard-widgets-suite'); echo dashboard_widgets_suite_get_database_hostname(); ?></li>
-		<li><?php esc_html_e('Charset: ',  'dashboard-widgets-suite'); echo dashboard_widgets_suite_get_database_charset(); ?></li>
+		<li><?php esc_html_e('Database: ',         'dashboard-widgets-suite'); echo dashboard_widgets_suite_get_database_type(); ?></li>
+		<li><?php esc_html_e('Database Name: ',    'dashboard-widgets-suite'); echo dashboard_widgets_suite_get_database_name(); ?></li>
+		<li><?php esc_html_e('Database Version: ', 'dashboard-widgets-suite'); echo dashboard_widgets_suite_get_database_version(); ?></li>
+		<li><?php esc_html_e('Uptime: ',           'dashboard-widgets-suite'); echo dashboard_widgets_suite_get_database_uptime(); ?></li>
+		<li><?php esc_html_e('Hostname: ',         'dashboard-widgets-suite'); echo dashboard_widgets_suite_get_database_hostname(); ?></li>
+		<li><?php esc_html_e('Charset: ',          'dashboard-widgets-suite'); echo dashboard_widgets_suite_get_database_charset(); ?></li>
 	</ul>
 	
 	<?php
@@ -697,11 +698,19 @@ function dashboard_widgets_suite_get_database_status() {
 	
 }
 
-function dashboard_widgets_suite_get_database_name() {
+function dashboard_widgets_suite_get_database_type() {
 	
 	$vars = dashboard_widgets_suite_get_database_vars();
 	
 	return (isset($vars['version_comment']) && !empty($vars['version_comment'])) ? sanitize_text_field($vars['version_comment']) : 'n/a';
+	
+}
+
+function dashboard_widgets_suite_get_database_name() {
+	
+	global $wpdb;
+	
+	return sanitize_text_field($wpdb->dbname);
 	
 }
 

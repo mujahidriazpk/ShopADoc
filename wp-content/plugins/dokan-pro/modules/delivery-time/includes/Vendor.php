@@ -2,6 +2,8 @@
 
 namespace WeDevs\DokanPro\Modules\DeliveryTime;
 
+use \WeDevs\DokanPro\Modules\DeliveryTime\StorePickup\Helper as StorePickupHelper;
+
 /**
  * Class Vendor
  * @package WeDevs\DokanPro\Modules\DeliveryTime
@@ -26,6 +28,7 @@ class Vendor {
         add_action( 'template_redirect', [ $this, 'save_delivery_time_settings' ], 10 );
         add_action( 'template_redirect', [ $this, 'save_vendor_delivery_time_box' ], 10 );
 
+        add_action( 'after_dokan_delivery_time_settings_form', [ $this, 'load_multiple_delivery_slots' ], 10, 3 );
         add_action( 'wp_enqueue_scripts', [ $this, 'load_scripts' ], 20 );
 
         add_action( 'wp_ajax_dokan_get_dashboard_calendar_event', [ $this, 'get_dashboard_calendar_event' ] );
@@ -45,9 +48,7 @@ class Vendor {
             return $urls;
         }
 
-        $admin_default_settings = Helper::get_delivery_time_settings( $vendor_id );
-
-        if ( empty( $admin_default_settings ) ) {
+        if ( ! Helper::vendor_can_override_settings() ) {
             return $urls;
         }
 
@@ -82,6 +83,45 @@ class Vendor {
     }
 
     /**
+     * Show multiple delivery time settings field here.
+     *
+     * @since 3.7.8
+     *
+     * @param string $current_day
+     * @param string $working_status
+     * @param array  $vendor_delivery_settings
+     *
+     * @return void
+     */
+    public function load_multiple_delivery_slots( $current_day, $working_status, $vendor_delivery_settings ) {
+        $delivery_opening_times = ! empty( $vendor_delivery_settings['opening_time'] ) ? $vendor_delivery_settings['opening_time'] : [];
+        $delivery_closing_times = ! empty( $vendor_delivery_settings['closing_time'] ) ? $vendor_delivery_settings['closing_time'] : [];
+
+        if ( empty( $delivery_opening_times[ $current_day ] ) || empty( $delivery_closing_times[ $current_day ] ) ) {
+            return;
+        }
+
+        $times_length = count( (array) $delivery_opening_times[ $current_day ] );
+
+        for ( $index = 1; $index < $times_length; $index++ ) {
+            $args = [
+                'index'            => $index,
+                'status'           => $working_status,
+                'place_end'        => __( 'Closes at', 'dokan' ),
+                'add_action'       => __( 'Add hours', 'dokan' ),
+                'place_start'      => __( 'Opens at', 'dokan' ),
+                'current_day'      => $current_day,
+                'opening_time'     => Helper::get_delivery_times( $current_day, $delivery_opening_times, $index ),
+                'closing_time'     => Helper::get_delivery_times( $current_day, $delivery_closing_times, $index ),
+                'is_delivery_time' => true,
+            ];
+
+            // Load multiple store times from here.
+            dokan_get_template_part( 'add-delivery-time', '', $args );
+        }
+    }
+
+    /**
      * Loads scripts
      *
      * @since 3.3.0
@@ -109,8 +149,24 @@ class Vendor {
             wp_enqueue_style( 'dokan-delivery-time-vendor-style' );
         }
 
-        if ( dokan_is_seller_dashboard() && ( isset( $wp->query_vars['settings'] ) && 'delivery-time' === (string) $wp->query_vars['settings'] ) ) {
+        if ( dokan_is_seller_dashboard() && ( isset( $wp->query_vars['settings'] ) && 'delivery-time' === $wp->query_vars['settings'] ) ) {
+            wp_enqueue_style( 'dokan-timepicker' );
+            wp_enqueue_style( 'dokan-minitoggle' );
+            wp_enqueue_style( 'dokan-pro-store-times' );
             wp_enqueue_style( 'dokan-delivery-time-vendor-style' );
+            wp_enqueue_script( 'dokan-timepicker' );
+            wp_enqueue_script( 'dokan-minitoggle' );
+            wp_enqueue_script( 'dokan-pro-store-open-close-time' );
+            wp_enqueue_script( 'dokan-moment' );
+
+            $data = [
+                'place_end'     => __( 'Closes at', 'dokan' ),
+                'add_action'    => __( 'Add hours', 'dokan' ),
+                'place_start'   => __( 'Opens at', 'dokan' ),
+                'fullDayString' => __( 'Full Day', 'dokan' ),
+            ];
+
+            wp_localize_script( 'dokan-pro-store-open-close-time', 'dokanMultipleTime', $data );
         }
     }
 
@@ -141,29 +197,32 @@ class Vendor {
             return;
         }
 
-        $admin_default_settings = Helper::get_delivery_time_settings( $vendor_id );
-
-        if ( empty( $admin_default_settings ) || isset( $query_vars['settings'] ) && 'delivery-time' !== $query_vars['settings'] ) {
+        if ( isset( $query_vars['settings'] ) && 'delivery-time' !== $query_vars['settings'] ) {
             return;
         }
 
-        $all_delivery_days = Helper::get_all_delivery_days();
-        $all_time_slots    = Helper::get_all_delivery_time_slots();
-
-        $vendor_id = dokan_get_current_user_id();
+        if ( ! Helper::vendor_can_override_settings() ) {
+            return;
+        }
 
         $vendor_delivery_time_settings = Helper::get_delivery_time_settings( $vendor_id );
-        $vendor_can_override_settings  = dokan_get_option( 'allow_vendor_override_settings', 'dokan_delivery_time', 'off' );
+
+        $all_time_slots               = Helper::get_all_delivery_time_slots();
+        $vendor_can_override_settings = dokan_get_option( 'allow_vendor_override_settings', 'dokan_delivery_time', 'off' );
 
         $this->handle_prompt_message_templates();
 
         dokan_get_template_part(
             'form', '', [
+                'all_day'                       => __( 'Full Day', 'dokan' ),
+                'place_end'                     => __( 'Closes at', 'dokan' ),
+                'add_action'                    => __( 'Add hours', 'dokan' ),
+                'place_start'                   => __( 'Opens at', 'dokan' ),
                 'is_delivery_time'              => true,
-                'all_delivery_days'             => $all_delivery_days,
+                'all_delivery_days'             => dokan_get_translated_days(),
                 'all_delivery_time_slots'       => $all_time_slots,
-                'vendor_delivery_time_settings' => $vendor_delivery_time_settings,
                 'vendor_can_override_settings'  => $vendor_can_override_settings,
+                'vendor_delivery_time_settings' => $vendor_delivery_time_settings,
             ]
         );
     }
@@ -201,11 +260,10 @@ class Vendor {
 
         $data = [];
 
-        $data['allow_vendor_delivery_time_option'] = isset( $_POST['delivery_show_time_option'] ) ? sanitize_text_field( wp_unslash( $_POST['delivery_show_time_option'] ) ) : 'off';
-
         // Getting default settings for vendor
+        $vendor_id                    = (int) dokan_get_current_user_id();
+        $data['delivery_support']     = isset( $_POST['delivery'] ) ? sanitize_text_field( wp_unslash( $_POST['delivery'] ) ) : 'off';
         $vendor_can_override_settings = dokan_get_option( 'allow_vendor_override_settings', 'dokan_delivery_time', 'off' );
-        $vendor_id = (int) dokan_get_current_user_id();
 
         // If vendor is not allowed to override settings, return
         if ( empty( $vendor_can_override_settings ) || 'off' === $vendor_can_override_settings ) {
@@ -221,19 +279,28 @@ class Vendor {
 
             // Saving delivery meta for only vendor allowing time delivery setting
             $user_settings = [
-                'allow_vendor_delivery_time_option' => $data['allow_vendor_delivery_time_option'],
+                'delivery_support' => $data['delivery_support'],
             ];
             update_user_meta( $vendor_id, '_dokan_vendor_delivery_time_settings', $user_settings );
 
-            wp_safe_redirect( add_query_arg( [ 'message' => 'success' ], dokan_get_navigation_url( 'settings/delivery-time' ) ), 302 );
+            wp_safe_redirect(
+                add_query_arg(
+                    [ 'message' => 'success' ],
+                    dokan_get_navigation_url( 'settings/delivery-time' )
+                ),
+                302
+            );
             exit;
         }
 
-        $data['preorder_date']                = isset( $_POST['preorder_date'] ) ? sanitize_text_field( wp_unslash( $_POST['preorder_date'] ) ) : 0;
-        $data['delivery_prep_date']           = isset( $_POST['delivery_prep_date'] ) ? sanitize_text_field( wp_unslash( $_POST['delivery_prep_date'] ) ) : 0;
         $data['delivery_day']                 = ( isset( $_POST['delivery_day'] ) && is_array( $_POST['delivery_day'] ) ) ? wc_clean( wp_unslash( $_POST['delivery_day'] ) ) : [];
-        $data['enable_delivery_notification']  = isset( $_POST['enable_delivery_notification'] ) ? sanitize_text_field( wp_unslash( $_POST['enable_delivery_notification'] ) ) : 'off';
+        $data['preorder_date']                = isset( $_POST['preorder_date'] ) ? sanitize_text_field( wp_unslash( $_POST['preorder_date'] ) ) : 0;
+        $data['order_per_slot']               = isset( $_POST['order_per_slot'] ) ? sanitize_text_field( wp_unslash( $_POST['order_per_slot'] ) ) : 0;
+        $data['time_slot_minutes']            = isset( $_POST['delivery_time_slot'] ) ? sanitize_text_field( wp_unslash( $_POST['delivery_time_slot'] ) ) : '';
+        $data['delivery_prep_date']           = isset( $_POST['delivery_prep_date'] ) ? sanitize_text_field( wp_unslash( $_POST['delivery_prep_date'] ) ) : 0;
+        $data['enable_delivery_notification'] = isset( $_POST['enable_delivery_notification'] ) ? sanitize_text_field( wp_unslash( $_POST['enable_delivery_notification'] ) ) : 'off';
 
+        // Check if delivery day is empty then throw an error msg.
         if ( empty( $data['delivery_day'] ) ) {
             wp_safe_redirect(
                 add_query_arg(
@@ -241,59 +308,89 @@ class Vendor {
                         'message'       => 'failed',
                         'error-message' => 'empty-delivery-day',
                     ], dokan_get_navigation_url( 'settings/delivery-time' )
-                ), 302
+                ),
+                302
             );
             exit;
         }
 
-        foreach ( $data['delivery_day'] as $delivery_day ) {
-            $data['opening_time'][ $delivery_day ]      = isset( $_POST['delivery_opening_time'][ $delivery_day ] ) ? sanitize_text_field( wp_unslash( $_POST['delivery_opening_time'][ $delivery_day ] ) ) : '';
-            $data['closing_time'][ $delivery_day ]      = isset( $_POST['delivery_closing_time'][ $delivery_day ] ) ? sanitize_text_field( wp_unslash( $_POST['delivery_closing_time'][ $delivery_day ] ) ) : '';
-            $data['time_slot_minutes'][ $delivery_day ] = isset( $_POST['delivery_time_slot'][ $delivery_day ] ) ? sanitize_text_field( wp_unslash( $_POST['delivery_time_slot'][ $delivery_day ] ) ) : '';
-            $data['order_per_slot'][ $delivery_day ]    = isset( $_POST['order_per_slot'][ $delivery_day ] ) ? sanitize_text_field( wp_unslash( $_POST['order_per_slot'][ $delivery_day ] ) ) : 0;
+        // Check time slot minutes can't be less than 10 minutes and greater than 24 hours.
+        if ( (int) $data['time_slot_minutes'] < 10 || (int) $data['time_slot_minutes'] > 1440 ) {
+            wp_safe_redirect(
+                add_query_arg(
+                    [
+                        'message'       => 'failed',
+                        'error-message' => 'time-slot',
+                    ], dokan_get_navigation_url( 'settings/delivery-time' )
+                ),
+                302
+            );
+            exit;
+        }
+
+        // Check order per slot can't be less than 0 or empty. (0 = unlimited)
+        if ( null === $data['order_per_slot'] || (int) $data['order_per_slot'] < 0 ) {
+            wp_safe_redirect(
+                add_query_arg(
+                    [
+                        'message'       => 'failed',
+                        'error-message' => 'order-per-slot',
+                    ], dokan_get_navigation_url( 'settings/delivery-time' )
+                ),
+                302
+            );
+            exit;
+        }
+
+        // Check & set formatted delivery times as opening and closing times.
+        foreach ( $data['delivery_day'] as $delivery_day => $value ) {
+            if ( empty( $value ) ) {
+                $data['opening_time'][ $delivery_day ] = [];
+                $data['closing_time'][ $delivery_day ] = [];
+                continue;
+            }
+
+            $delivery_opening_times = ! empty( $_POST['delivery_opening_time'][ $delivery_day ] ) ? wc_clean( wp_unslash( $_POST['delivery_opening_time'][ $delivery_day ] ) ) : [];
+            $delivery_closing_times = ! empty( $_POST['delivery_closing_time'][ $delivery_day ] ) ? wc_clean( wp_unslash( $_POST['delivery_closing_time'][ $delivery_day ] ) ) : [];
+
+            $data['opening_time'][ $delivery_day ] = ! empty( $delivery_opening_times ) ? dokan_convert_date_format( $delivery_opening_times, 'g:i a', 'g:i a' ) : [];
+            $data['closing_time'][ $delivery_day ] = ! empty( $delivery_closing_times ) ? dokan_convert_date_format( $delivery_closing_times, 'g:i a', 'g:i a' ) : [];
         }
 
         $time_slots = [];
 
-        foreach ( $data['delivery_day'] as $delivery_day ) {
-            if ( empty( $data['opening_time'][ $delivery_day ] ) || empty( $data['closing_time'][ $delivery_day ] ) || strtotime( $data['opening_time'][ $delivery_day ] ) > strtotime( $data['closing_time'][ $delivery_day ] ) ) {
-                wp_safe_redirect(
-                    add_query_arg(
-                        [
-                            'message'       => 'failed',
-                            'error-message' => 'time-mismatch',
-                        ], dokan_get_navigation_url( 'settings/delivery-time' )
-                    ), 302
-                );
-                exit;
+        // Check delivery time slots & generate time slots for every day.
+        foreach ( $data['delivery_day'] as $delivery_day => $value ) {
+            if ( empty( $value ) ) {
+                continue;
             }
 
-            if ( '' === $data['order_per_slot'][ $delivery_day ] || (int) $data['order_per_slot'][ $delivery_day ] < 0 ) {
-                wp_safe_redirect(
-                    add_query_arg(
-                        [
-                            'message'       => 'failed',
-                            'error-message' => 'order-per-slot',
-                        ], dokan_get_navigation_url( 'settings/delivery-time' )
-                    ), 302
-                );
-                exit;
-            }
+            $data['opening_time'][ $delivery_day ] = (array) $data['opening_time'][ $delivery_day ];
+            $data['closing_time'][ $delivery_day ] = (array) $data['closing_time'][ $delivery_day ];
 
-            if ( (int) $data['time_slot_minutes'][ $delivery_day ] < 10 || (int) $data['time_slot_minutes'][ $delivery_day ] > 1440 ) {
-                wp_safe_redirect(
-                    add_query_arg(
-                        [
-                            'message'       => 'failed',
-                            'error-message' => 'time-slot',
-                        ], dokan_get_navigation_url( 'settings/delivery-time' )
-                    ), 302
-                );
-                exit;
+            // Validate every delivery time slots.
+            foreach ( $data['opening_time'][ $delivery_day ] as $index => $time ) {
+                if (
+                    empty( $data['opening_time'][ $delivery_day ][ $index ] ) ||
+                    empty( $data['closing_time'][ $delivery_day ][ $index ] ) ||
+                    strtotime( $data['opening_time'][ $delivery_day ][ $index ] ) > strtotime( $data['closing_time'][ $delivery_day ][ $index ] )
+                ) {
+                    wp_safe_redirect(
+                        add_query_arg(
+                            [
+                                'message'       => 'failed',
+                                'error-message' => 'time-mismatch',
+                            ],
+                            dokan_get_navigation_url( 'settings/delivery-time' )
+                        ),
+                        302
+                    );
+                    exit;
+                }
             }
 
             // Generating time slots
-            $time_slots[ $delivery_day ] = Helper::generate_delivery_time_slots( $data['time_slot_minutes'][ $delivery_day ], $data['opening_time'][ $delivery_day ], $data['closing_time'][ $delivery_day ] );
+            $time_slots[ $delivery_day ] = Helper::generate_delivery_time_slots( $data['time_slot_minutes'], $data['opening_time'][ $delivery_day ], $data['closing_time'][ $delivery_day ] );
         }
 
         // Saving delivery metas
@@ -305,7 +402,13 @@ class Vendor {
         // Use global $_POST directly for this hook
         do_action( 'dokan_delivery_time_after_save_settings' );
 
-        wp_safe_redirect( add_query_arg( [ 'message' => 'success' ], dokan_get_navigation_url( 'settings/delivery-time' ) ), 302 );
+        wp_safe_redirect(
+            add_query_arg(
+                [ 'message' => 'success' ],
+                dokan_get_navigation_url( 'settings/delivery-time' )
+            ),
+            302
+        );
         exit;
     }
 
@@ -324,7 +427,7 @@ class Vendor {
         if ( isset( $_GET['message'] ) && 'failed' === $_GET['message'] && isset( $_GET['error-message'] ) && 'time-mismatch' === $_GET['error-message'] ) { // phpcs:ignore
             dokan_get_template_part(
                 'global/dokan-error', '', [
-                    'message' => __( 'Please make sure the opening time is greater than the closing time!', 'dokan' ),
+                    'message' => __( 'Please make sure the closing time is greater than the opening time!', 'dokan' ),
                     'deleted' => false,
                 ]
             );
@@ -374,32 +477,29 @@ class Vendor {
 
         $order_id = $order->get_id();
 
-        $store_location = $order->get_meta( 'dokan_store_pickup_location' );
-
-        if ( ! empty( $store_location ) ) {
-            return;
-        }
-
         $date = dokan_current_datetime();
         $date = $date->format( 'Y-m-d' );
 
         $vendor     = [];
         $_vendor_id = dokan_get_seller_id_by_order( $order_id );
 
-        $vendor_delivery_options = Helper::get_delivery_time_settings( $_vendor_id );
+        $order_delivery_info          = Helper::get_order_delivery_info( $_vendor_id, $order_id );
+        $vendor_delivery_options      = Helper::get_delivery_time_settings( $_vendor_id );
+        $vendor_can_override_settings = Helper::vendor_can_override_settings();
 
-        if ( ! isset( $vendor_delivery_options['allow_vendor_delivery_time_option'] ) || 'on' !== $vendor_delivery_options['allow_vendor_delivery_time_option'] ) {
+        $is_store_pickup_active  = StorePickupHelper::is_store_pickup_location_active( $_vendor_id );
+        $is_delivery_time_active = isset( $vendor_delivery_options['delivery_support'] ) && 'on' === $vendor_delivery_options['delivery_support'];
+
+        if ( ! $is_delivery_time_active && ! $is_store_pickup_active ) {
             return;
         }
 
-        $store_info = dokan_get_store_info( $_vendor_id );
-
+        $store_info   = dokan_get_store_info( $_vendor_id );
         $current_date = dokan_current_datetime();
         $current_date = $current_date->modify( $date );
-        $day          = strtolower( trim( $current_date->format( 'l' ) ) );
 
-        $vendor_order_per_slot              = (int) isset( $vendor_delivery_options['order_per_slot'][ $day ] ) ? $vendor_delivery_options['order_per_slot'][ $day ] : -1;
-        $vendor_preorder_blocked_date_count = (int) $vendor_delivery_options['preorder_date'] > 0 ? $vendor_delivery_options['preorder_date'] : 0;
+        $vendor_order_per_slot              = (int) isset( $vendor_delivery_options['order_per_slot'] ) ? $vendor_delivery_options['order_per_slot'] : -1;
+        $vendor_preorder_blocked_date_count = (int) ! empty( $vendor_delivery_options['preorder_date'] ) && $vendor_delivery_options['preorder_date'] > 0 ? $vendor_delivery_options['preorder_date'] : 0;
         $vendor_delivery_slots              = Helper::get_available_delivery_slots_by_date( $_vendor_id, $vendor_order_per_slot, $date );
 
         $vendor['store_name']              = $store_info['store_name'];
@@ -427,6 +527,7 @@ class Vendor {
                 'order_id'         => $order_id,
                 'vendor_id'        => $_vendor_id,
                 'vendor_info'      => $vendor,
+                'delivery_type'    => ! empty( $order_delivery_info->delivery_type ) ? $order_delivery_info->delivery_type : '',
             ]
         );
     }
@@ -452,13 +553,25 @@ class Vendor {
         $delivery_date                              = isset( $_POST['dokan_delivery_date'] ) ? wc_clean( wp_unslash( $_POST['dokan_delivery_date'] ) ) : '';
         $delivery_time_slot                         = isset( $_POST['dokan_delivery_time_slot'] ) ? wc_clean( wp_unslash( $_POST['dokan_delivery_time_slot'] ) ) : '';
         $vendor_selected_current_delivery_date_slot = isset( $_POST['vendor_selected_current_delivery_date_slot'] ) ? wc_clean( wp_unslash( $_POST['vendor_selected_current_delivery_date_slot'] ) ) : '-';
+        $order_delivery_type                        = isset( $_POST['dokan_delivery_type_pickup'] ) ? 'store-pickup' : 'delivery';
+        $vendor_id                                  = (int) dokan_get_seller_id_by_order( $order_id );
+        $prev_delivery_info                         = Helper::get_order_delivery_info( $vendor_id, $order_id );
+        $location_data                              = isset( $_POST['dokan-store-pickup-location'] ) ? sanitize_text_field( wp_unslash( $_POST['dokan-store-pickup-location'] ) ) : '';
 
         $data = [
             'order_id'                                   => $order_id,
             'delivery_date'                              => $delivery_date,
+            'prev_delivery_info'                         => $prev_delivery_info,
             'delivery_time_slot'                         => $delivery_time_slot,
+            'store_pickup_location'                      => StorePickupHelper::get_selected_order_pickup_location( $vendor_id, $location_data ),
+            'selected_delivery_type'                     => $order_delivery_type,
             'vendor_selected_current_delivery_date_slot' => $vendor_selected_current_delivery_date_slot,
         ];
+
+        /**
+         * @since 3.7.8
+         */
+        do_action( 'dokan_after_vendor_update_order_delivery_info', $vendor_id, $data );
 
         Helper::update_delivery_time_date_slot( $data );
 

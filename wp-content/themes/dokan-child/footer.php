@@ -15,6 +15,7 @@
 <!-- .row -->
 </div>
 <?php /*?>
+
 <style type="text/css">
 	.sgpb-content-1640,.sgpb-popup-overlay-1640{display:none !important;}
 </style>
@@ -221,8 +222,8 @@ if((( $deactivate_CD=='No' ||  $deactivate_CD=='')) || strpos($current_url,"/che
               <?php
                             $footer_text = get_theme_mod( 'footer_text' );
 
-                            if ( empty( $footer_text ) ) {
-                                printf( __( '&copy; 2018-%d, %s. All rights are reserved.', 'dokan-theme' ), date( 'Y' ), 'ShopADoc® The Dentist Marketplace, Inc');
+                            if ( empty( $footer_text ) && 1==2) {
+                                printf( __( '&copy; 2018-%d, %s. All rights are reserved.', 'dokan-theme' ), date( 'Y' ), 'ShopADoc® Inc');
                                 printf( __( 'Powered by <a href="%s" target="_blank">GrossiWeb</a>', 'dokan-theme' ), esc_url( 'http://grossiweb.com' ));
                             } else {
                                 echo str_replace("[year]",date('Y'),$footer_text);
@@ -606,9 +607,11 @@ ul.panel-icon li {
 	 height: 35.5% !important;
 	 float:none;
 	 display:flex;
+	 overflow: visible;
 	}
 	<?php if(my_phone_or_tablet() !="tab"){?>
-	.rotation_main,.rotation_set,.rotation_ad.div[id^="advads-"],.rotation_set img{height:100% !important;}
+	/*.rotation_main,.rotation_set,.rotation_ad.div[id^="advads-"],.rotation_set img{height:100% !important;}*/
+   .rotation_ad.div[id^="advads-"],.rotation_set img{height:100% !important;}
 	<?php }?>
 }
 </style>
@@ -830,7 +833,7 @@ var windowsize = jQuery(window).width();
 if(windowsize <= 850){
 	var orientation = (screen.orientation || {}).type || screen.mozOrientation || screen.msOrientation;
 	//alert(orientation);
-	jQuery(".site-info").text('<?php echo "© 2018-".date("Y")." ShopADoc Inc. All Rights Reserved"?>');
+	//jQuery(".site-info").text('<?php echo "© 2018-".date("Y")." ShopADoc Inc. All Rights Reserved"?>');
 	 var gallery = jQuery(".woocommerce-product-gallery");
 	 var abuse = jQuery(".abuse");
 	 jQuery(".auction-user,h1.product_title,p.auction-start").css('margin-bottom','0px');
@@ -1038,7 +1041,7 @@ jQuery(document).ready(function() {
 		   jQuery( this ).html(jQuery( this ).text().replace(/\ /g, '<br/>'));
 		});
 		jQuery( "th.ask_fee" ).html(jQuery( "th.ask_fee" ).text().replace(/\ /g, '<br/>'));
-		jQuery(".site-info").text('<?php echo "© 2018-".date("Y")." ShopADoc Inc. All Rights Reserved"?>');
+		//jQuery(".site-info").text('<?php echo "© 2018-".date("Y")." ShopADoc Inc. All Rights Reserved"?>');
 		
 		var navbarHeight = jQuery('.navbar').height();
 		
@@ -1221,11 +1224,13 @@ jQuery(document).ready(function() {
 		$( 'body' ).on( 'updated_checkout', function() {
 			<?php if(isset($_GET['lang']) && $_GET['lang']=='es'){?>
 				 $("#place_order").text('Realizar pedido');
-				 $("#checkout_tooltip").html('<span class="tooltip_New checkout"><span class="tooltips" title="Por favor, revise la pestaña Bandeja de entrada, correo no deseado, correo no deseado y promociones para ver los recibos y la correspondencia de ShopADoc.">&nbsp;</span></span>');
-				//jQuery("#billing_full_name_field_2 label").append('<span id="checkout_tooltip_new">Por favor, revise la pestaña Bandeja de entrada, correo no deseado, correo no deseado y promociones para ver los recibos y la correspondencia de ShopADoc.</span>');
+				$("#checkout_tooltip").html('<span class="tooltip_New checkout"><span class="tooltips" title="Por favor, revise la pestaña Bandeja de entrada, correo no deseado, correo no deseado y promociones para ver los recibos y la correspondencia de ShopADoc.">&nbsp;</span></span>');
+				//$("#checkout_tooltip").html('<span class="tooltip_New checkout"><span class="tooltips custom_m_bubble" style="float:left !important;">&nbsp;</span><span class="tooltip_text">Por favor, revise la pestaña Bandeja de entrada, correo no deseado, correo no deseado y promociones para ver los recibos<br>y la correspondencia de ShopADoc.</span>');
+				
 			<?php }else{?>
 			//jQuery("#billing_full_name_field_2 label").append('<span id="checkout_tooltip_new">Please check your Inbox, Spam, Junk, &amp; Promotions tab for receipts &amp; correspondence from ShopADoc.</span>');
 		  $("#checkout_tooltip").html('<span class="tooltip_New checkout"><span class="tooltips" title="Please check your Inbox, Spam, Junk, & Promotions tab for receipts & correspondence from ShopADoc.">&nbsp;</span></span>');
+		  //$("#checkout_tooltip").html('<span class="tooltip_New checkout"><span class="tooltips custom_m_bubble" style="float:left !important;">&nbsp;</span><span class="tooltip_text">Please check your Inbox, Spam, Junk, & Promotions tab for receipts & correspondence <br class="only_print">from ShopADoc.</span>');
 		<?php	}?>
 		
 		/*$('#billing_full_name').focusin(  
@@ -1323,4 +1328,227 @@ if(isMobile.any()){
 <div id="yith-wcwl-popup-message" style="display:none;">
   <div id="yith-wcwl-message"></div>
 </div>
+</div>
+<?php if($post->ID == '1735'){?>
+<style>
+    .hytPlayerWrap {
+        display: inline-block;
+        position: relative;
+		width: 100%;
+    }
+    .hytPlayerWrap.ended::after {
+        content:"";
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        cursor: pointer;
+        background-color: black;
+        background-repeat: no-repeat;
+        background-position: center; 
+        background-size: 64px 64px;
+        background-image: url(data:image/svg+xml;utf8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjgiIGhlaWdodD0iMTI4IiB2aWV3Qm94PSIwIDAgNTEwIDUxMCI+PHBhdGggZD0iTTI1NSAxMDJWMEwxMjcuNSAxMjcuNSAyNTUgMjU1VjE1M2M4NC4xNSAwIDE1MyA2OC44NSAxNTMgMTUzcy02OC44NSAxNTMtMTUzIDE1My0xNTMtNjguODUtMTUzLTE1M0g1MWMwIDExMi4yIDkxLjggMjA0IDIwNCAyMDRzMjA0LTkxLjggMjA0LTIwNC05MS44LTIwNC0yMDQtMjA0eiIgZmlsbD0iI0ZGRiIvPjwvc3ZnPg==);
+    }
+    .hytPlayerWrap.paused::after {
+        content:"";
+        position: absolute;
+        top: 70px;
+        left: 0;
+        bottom: 50px;
+        right: 0;
+        cursor: pointer;
+        background-color: black;
+        background-repeat: no-repeat;
+        background-position: center; 
+        background-size: 40px 40px;
+        background-image: url(data:image/svg+xml;utf8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEiIHdpZHRoPSIxNzA2LjY2NyIgaGVpZ2h0PSIxNzA2LjY2NyIgdmlld0JveD0iMCAwIDEyODAgMTI4MCI+PHBhdGggZD0iTTE1Ny42MzUgMi45ODRMMTI2MC45NzkgNjQwIDE1Ny42MzUgMTI3Ny4wMTZ6IiBmaWxsPSIjZmZmIi8+PC9zdmc+);
+    }
+	.hytPlayerWrap2 {
+        display: inline-block;
+        position: relative;
+		width: 100%;
+    }
+    .hytPlayerWrap2.ended::after {
+        content:"";
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        cursor: pointer;
+        background-color: black;
+        background-repeat: no-repeat;
+        background-position: center; 
+        background-size: 64px 64px;
+        background-image: url(data:image/svg+xml;utf8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjgiIGhlaWdodD0iMTI4IiB2aWV3Qm94PSIwIDAgNTEwIDUxMCI+PHBhdGggZD0iTTI1NSAxMDJWMEwxMjcuNSAxMjcuNSAyNTUgMjU1VjE1M2M4NC4xNSAwIDE1MyA2OC44NSAxNTMgMTUzcy02OC44NSAxNTMtMTUzIDE1My0xNTMtNjguODUtMTUzLTE1M0g1MWMwIDExMi4yIDkxLjggMjA0IDIwNCAyMDRzMjA0LTkxLjggMjA0LTIwNC05MS44LTIwNC0yMDQtMjA0eiIgZmlsbD0iI0ZGRiIvPjwvc3ZnPg==);
+    }
+    .hytPlayerWrap2.paused::after {
+        content:"";
+        position: absolute;
+        top: 70px;
+        left: 0;
+        bottom: 50px;
+        right: 0;
+        cursor: pointer;
+        background-color: black;
+        background-repeat: no-repeat;
+        background-position: center; 
+        background-size: 40px 40px;
+        background-image: url(data:image/svg+xml;utf8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEiIHdpZHRoPSIxNzA2LjY2NyIgaGVpZ2h0PSIxNzA2LjY2NyIgdmlld0JveD0iMCAwIDEyODAgMTI4MCI+PHBhdGggZD0iTTE1Ny42MzUgMi45ODRMMTI2MC45NzkgNjQwIDE1Ny42MzUgMTI3Ny4wMTZ6IiBmaWxsPSIjZmZmIi8+PC9zdmc+);
+    }
+	.hytPlayerWrap3 {
+        display: inline-block;
+        position: relative;
+		width: 100%;
+    }
+    .hytPlayerWrap3.ended::after {
+        content:"";
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        cursor: pointer;
+        background-color: black;
+        background-repeat: no-repeat;
+        background-position: center; 
+        background-size: 64px 64px;
+        background-image: url(data:image/svg+xml;utf8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjgiIGhlaWdodD0iMTI4IiB2aWV3Qm94PSIwIDAgNTEwIDUxMCI+PHBhdGggZD0iTTI1NSAxMDJWMEwxMjcuNSAxMjcuNSAyNTUgMjU1VjE1M2M4NC4xNSAwIDE1MyA2OC44NSAxNTMgMTUzcy02OC44NSAxNTMtMTUzIDE1My0xNTMtNjguODUtMTUzLTE1M0g1MWMwIDExMi4yIDkxLjggMjA0IDIwNCAyMDRzMjA0LTkxLjggMjA0LTIwNC05MS44LTIwNC0yMDQtMjA0eiIgZmlsbD0iI0ZGRiIvPjwvc3ZnPg==);
+    }
+    .hytPlayerWrap3.paused::after {
+        content:"";
+        position: absolute;
+        top: 70px;
+        left: 0;
+        bottom: 50px;
+        right: 0;
+        cursor: pointer;
+        background-color: black;
+        background-repeat: no-repeat;
+        background-position: center; 
+        background-size: 40px 40px;
+        background-image: url(data:image/svg+xml;utf8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEiIHdpZHRoPSIxNzA2LjY2NyIgaGVpZ2h0PSIxNzA2LjY2NyIgdmlld0JveD0iMCAwIDEyODAgMTI4MCI+PHBhdGggZD0iTTE1Ny42MzUgMi45ODRMMTI2MC45NzkgNjQwIDE1Ny42MzUgMTI3Ny4wMTZ6IiBmaWxsPSIjZmZmIi8+PC9zdmc+);
+    }
+</style>
+<script>
+    "use strict";
+    document.addEventListener('DOMContentLoaded', function() {
+        // Activate only if not already activated
+        if (window.hideYTActivated) return;
+        // Load API
+        if (typeof YT === 'undefined') {
+            let tag = document.createElement('script');
+            tag.src = "https://www.youtube.com/iframe_api";
+            let firstScriptTag = document.getElementsByTagName('script')[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        }
+        // Activate on all players
+        let onYouTubeIframeAPIReadyCallbacks = [];
+        for (let playerWrap of document.querySelectorAll(".hytPlayerWrap")) {
+            let playerFrame = playerWrap.querySelector("iframe");
+            
+            let onPlayerStateChange = function(event) {
+                if (event.data == YT.PlayerState.ENDED) {
+                    playerWrap.classList.add("ended");
+                } else if (event.data == YT.PlayerState.PAUSED) {
+                    playerWrap.classList.add("paused");
+                } else if (event.data == YT.PlayerState.PLAYING) {
+                    playerWrap.classList.remove("ended");
+                    playerWrap.classList.remove("paused");
+                }
+            };
+            
+            let player;
+            onYouTubeIframeAPIReadyCallbacks.push(function() {
+                player = new YT.Player(playerFrame, {
+                    events: {
+                        'onStateChange': onPlayerStateChange
+                    }
+                });
+            });
+          
+            playerWrap.addEventListener("click", function() {
+                let playerState = player.getPlayerState();
+                if (playerState == YT.PlayerState.ENDED) {
+                    player.seekTo(0);
+                } else if (playerState == YT.PlayerState.PAUSED) {
+                    player.playVideo();
+                }
+            });
+        }
+        for (let playerWrap of document.querySelectorAll(".hytPlayerWrap2")) {
+            let playerFrame = playerWrap.querySelector("iframe");
+            
+            let onPlayerStateChange = function(event) {
+                if (event.data == YT.PlayerState.ENDED) {
+                    playerWrap.classList.add("ended");
+                } else if (event.data == YT.PlayerState.PAUSED) {
+                    playerWrap.classList.add("paused");
+                } else if (event.data == YT.PlayerState.PLAYING) {
+                    playerWrap.classList.remove("ended");
+                    playerWrap.classList.remove("paused");
+                }
+            };
+            
+            let player;
+            onYouTubeIframeAPIReadyCallbacks.push(function() {
+                player = new YT.Player(playerFrame, {
+                    events: {
+                        'onStateChange': onPlayerStateChange
+                    }
+                });
+            });
+          
+            playerWrap.addEventListener("click", function() {
+                let playerState = player.getPlayerState();
+                if (playerState == YT.PlayerState.ENDED) {
+                    player.seekTo(0);
+                } else if (playerState == YT.PlayerState.PAUSED) {
+                    player.playVideo();
+                }
+            });
+        }
+		for (let playerWrap of document.querySelectorAll(".hytPlayerWrap3")) {
+            let playerFrame = playerWrap.querySelector("iframe");
+            
+            let onPlayerStateChange = function(event) {
+                if (event.data == YT.PlayerState.ENDED) {
+                    playerWrap.classList.add("ended");
+                } else if (event.data == YT.PlayerState.PAUSED) {
+                    playerWrap.classList.add("paused");
+                } else if (event.data == YT.PlayerState.PLAYING) {
+                    playerWrap.classList.remove("ended");
+                    playerWrap.classList.remove("paused");
+                }
+            };
+            
+            let player;
+            onYouTubeIframeAPIReadyCallbacks.push(function() {
+                player = new YT.Player(playerFrame, {
+                    events: {
+                        'onStateChange': onPlayerStateChange
+                    }
+                });
+            });
+          
+            playerWrap.addEventListener("click", function() {
+                let playerState = player.getPlayerState();
+                if (playerState == YT.PlayerState.ENDED) {
+                    player.seekTo(0);
+                } else if (playerState == YT.PlayerState.PAUSED) {
+                    player.playVideo();
+                }
+            });
+        }
+        window.onYouTubeIframeAPIReady = function() {
+            for (let callback of onYouTubeIframeAPIReadyCallbacks) {
+                callback();
+            }
+        };
+        
+        window.hideYTActivated = true;
+    });
+</script>
+<?php }?>
 </body></html>

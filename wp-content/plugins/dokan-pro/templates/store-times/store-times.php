@@ -1,101 +1,93 @@
-<div class="dokan-form-group">
-    <label class="dokan-w3 dokan-control-label"><?php echo esc_html( $settings_label ); ?></label>
-    <div class="dokan-w5 dokan-text-left">
-        <div class="select-box">
-            <select class="store-day-selectbox" name="store_day[]">
-                <option value=""><?php echo esc_html( $store_day_placeholder ); ?></option>
-                <?php
-                foreach ( $dokan_days as $day_key => $store_day ) :
-                    $working_status = ! empty( $store_info[ $day_key ]['status'] ) ? $store_info[ $day_key ]['status'] : 'close';
-                    ?>
-                    <option value="<?php echo esc_attr( $day_key ); ?>"
-                            data-tag="store-tab-<?php echo esc_attr( $day_key ); ?>"
-                        <?php selected( $working_status, 'open' ); ?>>
-                        <?php echo esc_html( $store_day ); //phpcs:ignore ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </div>
-    </div>
-</div>
-<div class="dokan-form-group">
-    <label class="dokan-w3 dokan-control-label"></label>
-    <div class="time-slot-tabs">
-        <div class="tab-panels">
-            <ul class="tabs">
-                <?php
-                foreach ( $dokan_days as $day_key => $dokan_day ) :
-                    $working_status = ! empty( $store_info[ $day_key ]['status'] ) ? $store_info[ $day_key ]['status'] : 'close';
+<div class="dokan-time-slots">
+    <?php
+    foreach ( $dokan_days as $day_key => $day ) :
+        $working_status = ! empty( $store_info[ $day_key ]['status'] ) ? $store_info[ $day_key ]['status'] : 'close';
+        $opening_time   = dokan_get_store_times( $day_key, 'opening_time' );
+        $closing_time   = dokan_get_store_times( $day_key, 'closing_time' );
+        $full_day       = false;
 
-                    if ( empty( $active_day ) && 'open' === $working_status ) {
-                        $active_day[] = $day_key;
-                    }
-                    ?>
-                    <li class="<?php echo ( ! empty( $active_day ) && $active_day[0] === $day_key ? 'active' : '' ); ?>" rel="store-tab-<?php echo esc_attr( $day_key ); ?>"><?php echo esc_html( $dokan_day ); ?></li>
-                <?php endforeach; ?>
-            </ul>
+        if ( $opening_time === '12:00 am' && $closing_time === '11:59 pm' ) {
+            $full_day = true;
+        }
+        ?>
+        <div class="dokan-store-times">
+            <div class="dokan-form-group">
+                <label class="day control-label" for="working-days">
+                    <?php echo esc_html( dokan_get_translated_days( $day_key ) ); ?>
+                </label>
+
+                <label class="dokan-on-off dokan-status" for="<?php echo esc_attr( $day_key ); ?>-working-status">
+                    <p class="switch tips">
+                        <span class="slider round"></span>
+                    </p>
+                    <p class='working-status'>
+                        <input type="hidden"
+                            name="store_day[<?php echo esc_attr( $day_key ); ?>]"
+                            id="<?php echo esc_attr( $day_key ); ?>-working-status"
+                            class="dokan-on-off toogle-checkbox"
+                            value="<?php echo 'open' === $working_status ? '1' : '0'; ?>" />
+                        <span class="open-status"><?php esc_html_e( 'Open', 'dokan' ); ?></span>
+                        <span class="close-status"><?php esc_html_e( 'Closed', 'dokan' ); ?></span>
+                    </p>
+                </label>
+
+                <!-- Store opening times start -->
+                <label for="opening-time-<?php echo esc_attr( $day_key ); ?>" class="time" style="visibility: <?php echo 'open' === $working_status ? 'visible' : 'hidden'; ?>;">
+                    <div class='clock-picker'>
+                        <span class="far fa-clock"></span>
+                        <input type="text" class="dokan-form-control opening-time"
+                            id="opening-time-<?php echo esc_attr( $day_key ); ?>"
+                            placeholder="<?php echo esc_attr( $place_start ); ?>"
+                            value="<?php echo esc_attr( $full_day ? $all_day : $opening_time ); ?>" />
+                        <input type="hidden" value="<?php echo esc_attr( $opening_time ); ?>"
+                            class="clockOne" name="opening_time[<?php echo esc_attr( $day_key ); ?>][]" />
+                        <span class="fa fa-exclamation-triangle"></span>
+                    </div>
+                </label>
+                <!-- Store opening times end -->
+
+                <span class="time-to fas fa-minus"
+                    style="visibility: <?php echo 'open' === $working_status ? 'visible' : 'hidden'; ?>; display: <?php echo $full_day ? 'none' : 'block'; ?>"
+                ></span>
+
+                <!-- Store closing times start -->
+                <label class="time" for="closing-time-<?php echo esc_attr( $day_key ); ?>"
+                    style="visibility: <?php echo 'open' === $working_status ? 'visible' : 'hidden'; ?>; display: <?php echo $full_day ? 'none' : 'block'; ?>">
+                    <div class='clock-picker'>
+                        <span class="far fa-clock"></span>
+                        <input type="text" class="dokan-form-control closing-time"
+                            id="closing-time-<?php echo esc_attr( $day_key ); ?>"
+                            placeholder="<?php echo esc_attr( $place_end ); ?>"
+                            value="<?php echo esc_attr( ! $full_day ? $closing_time : '' ); ?>" />
+                        <input type="hidden" value="<?php echo esc_attr( $closing_time ); ?>"
+                            class="clockTwo" name="closing_time[<?php echo esc_attr( $day_key ); ?>][]" />
+                        <span class="fa fa-exclamation-triangle"></span>
+                    </div>
+                </label>
+                <!-- Store closing times end -->
+
+                <!-- Store times action start -->
+                <label for="open-close-actions" class="open-close-actions"
+                    style="visibility: <?php echo 'open' === $working_status ? 'visible' : 'hidden'; ?>;">
+                    <a href="" class="remove-store-closing-time"><span class="fas fa-times"></span></a>
+                    <a href="" class="added-store-opening-time" style='display: <?php echo $full_day ? 'none' : 'block'; ?>'><?php echo esc_html( $add_action ); ?></a>
+                </label>
+                <!-- Store times action end -->
+
+            </div>
 
             <?php
-            $day_keys   = array_keys( $dokan_days );
-            $active_day = ! empty( $active_day ) ? $active_day : $day_keys[0];
-            foreach ( $dokan_days as $day_key => $day ) :
-                $working_status = ! empty( $store_info[ $day_key ]['status'] ) ? $store_info[ $day_key ]['status'] : 'close';
-                ?>
-                <div id="store-tab-<?php echo esc_attr( $day_key ); ?>" class="dokan-store-times panel <?php echo ( is_array( $active_day ) && $active_day[0] === $day_key ? 'active' : ( $active_day === $day_key ? 'active' : '' ) ); ?>">
-                    <div class="overlay"></div>
-                    <div class="dokan-form-group">
-                        <!-- Store opening times start -->
-                        <label for="opening-time-<?php echo esc_attr( $day_key ); ?>" class="time" >
-                            <span class="dokan-control-label start-label" aria-hidden="true"><?php echo esc_html( $label_start ); ?></span>
-                            <div class='clock-picker'>
-                                <span class="fa fa-clock-o"></span>
-                                <input type="text"
-                                    class="dokan-form-control opening-time"
-                                    name="opening_time[<?php echo esc_attr( $day_key ); ?>][]"
-                                    id="opening-time-<?php echo esc_attr( $day_key ); ?>"
-                                    placeholder="00:00"
-                                    value="<?php echo esc_attr( dokan_get_store_times( $day_key, 'opening_time' ) ); ?>">
-                                <span class="fa fa-exclamation-triangle"></span>
-                            </div>
-                        </label>
-                        <!-- Store opening times end -->
+            /**
+             * Added store times after store time settings.
+             *
+             * @since 3.7.8
+             *
+             * @param string $day_key
+             * @param string $working_status
+             */
+            do_action( 'after_dokan_store_time_settings_form', $day_key, $working_status );
+            ?>
 
-                        <span class="time-to"> &#45; </span>
-
-                        <!-- Store closing times start -->
-                        <label for="closing-time-<?php echo esc_attr( $day_key ); ?>" class="time" >
-                            <span class="dokan-control-label end-label"><?php echo esc_html( $label_end ); ?></span>
-                            <div class='clock-picker'>
-                                <span class="fa fa-clock-o" aria-hidden="true"></span>
-                                <input type="text"
-                                    class="dokan-form-control closing-time"
-                                    name="closing_time[<?php echo esc_attr( $day_key ); ?>][]"
-                                    id="closing-time-<?php echo esc_attr( $day_key ); ?>"
-                                    placeholder="00:00"
-                                    value="<?php echo esc_attr( dokan_get_store_times( $day_key, 'closing_time' ) ); ?>">
-                                <span class="fa fa-exclamation-triangle"></span>
-                            </div>
-                        </label>
-                        <!-- Store closing times end -->
-
-                        <!-- Store times action start -->
-                        <label for="open-close-actions" class="time open-close-actions" >
-                            <a href="" class="remove-store-closing-time"><span class="fa fa-times" aria-hidden="true"></span></a>
-                            <a href="" class="added-store-opening-time"><span class="fa fa-plus" aria-hidden="true"></span></a>
-                        </label>
-                        <!-- Store times action end -->
-
-                    </div>
-
-                    <?php
-                    /**
-                     * @since 3.5.0
-                     */
-                    do_action( 'after_dokan_store_time_settings_form', $day_key, $working_status );
-                    ?>
-
-                </div>
-            <?php endforeach; ?>
         </div>
-    </div>
+    <?php endforeach; ?>
 </div>

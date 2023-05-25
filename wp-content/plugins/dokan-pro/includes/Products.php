@@ -2,6 +2,7 @@
 
 namespace WeDevs\DokanPro;
 
+use WP_Error;
 use WeDevs\Dokan\ProductCategory\Helper;
 
 /**
@@ -612,77 +613,97 @@ class Products {
      * @return void
      */
     public function handle_duplicate_product() {
-        if ( ! is_user_logged_in() ) {
+        if ( ! isset( $_GET['action'] ) || 'dokan-duplicate-product' !== $_GET['action'] ) {
             return;
+        }
+
+        $product_id = isset( $_GET['product_id'] ) ? (int) $_GET['product_id'] : 0;
+        $redirect_url = dokan_get_navigation_url( 'products' );
+
+        if ( ! $product_id ) {
+            wp_safe_redirect( add_query_arg( array( 'message' => 'error' ), $redirect_url ) );
+            return;
+        }
+
+        if ( ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( sanitize_key( $_GET['_wpnonce'] ), 'dokan-duplicate-product' ) ) {
+            wp_safe_redirect( add_query_arg( array( 'message' => 'error' ), $redirect_url ) );
+            return;
+        }
+
+        $clone_product = $this->duplicate_product( $product_id );
+
+        if ( is_wp_error( $clone_product ) ) {
+            wp_safe_redirect( add_query_arg( array( 'message' => 'error' ), $redirect_url ) );
+            return;
+        }
+
+        $clone_product_id = $clone_product->get_id();
+
+        if ( isset( $_GET['product_type'] ) && 'booking' === $_GET['product_type'] ) {
+            $redirect_url = dokan_get_navigation_url( 'booking' );
+        }
+
+        wp_safe_redirect(
+            add_query_arg(
+                array( 'message' => 'product_duplicated' ),
+                apply_filters( 'dokan_redirect_after_product_duplicating', $redirect_url, $product_id, $clone_product_id )
+            )
+        );
+        exit;
+    }
+
+    /**
+     * Duplicates a product.
+     *
+     * @since 3.7.14
+     *
+     * @param int $product_id The ID of the product to be duplicated
+     *
+     * @return \WC_Product|WP_Error
+     */
+    public function duplicate_product( $product_id ) {
+        $no_permission_error = new WP_Error(
+            'dokan-no-permission',
+            __( 'You do not have permission to perform this action', 'dokan' )
+        );
+
+        $user_id = dokan_get_current_user_id();
+
+        if ( empty( $user_id ) || ! dokan_is_user_seller( $user_id ) ) {
+            return $no_permission_error;
         }
 
         if ( dokan_get_option( 'vendor_duplicate_product', 'dokan_selling', 'on' ) === 'off' ) {
-            return;
-        }
-
-        if ( ! dokan_is_user_seller( dokan_get_current_user_id() ) ) {
-            return;
+            return $no_permission_error;
         }
 
         if ( ! apply_filters( 'dokan_vendor_can_duplicate_product', true ) ) {
-            return;
+            return $no_permission_error;
         }
 
-        if ( isset( $_GET['action'] ) && $_GET['action'] === 'dokan-duplicate-product' ) {
-            $product_id = isset( $_GET['product_id'] ) ? (int) $_GET['product_id'] : 0;
+        $product = wc_get_product( $product_id );
 
-            if ( ! $product_id ) {
-                wp_safe_redirect( add_query_arg( array( 'message' => 'error' ), dokan_get_navigation_url( 'products' ) ) );
-                return;
-            }
-
-            if ( ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( $_GET['_wpnonce'], 'dokan-duplicate-product' ) ) { // phpcs:ignore
-                wp_safe_redirect( add_query_arg( array( 'message' => 'error' ), dokan_get_navigation_url( 'products' ) ) );
-                return;
-            }
-
-            if ( ! dokan_is_product_author( $product_id ) ) {
-                wp_safe_redirect( add_query_arg( array( 'message' => 'error' ), dokan_get_navigation_url( 'products' ) ) );
-                return;
-            }
-
-            $wo_dup = new \WC_Admin_Duplicate_Product();
-
-            // Compatibility for WC 3.0+
-            if ( version_compare( WC_VERSION, '2.7', '>' ) ) {
-                $product = wc_get_product( $product_id );
-                $clone_product = $wo_dup->product_duplicate( $product );
-                $clone_product_id = $clone_product->get_id();
-            } else {
-                $post = get_post( $product_id );
-                $clone_product_id = $wo_dup->duplicate_product( $post );
-            }
-
-            // If vendor is disabled, make product status pending
-            if ( ! dokan_is_seller_enabled( dokan_get_current_user_id() ) ) {
-                $product_status = 'pending';
-            } else {
-                $product_status = dokan_get_new_post_status();
-            }
-
-            wp_update_post(
-                array(
-                    'ID' => intval( $clone_product_id ),
-                    'post_status' => $product_status,
-                )
+        if ( ! $product ) {
+            return new WP_Error(
+                'dokan-no-such-product',
+                __( 'No such product found!', 'dokan' )
             );
-
-            do_action( 'dokan_product_duplicate_after_save', $clone_product, $product );
-
-            $redirect = apply_filters( 'dokan_redirect_after_product_duplicating', dokan_get_navigation_url( 'products' ), $product_id, $clone_product_id );
-
-            if ( isset( $_GET['product_type'] ) && 'booking' === $_GET['product_type'] ) {
-                $redirect = apply_filters( 'dokan_redirect_after_product_duplicating', dokan_get_navigation_url( 'booking' ), $product_id, $clone_product_id );
-            }
-
-            wp_safe_redirect( add_query_arg( array( 'message' => 'product_duplicated' ), $redirect ) );
-            exit;
         }
+
+        if ( ! dokan_is_product_author( $product_id ) ) {
+            return $no_permission_error;
+        }
+
+        $wc_duplicator = new \WC_Admin_Duplicate_Product();
+        $clone_product = $wc_duplicator->product_duplicate( $product );
+
+        // Make the newly created product status to "draft", before saving.
+        $clone_product->set_status( 'draft' );
+        $clone_product->save();
+
+        do_action( 'dokan_product_duplicate_after_save', $clone_product, $product );
+
+        return $clone_product;
     }
 
     /**

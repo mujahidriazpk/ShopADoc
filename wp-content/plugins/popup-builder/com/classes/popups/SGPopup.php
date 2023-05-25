@@ -307,7 +307,7 @@ abstract class SGPopup
 		}
 		$savedData = apply_filters('sgpbPopupSavedData', $savedData);
 
-		if (empty($savedData)) {
+		if (empty($savedData) && $currentPostStatus !== 'trash') {
 			return false;
 		}
 
@@ -548,8 +548,8 @@ abstract class SGPopup
 		$contentBackgroundImageData = '';
 
 		$data = $this->getSanitizedData();
-		$buttonImageUrl = @$data['sgpb-button-image'];
-		$contentBackgroundImageUrl = @$data['sgpb-background-image'];
+		$buttonImageUrl = isset($data['sgpb-button-image']) ? $data['sgpb-button-image'] : '';
+		$contentBackgroundImageUrl = isset($data['sgpb-background-image']) ? $data['sgpb-background-image'] : '';
 
 		$savedPopup = $this->getSavedPopup();
 
@@ -652,12 +652,19 @@ abstract class SGPopup
 					$valueAttrs = $attrs[$ruleData['param']]['htmlAttrs'];
 					$postType = $valueAttrs['data-value-param'];
 					$isNotPostType = '';
+
 					if (isset($valueAttrs['isNotPostType'])) {
 						$isNotPostType = $valueAttrs['isNotPostType'];
 					}
 
 					if (empty($valueAttrs['isNotPostType'])) {
 						$isNotPostType = false;
+					}
+
+					if (isset($valueAttrs['isPostCategory'])){
+						$targetData[$groupId][$ruleId]['value'] = ConfigDataHelper::getTermsByIds($ruleData['value']);
+					} elseif(isset($valueAttrs['isPostTag'])) {
+						$targetData[$groupId][$ruleId]['value'] = ConfigDataHelper::getTagsBySlug($ruleData['value']);
 					}
 
 					/*
@@ -841,7 +848,7 @@ abstract class SGPopup
 			}
 		}
 
-		$popupOptions = self::getPopupOptionsById($popupId, $saveMode);
+		$popupOptions = self::getPopupOptionsById($popupId, $saveMode);//
 		if (is_array($popupOptions) && is_array($popupSavedData)) {
 			$popupSavedData = array_merge($popupSavedData, $popupOptions);
 		}
@@ -880,6 +887,9 @@ abstract class SGPopup
 		$optionsData = array();
 		if (get_post_meta($popupId, 'sg_popup_options'.$saveMode, true)) {
 			$optionsData = get_post_meta($popupId, 'sg_popup_options'.$saveMode, true);
+			if (isset($optionsData['sgpb-subs-gdpr-text'])){
+				$optionsData['sgpb-subs-gdpr-text'] = wp_kses($optionsData['sgpb-subs-gdpr-text'], AdminHelper::allowed_html_tags(false));
+			}
 		}
 
 		return $optionsData;
@@ -1582,7 +1592,7 @@ abstract class SGPopup
 			if (empty($popup) || !($popup instanceof SGPopup)) {
 				continue;
 			}
-			$type = @$popup->getType();
+			$type = $popup->getType();
 
 			if (isset($filters['type'])) {
 				if (is_array($filters['type'])) {
@@ -1634,7 +1644,7 @@ abstract class SGPopup
 		$subPopups = array();
 		$options = $this->getOptions();
 
-		$specialBehaviors = @$options['sgpb-behavior-after-special-events'];
+		$specialBehaviors = isset($options['sgpb-behavior-after-special-events']) ? $options['sgpb-behavior-after-special-events'] : '';
 		if (!empty($specialBehaviors) && is_array($specialBehaviors)) {
 			foreach ($specialBehaviors as $behavior) {
 				foreach ($behavior as $row) {

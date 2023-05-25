@@ -85,13 +85,13 @@ if(in_array('1141',$subscription_product)){
 	echo '<p style="color:#000 !important;">Renewal will process via auto-pay on your anniversary date.</p>';
 }
 if(in_array('942',$subscription_product) || in_array('948',$subscription_product) || in_array('126',$subscription_product) || in_array('1141',$subscription_product)){
-	 echo '<p style="text-align:center;color:#000;">ShopADoc The Dentist Marketplace®</p>';
+	 echo '<p style="text-align:center;color:#000;font-style: italic;">ShopADoc® The Dentist Marketplace, Inc</p>';
 }
 /**
  * Show user-defined additional content - this is set in each email's settings.
  */
 if ( $additional_content ) {
-	echo wp_kses_post( wpautop( wptexturize( $additional_content ) ) );
+	//echo wp_kses_post( wpautop( wptexturize( $additional_content ) ) );
 }
 
 /*

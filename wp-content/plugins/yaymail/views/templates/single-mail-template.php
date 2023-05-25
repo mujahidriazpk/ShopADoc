@@ -18,7 +18,7 @@ if ( isset( $args['yith_wc_email'] ) && isset( $args['yith_wc_email']->id ) && !
 	if ( 'emails/admin-notify-approved.php' === $template_name ) {
 		$template = 'admin_notify_approved';
 	}
-	if ( $template === 'customer_partially_refunded_order' ) {
+	if ( 'customer_partially_refunded_order' === $template ) {
 		$template = 'customer_refunded_order';
 	}
 	if ( 'new-user-registration.php' == $template_name ) {
@@ -77,7 +77,22 @@ if ( isset( $args['yith_wc_email'] ) && isset( $args['yith_wc_email']->id ) && !
 if ( isset( $args['email'] ) && isset( $args['email']->id ) && false !== strpos( get_class( $args['email'] ), 'ORDDD_Email_Delivery_Reminder' ) ) {
 	$template .= '_customer';
 }
-$custom_shortcode = new YayMail\MailBuilder\Shortcodes( $template );
+
+if ( isset( $args['email'] ) && is_object( $args['email'] ) && 'WC_GZD_Email_Customer_Cancelled_Order' === get_class( $args['email'] ) && 'customer_failed_order' === $template ) {
+	$template = 'customer_cancelled_order';
+}
+
+if ( isset( $check_YWCES ) && $check_YWCES ) {
+	$template = 'YWCES_' . $email_template_type;
+}
+
+if ( ( 'ywgc-email-send-gift-card' === $template || 'ywgc-email-delivered-gift-card' === $template ) && isset( $args['gift_card'] ) ) {
+	if ( ! empty( $args['gift_card']->order_id ) ) {
+		$args['order'] = wc_get_order( $args['gift_card']->order_id );
+	}
+}
+
+$custom_shortcode = new YayMail\MailBuilder\Shortcodes( $template, '', false );
 if ( CustomPostType::postIDByTemplate( $template ) ) {
 	$postID = CustomPostType::postIDByTemplate( $template );
 }
@@ -197,10 +212,27 @@ if ( $flag_do_action ) {
 								$element['settingRow']['content'] = $content;
 							}
 						}
-						if ( has_filter('yaymail_addon_for_conditional_logic') && isset( $element['settingRow']['arrConditionLogic'] ) && ! empty( $element['settingRow']['arrConditionLogic'] ) ) {
-							$conditional_Logic = apply_filters( 'yaymail_addon_for_conditional_logic', false, $args, $element['settingRow'] );
-
-							if ( $conditional_Logic ) {
+						if ( has_filter( 'yaymail_addon_for_conditional_logic' ) && isset( $element['settingRow']['arrConditionLogic'] ) ) {
+							if ( ! empty( $element['settingRow']['arrConditionLogic'] ) ) {
+								$conditional_Logic = apply_filters( 'yaymail_addon_for_conditional_logic', false, $args, $element['settingRow'] );
+								if ( $conditional_Logic ) {
+									do_action( 'Yaymail' . $element['type'], $args, $element['settingRow'], $general_attrs, $element['id'], $postID, $isInColumns = false );
+								}
+							} else {
+								if ( 'OneColumn' === $element['type'] || 'TwoColumns' === $element['type'] || 'ThreeColumns' === $element['type'] || 'FourColumns' === $element['type'] ) {
+									for ( $column = 1; $column <= 4; $column++ ) {
+										if ( isset( $element['settingRow'][ 'column' . $column ] ) ) {
+											foreach ( $element['settingRow'][ 'column' . $column ] as $column_key => $column_element ) {
+												if ( isset( $column_element['settingRow']['arrConditionLogic'] ) && ! empty( $column_element['settingRow']['arrConditionLogic'] ) ) {
+													$conditional_Logic = apply_filters( 'yaymail_addon_for_conditional_logic', false, $args, $column_element['settingRow'] );
+													if ( ! $conditional_Logic ) {
+														unset( $element['settingRow'][ 'column' . $column ][ $column_key ] );
+													}
+												}
+											}
+										}
+									}
+								}
 								do_action( 'Yaymail' . $element['type'], $args, $element['settingRow'], $general_attrs, $element['id'], $postID, $isInColumns = false );
 							}
 						} else {

@@ -60,14 +60,16 @@ class Update {
         }
 
         $this->insights->add_extra(
-            [
-                'dokan_pro_version' => DOKAN_PRO_PLUGIN_VERSION,
-                'dokan_pro_plan'    => dokan_pro()->get_plan(),
-                'available_modules' => dokan_pro()->module->get_available_modules(),
-                'activate_modules'  => dokan_pro()->module->get_active_modules(),
-                'wc_version'        => function_exists( 'WC' ) ? WC()->version : null,
-                'dokan_version'     => DOKAN_PLUGIN_VERSION,
-            ]
+            function () {
+                return [
+                    'dokan_pro_version' => DOKAN_PRO_PLUGIN_VERSION,
+                    'dokan_pro_plan'    => dokan_pro()->get_plan(),
+                    'available_modules' => dokan_pro()->module->get_available_modules(),
+                    'activate_modules'  => dokan_pro()->module->get_active_modules(),
+                    'wc_version'        => function_exists( 'WC' ) ? WC()->version : null,
+                    'dokan_version'     => DOKAN_PLUGIN_VERSION,
+                ];
+            }
         );
 
         $this->insights->hide_notice()->init_plugin();

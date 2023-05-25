@@ -121,7 +121,7 @@ if(in_array(119,$product_cats_ids)){
     <tr>
       <td align="center"><p style="text-align:center;font-style:italic;color:#000;">We appreciate the opportunity to be of service<br />
           and extend our warmest regards to you both.</p>
-        <p style="text-align:center;font-style:italic;color:#000;">Staff of ShopADoc® The Dentist Marketplace, Inc</p></td>
+        <p style="text-align:center;font-style:italic;color:#000;">ShopADoc® The Dentist Marketplace, Inc</p></td>
     </tr>
   </table>
 </div>

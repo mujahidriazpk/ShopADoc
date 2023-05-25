@@ -65,7 +65,7 @@ class Validator {
 
         $order = wc_get_order( $request['order_id'] );
 
-        $max_allowed_refund = wc_format_decimal( $order->get_total() - $order->get_total_refunded(), wc_get_price_decimals() );
+        $max_allowed_refund = wc_format_decimal( $order->get_total() - $order->get_total_refunded(), wc_get_rounding_precision() );
 
         if ( $refund_amount > $max_allowed_refund ) {
             return new WP_Error( 'dokan_pro_refund_error_refund_amount', sprintf( __( 'Maximum allowed amount is %f.', 'dokan' ), $max_allowed_refund ) );
@@ -142,7 +142,7 @@ class Validator {
             }
 
             $order_line_item       = $order_line_items[ $item_id ];
-            $order_line_item_total = wc_format_decimal( $order_line_item->get_total(), wc_get_price_decimals() );
+            $order_line_item_total = wc_format_decimal( $order_line_item->get_total(), wc_get_rounding_precision() );
 
             if ( $order->get_total_refunded_for_item( $item_id ) ) {
                 $item_total = $item_total + $order->get_total_refunded_for_item( $item_id );

@@ -2,9 +2,10 @@
 namespace ElementorPro\Modules\Usage;
 
 use Elementor\Core\Base\Module as BaseModule;
-use ElementorPro\Plugin;
+use Elementor\Modules\System_Info\Module as System_Info;
 use ElementorPro\Modules\AssetsManager\AssetTypes\Fonts\Custom_Fonts;
 use ElementorPro\Modules\AssetsManager\AssetTypes\Icons\Custom_Icons;
+use ElementorPro\Plugin;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
@@ -12,6 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Elementor usage module.
+ * @method static Module instance()
  */
 class Module extends BaseModule {
 	/**
@@ -71,7 +73,10 @@ class Module extends BaseModule {
 	 */
 	public static function get_fonts_usage() {
 		$usage = [];
-		$query = new \WP_Query( [ 'post_type' => 'elementor_font' ] );
+		$query = new \WP_Query( [
+			'posts_per_page' => -1,
+			'post_type' => 'elementor_font',
+		] );
 
 		$post_index = 0;
 		foreach ( $query->get_posts() as $post ) {
@@ -116,7 +121,10 @@ class Module extends BaseModule {
 	 */
 	public static function get_icons_usage() {
 		$usage = [];
-		$query = new \WP_Query( [ 'post_type' => 'elementor_icons' ] );
+		$query = new \WP_Query( [
+			'posts_per_page' => -1,
+			'post_type' => 'elementor_icons',
+		] );
 
 		$index = 0;
 		foreach ( $query->get_posts() as $post ) {
@@ -151,6 +159,18 @@ class Module extends BaseModule {
 		return $params;
 	}
 
+	public function register_system_info_reporters() {
+		System_Info::add_report( 'features', [
+			'file_name' => __DIR__ . '/features-reporter.php',
+			'class_name' => __NAMESPACE__ . '\Features_Reporter',
+		] );
+
+		System_Info::add_report( 'integrations', [
+			'file_name' => __DIR__ . '/integrations-reporter.php',
+			'class_name' => __NAMESPACE__ . '\Integrations_Reporter',
+		] );
+	}
+
 	/**
 	 * Usage module constructor.
 	 *
@@ -160,5 +180,7 @@ class Module extends BaseModule {
 	 */
 	public function __construct() {
 		add_filter( 'elementor/tracker/send_tracking_data_params', [ $this, 'add_tracking_data' ] );
+
+		add_action( 'admin_init', [ $this, 'register_system_info_reporters' ], 60 );
 	}
 }

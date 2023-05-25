@@ -6,13 +6,15 @@
  *   Plugin URI: https://persistentlogin.com/
  *   Description: Keep users logged into your website securely, and allows you to limit the number of active logins.
  *   Author: Luke Seager
- *   Author URI:  https://lukeseager.com/
- *   Version: 2.0.8
+ *   Author URI:  https://persistentlogin.com/
+ * 	 Text Domain: wp-persistent-login
+ *   Domain Path: /languages
+ *   Version: 2.0.13
  *
  *
  */
 /*
-	Copyright 2018 Luke Seager  (email : info@lukeseager.com)
+	Copyright 2018 Luke Seager  (email : luke@persistentlogin.com)
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License, version 2, as
@@ -35,7 +37,7 @@ if ( function_exists( 'persistent_login' ) ) {
     persistent_login()->set_basename( false, __FILE__ );
 } else {
     // definitions to use throughout application.
-    define( 'WPPL_DATABASE_VERSION', '2.0.0' );
+    define( 'WPPL_DATABASE_VERSION', '2.0.9' );
     define( 'WPPL_DATABASE_NAME', 'persistent_logins' );
     define( 'WPPL_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
     define( 'WPPL_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -46,8 +48,13 @@ if ( function_exists( 'persistent_login' ) ) {
     define( 'WPPL_UPGRADE_PAGE', WPPL_SETTINGS_AREA . '?billing_cycle=annual&page=wp-persistent-login-pricing' );
     define( 'WPPL_SUPPORT_PAGE', WPPL_SETTINGS_AREA . '?page=wp-persistent-login-contact' );
     define( 'WPPL_TEXT_DOMAIN', 'wp-persitent-login' );
-    // Load text domain.
-    load_plugin_textdomain( WPPL_TEXT_DOMAIN, false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+    // Load text domain
+    add_action( 'init', 'wp_persistent_login_load_textdomain' );
+    function wp_persistent_login_load_textdomain()
+    {
+        load_plugin_textdomain( 'wp-persistent-login', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+    }
+    
     // Load freemius.
     require WPPL_PLUGIN_PATH . '/includes/freemius.php';
     // Load installation file.

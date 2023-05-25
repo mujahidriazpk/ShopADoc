@@ -53,6 +53,14 @@ class Upgrades {
             'upgrader' => Upgraders\V_3_7_4::class,
             'require'  => '3.6.4',
         ],
+        '3.7.8' => [
+            'upgrader' => Upgraders\V_3_7_8::class,
+            'require'  => null,
+        ],
+        '3.7.17' => [
+            'upgrader' => Upgraders\V_3_7_17::class,
+            'require'  => null,
+        ],
     ];
 
     /**

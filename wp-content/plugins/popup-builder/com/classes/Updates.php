@@ -92,8 +92,8 @@ class Updates
 		$licenses = $this->getLicenses();
 
 		foreach ($licenses as $license) {
-			$key = @$license['key'];
-			$itemId = @$license['itemId'];
+			$key = isset($license['key']) ? $license['key'] : '';
+			$itemId = isset($license['itemId']) ? $license['itemId'] : '';
 			$this->licenseKey = $key;
 
 			if (isset($_POST['sgpb-license-key-'.$key])) {

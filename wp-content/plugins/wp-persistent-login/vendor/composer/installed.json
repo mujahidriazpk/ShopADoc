@@ -120,6 +120,6 @@
             "install-path": "../whichbrowser/parser"
         }
     ],
-    "dev": false,
+    "dev": true,
     "dev-package-names": []
 }

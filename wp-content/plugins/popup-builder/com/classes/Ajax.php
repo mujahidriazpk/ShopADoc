@@ -1,7 +1,6 @@
 <?php
 namespace sgpb;
 use \ConfigDataHelper;
-use \SgpbDataConfig;
 
 class Ajax
 {
@@ -411,8 +410,12 @@ class Ajax
 		// we will use array_walk_recursive method for sanitizing current data because we can receive an multidimensional array!
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$newsletterData = isset($_POST['newsletterData']) ? stripslashes_deep($_POST['newsletterData']) : [];
-		array_walk_recursive($newsletterData, function(&$item){
-			$item = sanitize_text_field($item);
+		array_walk_recursive($newsletterData, function(&$item, $k){
+			if ($k === 'messageBody'){
+				$item = wp_kses($item, AdminHelper::allowed_html_tags());
+			} else {
+				$item = sanitize_text_field($item);
+			}
 		});
 		if(isset($newsletterData['testSendingStatus']) && $newsletterData['testSendingStatus'] == 'test') {
 			AdminHelper::sendTestNewsletter($newsletterData);
@@ -618,9 +621,19 @@ class Ajax
 	{
 		check_ajax_referer(SG_AJAX_NONCE, 'nonce_ajax');
 
-		$postTypeName = isset($_POST['searchKey']) ? sanitize_text_field($_POST['searchKey']) : '';
+		$postTypeName = isset($_POST['searchKey']) ? sanitize_text_field($_POST['searchKey']) : ''; // TODO strongly validate postTypeName example: use ENUM
 		$search = isset($_POST['searchTerm']) ? sanitize_text_field($_POST['searchTerm']) : '';
-		$searchResults = $this->selectFromPost($postTypeName, $search);
+
+		switch($postTypeName){
+			case 'postCategories':
+				$searchResults  = ConfigDataHelper::getPostsAllCategories('post', [], $search);
+				break;
+			case 'postTags':
+				$searchResults  = ConfigDataHelper::getAllTags($search);
+				break;
+			default:
+				$searchResults = $this->selectFromPost($postTypeName, $search);
+		}
 
 		if(isset($_POST['searchCallback'])) {
 			$searchCallback = sanitize_text_field($_POST['searchCallback']);
@@ -745,7 +758,7 @@ class Ajax
 		}
 		// by default set empty value for users' role (adv. tar.)
 		$savedData['value'] = array();
-		$savedData['hiddenOption'] = @$conditionConfig['hiddenOptionData'][$paramName];
+		$savedData['hiddenOption'] = isset($conditionConfig['hiddenOptionData'][$paramName]) ? $conditionConfig['hiddenOptionData'][$paramName] : '';
 
 		$builderObj->setPopupId($popupId);
 		$builderObj->setGroupId($groupId);

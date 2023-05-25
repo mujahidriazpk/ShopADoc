@@ -9,6 +9,7 @@ namespace WeDevs\DokanPro\Shipping\Methods;
 use WC_Eval_Math;
 use WC_Shipping_Method;
 use WeDevs\DokanPro\Shipping\ShippingZone;
+use WeDevs\DokanPro\Shipping\SanitizeCost;
 
 class VendorShipping extends WC_Shipping_Method {
 
@@ -61,84 +62,6 @@ class VendorShipping extends WC_Shipping_Method {
         add_filter( 'woocommerce_shipping_chosen_method', array( $this, 'select_default_rate' ), 10, 2 );
         add_action( 'woocommerce_update_options_shipping_' . $this->id, array( $this, 'process_admin_options' ) );
         add_action( 'woocommerce_shipping_zone_method_deleted', array( $this, 'delete_vendor_shipping_methods' ), 10, 3 );
-    }
-
-    /**
-     * Evaluate a cost from a sum/string.
-     * @param  string $sum
-     * @param  array  $args
-     * @return string
-     */
-    protected function evaluate_cost( $sum, $args = array() ) {
-        include_once WC()->plugin_path() . '/includes/libraries/class-wc-eval-math.php';
-
-        // Allow 3rd parties to process shipping cost arguments
-        $args           = apply_filters( 'woocommerce_evaluate_shipping_cost_args', $args, $sum, $this );
-        $locale         = localeconv();
-        $decimals       = array( wc_get_price_decimal_separator(), $locale['decimal_point'], $locale['mon_decimal_point'], ',' );
-        $this->fee_cost = $args['cost'];
-
-        // Expand shortcodes
-        add_shortcode( 'fee', array( $this, 'fee' ) );
-
-        $sum = do_shortcode(
-            str_replace(
-                array(
-                    '[qty]',
-                    '[cost]',
-                ),
-                array(
-                    $args['qty'],
-                    $args['cost'],
-                ),
-                $sum
-            )
-        );
-
-        remove_shortcode( 'fee', array( $this, 'fee' ) );
-
-        // Remove whitespace from string
-        $sum = preg_replace( '/\s+/', '', $sum );
-
-        // Remove locale from string
-        $sum = str_replace( $decimals, '.', $sum );
-
-        // Trim invalid start/end characters
-        $sum = rtrim( ltrim( $sum, "\t\n\r\0\x0B+*/" ), "\t\n\r\0\x0B+-*/" );
-
-        // Do the math
-        return $sum ? WC_Eval_Math::evaluate( $sum ) : 0;
-    }
-
-    /**
-     * Work out fee (shortcode).
-     * @param  array $atts
-     * @return string
-     */
-    public function fee( $atts ) {
-        $atts = shortcode_atts(
-            array(
-                'percent' => '',
-                'min_fee' => '',
-                'max_fee' => '',
-            ), $atts, 'fee'
-        );
-
-        $calculated_fee = 0;
-
-        if ( $atts['percent'] ) {
-            $calculated_fee = $this->fee_cost * ( floatval( $atts['percent'] ) / 100 );
-        }
-
-        if ( $atts['min_fee'] && $calculated_fee < $atts['min_fee'] ) {
-            $calculated_fee = $atts['min_fee'];
-        }
-
-        if ( $atts['max_fee'] && $calculated_fee > $atts['max_fee'] ) {
-            $calculated_fee = $atts['max_fee'];
-        }
-
-        return $calculated_fee;
     }
 
     /**
@@ -239,6 +162,8 @@ class VendorShipping extends WC_Shipping_Method {
             return;
         }
 
+        $sanitizer = new SanitizeCost();
+
         foreach ( $shipping_methods as $key => $method ) {
             $tax_rate  = ( $method['settings']['tax_status'] === 'none' ) ? false : '';
             $has_costs = false;
@@ -257,7 +182,7 @@ class VendorShipping extends WC_Shipping_Method {
 
                 if ( '' !== $setting_cost ) {
                     $has_costs = true;
-                    $cost = $this->evaluate_cost(
+                    $cost = $sanitizer->evaluate_cost(
                         $setting_cost, array(
                             'qty'  => $this->get_package_item_qty( $package ),
                             'cost' => $package['contents_cost'],
@@ -285,7 +210,7 @@ class VendorShipping extends WC_Shipping_Method {
 
                         $has_costs = true;
 
-                        $class_cost = $this->evaluate_cost(
+                        $class_cost = $sanitizer->evaluate_cost(
                             $class_cost_string, array(
                                 'qty'  => array_sum( wp_list_pluck( $products, 'quantity' ) ),
                                 'cost' => array_sum( wp_list_pluck( $products, 'line_total' ) ),

@@ -37,5 +37,24 @@
                 <small><?php _e('Turning this option on will show the buttons without having to scroll.', $this->plugin_name); ?></small>
             </td>
         </tr>
+
+        <tr>
+            <td><?php _e('Turn Age Verification On?', $this->plugin_name); ?></td>
+            <td><input type="checkbox" name="terms_age_on" value="1" <?php checked('1', (isset($meta_terms_age_on) ? $meta_terms_age_on : 0)); ?>></td>
+        </tr>
+        
+        <tr>
+            <td><?php _e('Minimum Age Requirement', $this->plugin_name); ?></td>
+            <td><input class="small-text" type="number" name="terms_age_requirement" min="1" max="100" value="<?php echo $meta_terms_age_requirement; ?>"></td>
+        </tr>
+        
+        <tr>
+            <td><?php _e('Age Verification Date Format', $this->plugin_name); ?></td>
+            <td>
+                <label class="wptpa-radio"><input type="radio" name="terms_age_date_format" value="M-D-Y" <?php checked('M-D-Y', $meta_terms_age_date_format); ?>> Month, Day, Year</label><br>
+                <label class="wptpa-radio"><input type="radio" name="terms_age_date_format" value="D-M-Y" <?php checked('D-M-Y', $meta_terms_age_date_format); ?>> Day, Month, Year</label><br>
+                <label class="wptpa-radio"><input type="radio" name="terms_age_date_format" value="Y-M-D" <?php checked('Y-M-D', $meta_terms_age_date_format); ?>> Year, Month, Day</label><br>
+            </td>
+        </tr>
     </tbody>
 </table>

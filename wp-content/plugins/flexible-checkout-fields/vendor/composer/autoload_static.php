@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit4abed3275445924f01b38797e4651980
+class ComposerStaticInit8e9dd6b3e4d86606b4d39adbfacb10d3
 {
     public static $prefixLengthsPsr4 = array (
         'W' => 
@@ -34,6 +34,7 @@ class ComposerStaticInit4abed3275445924f01b38797e4651980
     );
 
     public static $classMap = array (
+        'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'FcfVendor\\Monolog\\ErrorHandler' => __DIR__ . '/../..' . '/vendor_prefixed/monolog/monolog/src/Monolog/ErrorHandler.php',
         'FcfVendor\\Monolog\\Formatter\\ChromePHPFormatter' => __DIR__ . '/../..' . '/vendor_prefixed/monolog/monolog/src/Monolog/Formatter/ChromePHPFormatter.php',
         'FcfVendor\\Monolog\\Formatter\\ElasticaFormatter' => __DIR__ . '/../..' . '/vendor_prefixed/monolog/monolog/src/Monolog/Formatter/ElasticaFormatter.php',
@@ -271,7 +272,7 @@ class ComposerStaticInit4abed3275445924f01b38797e4651980
         'FcfVendor\\WPDesk_Requirement_Checker' => __DIR__ . '/../..' . '/vendor_prefixed/wpdesk/wp-basic-requirements/src/Requirement_Checker.php',
         'FcfVendor\\WPDesk_Requirement_Checker_Factory' => __DIR__ . '/../..' . '/vendor_prefixed/wpdesk/wp-basic-requirements/src/Requirement_Checker_Factory.php',
         'FcfVendor\\WPDesk_Tracker' => __DIR__ . '/../..' . '/vendor_prefixed/wpdesk/wp-wpdesk-tracker/src/class-wpdesk-tracker.php',
-        'FcfVendor\\WPDesk_Tracker_Data_Provider' => __DIR__ . '/../..' . '/vendor_prefixed/wpdesk/wp-wpdesk-helper-override/src/Interop/Tracker/class-wpdesk-tracker-data-provider.php',
+        'FcfVendor\\WPDesk_Tracker_Data_Provider' => __DIR__ . '/../..' . '/vendor_prefixed/wpdesk/wp-wpdesk-tracker/src/data_provider/class-wpdesk-tracker-data-provider.php',
         'FcfVendor\\WPDesk_Tracker_Data_Provider_Gateways' => __DIR__ . '/../..' . '/vendor_prefixed/wpdesk/wp-wpdesk-tracker/src/data_provider/class-wpdesk-tracker-data-provider-gateways.php',
         'FcfVendor\\WPDesk_Tracker_Data_Provider_Identification' => __DIR__ . '/../..' . '/vendor_prefixed/wpdesk/wp-wpdesk-tracker/src/data_provider/class-wpdesk-tracker-data-provider-identification.php',
         'FcfVendor\\WPDesk_Tracker_Data_Provider_Identification_Gdpr' => __DIR__ . '/../..' . '/vendor_prefixed/wpdesk/wp-wpdesk-tracker/src/data_provider/class-wpdesk-tracker-data-provider-identification-gdpr.php',
@@ -295,9 +296,9 @@ class ComposerStaticInit4abed3275445924f01b38797e4651980
         'FcfVendor\\WPDesk_Tracker_Data_Provider_Wordpress' => __DIR__ . '/../..' . '/vendor_prefixed/wpdesk/wp-wpdesk-tracker/src/data_provider/class-wpdesk-tracker-data-provider-wordpress.php',
         'FcfVendor\\WPDesk_Tracker_Factory' => __DIR__ . '/../..' . '/vendor_prefixed/wpdesk/wp-wpdesk-helper-override/src/Helper/TrackerFactory.php',
         'FcfVendor\\WPDesk_Tracker_Factory_Prefixed' => __DIR__ . '/../..' . '/vendor_prefixed/wpdesk/wp-wpdesk-tracker/src/class-wpdesk-tracker-factory-prefixed.php',
-        'FcfVendor\\WPDesk_Tracker_Interface' => __DIR__ . '/../..' . '/vendor_prefixed/wpdesk/wp-wpdesk-helper-override/src/Interop/Tracker/class-wpdesk-tracker-interface.php',
+        'FcfVendor\\WPDesk_Tracker_Interface' => __DIR__ . '/../..' . '/vendor_prefixed/wpdesk/wp-wpdesk-tracker/src/class-wpdesk-tracker-interface.php',
         'FcfVendor\\WPDesk_Tracker_Persistence_Consent' => __DIR__ . '/../..' . '/vendor_prefixed/wpdesk/wp-wpdesk-tracker/src/persistence/class-wpdesk-tracker-persistence-consent.php',
-        'FcfVendor\\WPDesk_Tracker_Sender' => __DIR__ . '/../..' . '/vendor_prefixed/wpdesk/wp-wpdesk-helper-override/src/Interop/Tracker/class-wpdesk-tracker-sender.php',
+        'FcfVendor\\WPDesk_Tracker_Sender' => __DIR__ . '/../..' . '/vendor_prefixed/wpdesk/wp-wpdesk-tracker/src/sender/class-wpdesk-tracker-sender.php',
         'FcfVendor\\WPDesk_Tracker_Sender_Exception_WpError' => __DIR__ . '/../..' . '/vendor_prefixed/wpdesk/wp-wpdesk-tracker/src/sender/Exception/class-wpdesk-tracker-sender-exception-wperror.php',
         'FcfVendor\\WPDesk_Tracker_Sender_Logged' => __DIR__ . '/../..' . '/vendor_prefixed/wpdesk/wp-wpdesk-tracker/src/sender/class-wpdesk-tracker-sender-logged.php',
         'FcfVendor\\WPDesk_Tracker_Sender_Wordpress_To_WPDesk' => __DIR__ . '/../..' . '/vendor_prefixed/wpdesk/wp-wpdesk-tracker/src/sender/class-wpdesk-tracker-sender-wordpress-to-wpdesk.php',
@@ -498,9 +499,9 @@ class ComposerStaticInit4abed3275445924f01b38797e4651980
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit4abed3275445924f01b38797e4651980::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit4abed3275445924f01b38797e4651980::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit4abed3275445924f01b38797e4651980::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit8e9dd6b3e4d86606b4d39adbfacb10d3::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit8e9dd6b3e4d86606b4d39adbfacb10d3::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit8e9dd6b3e4d86606b4d39adbfacb10d3::$classMap;
 
         }, null, ClassLoader::class);
     }

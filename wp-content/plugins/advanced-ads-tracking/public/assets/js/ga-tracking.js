@@ -237,7 +237,7 @@
             }
             url = url.replace( '[AD_ID]', id );
 			//Mujahid Code
-			var url_old = 'https://shopadoc.com/linkout/'+id;
+			var url_old = 'https://woocommerce-642855-2866716.cloudwaysapps.com/linkout/'+id;
 			if ( serverSide ) {
 				url = $( el ).attr( 'data-href' );
 			}

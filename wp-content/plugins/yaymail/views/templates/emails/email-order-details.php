@@ -12,6 +12,7 @@ $text_link_color = get_post_meta( $postID, '_yaymail_email_textLinkColor_setting
 $paymentGateways  = wc_get_payment_gateway_by_order( $order );
 $yaymail_settings = get_option( 'yaymail_settings' );
 $cash_on_delivery = esc_html__( 'Cash on delivery', 'woocommerce' );
+$productItemCost  = isset( $yaymail_settings['product_item_cost'] ) ? $yaymail_settings['product_item_cost'] : 0;
 
 if ( ( 'customer_on_hold_order' === $this->template
 	|| 'customer_processing_order' === $this->template
@@ -143,7 +144,12 @@ if ( false != $paymentGateways && isset( $paymentGateways->account_details ) ) {
 			<th class="td yaymail-title-item-product" scope="col" style="text-align:left;vertical-align: middle;padding: 12px;font-size: 14px;border: 1px solid;border-color: inherit;">
 				<?php esc_html_e( 'Product', 'woocommerce' ); ?>
 			</th>
-			<th class="td yaymail-title-item-quanty" scope="col" style="text-align:left;vertical-align: middle;padding: 12px;font-size: 14px;border: 1px solid;border-color: inherit;">
+			<?php if ( $productItemCost ) { ?>
+				<th class="td yaymail_item_price_per_item" scope="col" style="text-align:left;vertical-align: middle;padding: 12px;font-size: 14px;border: 1px solid;border-color: inherit;">
+					<?php esc_html_e( 'Quantity', 'woocommerce' ); ?>
+				</th>
+			<?php } ?>
+			<th class="td yaymail-title-item-quantity" scope="col" style="text-align:left;vertical-align: middle;padding: 12px;font-size: 14px;border: 1px solid;border-color: inherit;">
 				<?php esc_html_e( 'Quantity', 'woocommerce' ); ?>
 			</th>
 			<th class="td yaymail-title-item-price" scope="col" style="text-align:left; width: 30%;vertical-align: middle;padding: 12px;font-size: 14px;border: 1px solid;border-color: inherit;">
@@ -173,37 +179,40 @@ if ( false != $paymentGateways && isset( $paymentGateways->account_details ) ) {
 	<tfoot>
 		<?php
 		if ( $is_display ) {
-		$totalItem = $order->get_order_item_totals();
-		$i         = 0;
-		foreach ( $totalItem as $key => $total ) {
-			$i++;
-			?>
+			$totalItem = $order->get_order_item_totals();
+			$i         = 0;
+			foreach ( $totalItem as $key => $total ) {
+				$i++;
+				?>
 
 		<tr>
-			<th class="td" scope="row" colspan="2" style="text-align:left;vertical-align: middle;padding: 12px;font-size: 14px;border: 1px solid;border-color: inherit; <?php echo esc_attr( ( 1 === $i ) ? 'border-top-width: 4px;' : '' ); ?>">
-			<?php echo esc_html( $total['label'] ); ?>
+			<th class="td" scope="row" colspan="<?php echo esc_attr( $productItemCost ? 3 : 2 ); ?>" style="text-align:left;vertical-align: middle;padding: 12px;font-size: 14px;border: 1px solid;border-color: inherit; <?php echo esc_attr( ( 1 === $i ) ? 'border-top-width: 4px;' : '' ); ?>">
+				<?php echo esc_html( $total['label'] ); ?>
 			</th>
 			<td class="td" style="text-align:left;vertical-align: middle;padding: 12px;font-size: 14px;border: 1px solid;border-color: inherit; <?php echo esc_attr( ( 1 === $i ) ? 'border-top-width: 4px;' : '' ); ?>">
-			<?php echo wp_kses_post( $total['value'] ); ?>
+				<?php echo wp_kses_post( $total['value'] ); ?>
 			</td>
 		</tr>
 
-			<?php
-		}
+				<?php
+			}
 
-		if ( ! empty( $order->get_customer_note() ) ) {
-			$note = $order->get_customer_note();
-			?>
+			if ( ! empty( $order->get_customer_note() ) ) {
+				$note = $order->get_customer_note();
+				?>
 
 			<tr>
-				<th class="td" scope="row" colspan="2" style="text-align:left;vertical-align: middle;padding: 12px;font-size: 14px;border: 1px solid;border-color: inherit; <?php echo esc_attr( ( 1 === $i ) ? 'border-top-width: 4px;' : '' ); ?>">
-			<?php esc_html_e( 'Note:', 'woocommerce' ); ?>
+				<th class="td" scope="row" colspan="<?php echo esc_attr( $productItemCost ? 3 : 2 ); ?>" style="text-align:left;vertical-align: middle;padding: 12px;font-size: 14px;border: 1px solid;border-color: inherit; <?php echo esc_attr( ( 1 === $i ) ? 'border-top-width: 4px;' : '' ); ?>">
+				<?php esc_html_e( 'Note:', 'woocommerce' ); ?>
 				</th>
 				<td class="td" style="text-align:left;vertical-align: middle;padding: 12px;font-size: 14px;border: 1px solid;border-color: inherit; <?php echo esc_attr( ( 1 === $i ) ? 'border-top-width: 4px;' : '' ); ?>">
-			<?php echo esc_html( $note ); ?>
+				<?php echo esc_html( $note ); ?>
 				</td>
 			</tr>
 
-		<?php } } ?>
+				<?php
+			}
+		}
+		?>
 	</tfoot>
 </table>

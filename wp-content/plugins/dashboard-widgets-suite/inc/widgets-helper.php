@@ -79,10 +79,26 @@ function dashboard_widgets_suite_check_role($role) {
 
 function dashboard_widgets_suite_get_date() {
 	
-	$date = date_i18n(get_option('date_format'), current_time('timestamp'));
-	$time = date_i18n(get_option('time_format'), current_time('timestamp'));
+	$date_format = get_option('date_format');
+	
+	$time_format = get_option('time_format');
+	
+	if (function_exists('current_datetime')) {
+		
+		$date = current_datetime()->format($date_format);
+		
+		$time = current_datetime()->format($time_format);
+		
+	} else {
+		
+		$date = date_i18n($date_format, current_time('timestamp'));
+		
+		$time = date_i18n($time_format, current_time('timestamp'));
+		
+	}
 	
 	$date_time = array($date, $time);
+	
 	$date_time = apply_filters('dashboard_widgets_suite_get_date', $date_time);
 	
 	return $date_time;

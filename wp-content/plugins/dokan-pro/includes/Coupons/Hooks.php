@@ -195,7 +195,7 @@ class Hooks {
                 in_array( $item['product_id'], $coupon_applicable_product_ids, true ) ||
                 dokan_pro()->coupon->is_admin_coupon_valid( $coupon, [ $seller_id ], [ $product_id ] )
             ) {
-                $line_sub_total  = ! empty( $item['line_subtotal'] ) ? $item['line_subtotal'] : 0;
+                $line_sub_total  = ! empty( $item['line_subtotal'] ) ? $item['line_subtotal'] + ( WC()->cart->display_prices_including_tax() ? $item['line_subtotal_tax'] : 0.0 ) : 0;
                 $line_item_total += $line_sub_total;
             }
         }
@@ -541,7 +541,6 @@ class Hooks {
                     'exclide_sale_item'          => $exclide_sale_item,
                     'apply_new_products'         => $apply_new_products,
                     'show_on_store'              => $show_on_store,
-                    'all_products'               => dokan_get_coupon_products_list(),
                     'products_id'                => $products_id,
                 )
             );
@@ -671,6 +670,7 @@ class Hooks {
         }
 
         $post_data = wp_unslash( $_POST ); // phpcs:ignore
+        $user_id   = dokan_get_current_user_id();
 
         if ( empty( $post_data['post_id'] ) ) {
             $post = array(
@@ -678,7 +678,7 @@ class Hooks {
                 'post_content' => sanitize_textarea_field( $post_data['description'] ),
                 'post_status'  => 'publish',
                 'post_type'    => 'shop_coupon',
-                'post_author'  => dokan_get_current_user_id(),
+                'post_author'  => $user_id,
             );
 
             $post_id = wp_insert_post( $post );
@@ -690,7 +690,7 @@ class Hooks {
                 'post_content' => sanitize_textarea_field( $post_data['description'] ),
                 'post_status'  => 'publish',
                 'post_type'    => 'shop_coupon',
-                'post_author'  => dokan_get_current_user_id(),
+                'post_author'  => $user_id,
             );
             $post_id = wp_update_post( $post );
             $message = 'coupon_update';
@@ -713,12 +713,7 @@ class Hooks {
         $minimum_amount     = wc_format_decimal( sanitize_text_field( $post_data['minium_ammount'] ) );
 
         if ( isset( $post_data['product_drop_down'][0] ) && 'select_all' === $post_data['product_drop_down'][0] ) {
-            $product_ids = array_map(
-                function( $product ) {
-                    return intval( $product->ID );
-                }, dokan_get_coupon_products_list()
-            );
-
+            $product_ids = dokan_coupon_get_seller_product_ids( $user_id );
             $product_ids = implode( ',', $product_ids );
         } elseif ( isset( $post_data['product_drop_down'] ) ) {
             $product_ids = implode( ',', array_filter( array_map( 'intval', (array) $post_data['product_drop_down'] ) ) );

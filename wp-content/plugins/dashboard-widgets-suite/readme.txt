@@ -9,9 +9,9 @@ Contributors: specialk
 Author URI: https://plugin-planet.com/
 Donate link: https://monzillamedia.com/donate.html
 Requires at least: 4.6
-Tested up to: 6.0
-Stable tag: 3.1
-Version: 3.1
+Tested up to: 6.2
+Stable tag: 3.3.1
+Version: 3.3.1
 Requires PHP: 5.6.20
 Text Domain: dashboard-widgets-suite
 Domain Path: /languages
@@ -75,6 +75,31 @@ _[Suggest a feature!](https://plugin-planet.com/support/#contact)_
 **Privacy**
 
 This plugin does not collect or store any user data. It does not set any cookies, and it does not connect to any third-party locations. Thus, this plugin does not affect user privacy in any way.
+
+Dashboard Widgets Suite is developed and maintained by [Jeff Starr](https://twitter.com/perishable), 15-year [WordPress developer](https://plugin-planet.com/) and [book author](https://books.perishablepress.com/).
+
+
+
+**Support development**
+
+I develop and maintain this free plugin with love for the WordPress community. To show support, you can [make a donation](https://monzillamedia.com/donate.html) or purchase one of my books: 
+
+* [The Tao of WordPress](https://wp-tao.com/)
+* [Digging into WordPress](https://digwp.com/)
+* [.htaccess made easy](https://htaccessbook.com/)
+* [WordPress Themes In Depth](https://wp-tao.com/wordpress-themes-book/)
+* [Wizard's SQL Recipes for WordPress](https://books.perishablepress.com/downloads/wizards-collection-sql-recipes-wordpress/)
+
+And/or purchase one of my premium WordPress plugins:
+
+* [BBQ Pro](https://plugin-planet.com/bbq-pro/) - Super fast WordPress firewall
+* [Blackhole Pro](https://plugin-planet.com/blackhole-pro/) - Automatically block bad bots
+* [Banhammer Pro](https://plugin-planet.com/banhammer-pro/) - Monitor traffic and ban the bad guys
+* [GA Google Analytics Pro](https://plugin-planet.com/ga-google-analytics-pro/) - Connect WordPress to Google Analytics
+* [Simple Ajax Chat Pro](https://plugin-planet.com/simple-ajax-chat-pro/) - Unlimited chat rooms
+* [USP Pro](https://plugin-planet.com/usp-pro/) - Unlimited front-end forms
+
+Links, tweets and likes also appreciated. Thank you! :)
 
 
 
@@ -162,10 +187,7 @@ To enable both Debug Log and Error Log, follow the same steps as above, but use 
 	ini_set('display_errors', 'Off');
 	ini_set('error_reporting', E_ALL);
 
-For more information, check these official resources:
-
-* [https://codex.wordpress.org/Debugging_in_WordPress](https://codex.wordpress.org/Debugging_in_WordPress)
-* [https://codex.wordpress.org/WP_DEBUG](https://codex.wordpress.org/WP_DEBUG)
+For more information, visit [Debugging in WordPress](https://wordpress.org/support/article/debugging-in-wordpress/).
 
 
 
@@ -367,31 +389,23 @@ To override the default note styles, add the following code to your theme (or ch
 The returned CSS code is just an example, showing use of DWS existing selectors. You can change the CSS to whatever is necessary.
 
 
+**How to change path/location of the debug log?**
+
+By default, the WordPress debug file is located at `/wp-content/debug.log`. To change that, add the following code to your theme (or child theme) functions.php, or add via simple [custom plugin](https://digwp.com/2022/02/custom-code-wordpress/):
+
+	function dashboard_widgets_suite_log_debug_path($log) {
+	
+		return '/whatever/path/debug.log'; 
+	
+	}
+	add_filter('dashboard_widgets_suite_log_debug_path', 'dashboard_widgets_suite_log_debug_path');
+
+Change the path to whatever is necessary.
+
+
 **Got a question?**
 
 Send any questions or feedback via my [contact form](https://plugin-planet.com/support/#contact)
-
-
-
-== Support development of this plugin ==
-
-I develop and maintain this free plugin with love for the WordPress community. To show support, you can [make a donation](https://monzillamedia.com/donate.html) or purchase one of my books: 
-
-* [The Tao of WordPress](https://wp-tao.com/)
-* [Digging into WordPress](https://digwp.com/)
-* [.htaccess made easy](https://htaccessbook.com/)
-* [WordPress Themes In Depth](https://wp-tao.com/wordpress-themes-book/)
-* [Wizard's SQL Recipes for WordPress](https://books.perishablepress.com/downloads/wizards-collection-sql-recipes-wordpress/)
-
-And/or purchase one of my premium WordPress plugins:
-
-* [BBQ Pro](https://plugin-planet.com/bbq-pro/) - Super fast WordPress firewall
-* [Blackhole Pro](https://plugin-planet.com/blackhole-pro/) - Automatically block bad bots
-* [Banhammer Pro](https://plugin-planet.com/banhammer-pro/) - Monitor traffic and ban the bad guys
-* [GA Google Analytics Pro](https://plugin-planet.com/ga-google-analytics-pro/) - Connect WordPress to Google Analytics
-* [USP Pro](https://plugin-planet.com/usp-pro/) - Unlimited front-end forms
-
-Links, tweets and likes also appreciated. Thank you! :)
 
 
 
@@ -399,6 +413,44 @@ Links, tweets and likes also appreciated. Thank you! :)
 
 __Thank you__ for using Dashboard Widgets Suite! If you like the plugin, please show support with a [5-star rating &raquo;](https://wordpress.org/support/plugin/dashboard-widgets-suite/reviews/?rate=5#new-post)
 
+
+**3.3.1 (2023/03/11)**
+
+* Adds fallback for `current_datetime()`
+* Tests on WordPress 6.2 (beta)
+
+**3.3 (2023/02/25)**
+
+* Improves responsive styles
+* Improves display of user notes
+* Adds database name to System Info widget
+* Improves logic when displaying dates/times
+* Improves logic when calling `get_current_screen()`
+* Sets default to admin role for all widgets
+* Removes SES Pro from WP Resources panel
+* Generates new translation template
+* Tests on WordPress 6.1 + 6.2 (beta)
+* Tests on PHP 8.1 and 8.2
+
+**3.2.2 (2023/02/25)**
+
+* Improves sanitization of `widget_notes_message`
+* Tests on WordPress 6.1 + 6.2 (beta)
+
+**3.2.1 (2022/09/24)**
+
+* Fixes overflow text in System Info widget (Thanks [@marius84](https://wordpress.org/support/users/marius84/))
+* Improves plugin documentation
+* Tests on WordPress 6.1
+
+**3.2 (2022/09/23)**
+
+* Improves WP Resources info on settings page
+* Adds "Show Support" link to plugin settings
+* Adds custom footer text to plugin settings
+* Improves plugin documentation
+* Updates translation template
+* Tests on WordPress 6.1
 
 **3.1 (2022/05/15)**
 

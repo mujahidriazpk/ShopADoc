@@ -2,7 +2,7 @@
 /*
 Plugin Name: Music Player for WooCommerce
 Plugin URI: https://wcmp.dwbooster.com
-Version: 1.0.177
+Version: 1.0.196
 Text Domain: music-player-for-woocommerce
 Author: CodePeople
 Author URI: https://wcmp.dwbooster.com
@@ -17,6 +17,10 @@ $codepeople_promote_banner_plugins['codepeople-music-player-for-woocommerce'] = 
 	'plugin_url'  => 'https://wordpress.org/support/plugin/music-player-for-woocommerce/reviews/#new-post',
 );
 
+// Feedback system
+require_once 'feedback/cp-feedback.php';
+new WCMP_FEEDBACK( 'music-player-for-woocommerce', __FILE__, 'https://wcmp.dwbooster.com/contact-us' );
+
 // CONSTANTS
 
 define( 'WCMP_WEBSITE_URL', get_home_url( get_current_blog_id(), '', is_ssl() ? 'https' : 'http' ) );
@@ -26,6 +30,7 @@ define( 'WCMP_DEFAULT_PLAYER_VOLUME', 1 );
 define( 'WCMP_DEFAULT_PLAYER_CONTROLS', 'default' );
 define( 'WCMP_DEFAULT_PlAYER_TITLE', 1 );
 define( 'WCMP_REMOTE_TIMEOUT', 120 );
+define( 'WCMP_VERSION', '1.0.196' );
 
 // Load widgets
 require_once 'widgets/playlist_widget.php';
@@ -46,6 +51,10 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 		private $_insert_player      = true;
 
 		private $_force_hook_title = 0;
+
+		private $_current_user_downloads = array();
+
+		private $_preload_times = 0; // Multiple preloads with demo generators can affect the server performance
 
 		/**
 		 * WCMP constructor
@@ -79,7 +88,7 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 			load_plugin_textdomain( 'music-player-for-woocommerce', false, basename( dirname( __FILE__ ) ) . '/languages/' );
 
 			add_filter( 'the_title', array( &$this, 'include_main_player_filter' ), 11, 2 );
-			$this->_init_force_in_title();
+			$this->init_force_in_title();
 			$this->_load_addons();
 
 			// Integration with the content editors
@@ -134,6 +143,8 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 			}
 
 			if ( ! is_admin() ) {
+				add_filter( 'wcmp_preload', array( $this, 'preload' ), 10, 2 );
+
 				// Define the shortcode for the playlist_widget
 				add_shortcode( 'wcmp-playlist', array( &$this, 'replace_playlist_shortcode' ) );
 				$this->_preview();
@@ -161,8 +172,8 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 					exit;
 				} else {
 					// To allow customize the hooks
-					$include_main_player_hook = trim( $this->get_global_attr( '_wcmp_main_player_hook', '' ) );
-					$include_all_players_hook = trim( $this->get_global_attr( '_wcmp_all_players_hook', '' ) );
+					$include_main_player_hook = preg_replace( '/[\t\s]/', '', $this->get_global_attr( '_wcmp_main_player_hook', '' ) );
+					$include_all_players_hook = preg_replace( '/[\t\s]/', '', $this->get_global_attr( '_wcmp_all_players_hook', '' ) );
 
 					if ( empty( $include_main_player_hook ) ) {
 						$include_main_player_hook = 'woocommerce_shop_loop_item_title';
@@ -172,10 +183,20 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 					}
 
 					if ( 0 == $this->_force_hook_title ) {
-						add_action( $include_main_player_hook, array( &$this, 'include_main_player' ), 11 );
+						$include_main_player_hook = explode( ',', $include_main_player_hook );
+						foreach ( $include_main_player_hook as $_hook_name ) {
+							if ( ! empty( $_hook_name ) ) {
+								add_action( $_hook_name, array( &$this, 'include_main_player' ), 11 );
+							}
+						}
 					}
 
-					add_action( $include_all_players_hook, array( &$this, 'include_all_players' ), 11 );
+					$include_all_players_hook = explode( ',', $include_all_players_hook );
+					foreach ( $include_all_players_hook as $_hook_name ) {
+						if ( ! empty( $_hook_name ) ) {
+							add_action( $_hook_name, array( &$this, 'include_all_players' ), 11 );
+						}
+					}
 
 					// Allows to call the players directly by themes
 					add_action( 'wcmp_main_player', array( &$this, 'include_main_player' ), 11 );
@@ -277,12 +298,15 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 				 $player_title        = ( isset( $_REQUEST['_wcmp_player_title'] ) ) ? 1 : 0;
 				 $merge_grouped       = ( isset( $_REQUEST['_wcmp_merge_in_grouped'] ) ) ? 1 : 0;
 				 $play_all            = ( isset( $_REQUEST['_wcmp_play_all'] ) ) ? 1 : 0;
+				 $loop                = ( isset( $_REQUEST['_wcmp_loop'] ) ) ? 1 : 0;
 				 $play_simultaneously = ( isset( $_REQUEST['_wcmp_play_simultaneously'] ) ) ? 1 : 0;
 				 $volume              = ( isset( $_REQUEST['_wcmp_player_volume'] ) && is_numeric( $_REQUEST['_wcmp_player_volume'] ) ) ? floatval( $_REQUEST['_wcmp_player_volume'] ) : 1;
 				 $preload             = (
 						isset( $_REQUEST['_wcmp_preload'] ) &&
 						in_array( $_REQUEST['_wcmp_preload'], array( 'none', 'metadata', 'auto' ) )
 					) ? sanitize_text_field( wp_unslash( $_REQUEST['_wcmp_preload'] ) ) : 'none';
+
+				 $apply_to_all_players = ( isset( $_REQUEST['_wcmp_apply_to_all_players'] ) ) ? 1 : 0;
 
 				 $global_settings = array(
 					 '_wcmp_registered_only'            => $registered_only,
@@ -297,6 +321,7 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 					 '_wcmp_player_title'               => $player_title,
 					 '_wcmp_merge_in_grouped'           => $merge_grouped,
 					 '_wcmp_play_all'                   => $play_all,
+					 '_wcmp_loop'                       => $loop,
 					 '_wcmp_play_simultaneously'        => $play_simultaneously,
 					 '_wcmp_preload'                    => $preload,
 					 '_wcmp_on_cover'                   => $on_cover,
@@ -310,9 +335,9 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 					 '_wcmp_analytics_integration'      => ( isset( $_REQUEST['_wcmp_analytics_integration'] ) ) ? sanitize_text_field( wp_unslash( $_REQUEST['_wcmp_analytics_integration'] ) ) : 'ua',
 					 '_wcmp_analytics_property'         => ( isset( $_REQUEST['_wcmp_analytics_property'] ) ) ? sanitize_text_field( wp_unslash( $_REQUEST['_wcmp_analytics_property'] ) ) : '',
 					 '_wcmp_analytics_api_secret'       => ( isset( $_REQUEST['_wcmp_analytics_api_secret'] ) ) ? sanitize_text_field( wp_unslash( $_REQUEST['_wcmp_analytics_api_secret'] ) ) : '',
+					 '_wcmp_apply_to_all_players'       => $apply_to_all_players,
 				 );
 
-				 $apply_to_all_players = ( isset( $_REQUEST['_wcmp_apply_to_all_players'] ) ) ? 1 : 0;
 				 if ( $apply_to_all_players ) {
 					 $this->_deleteDir( $this->_files_directory_path );
 
@@ -334,6 +359,7 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 						 update_post_meta( $product_id, '_wcmp_player_title', $player_title );
 						 update_post_meta( $product_id, '_wcmp_merge_in_grouped', $merge_grouped );
 						 update_post_meta( $product_id, '_wcmp_play_all', $play_all );
+						 update_post_meta( $product_id, '_wcmp_loop', $loop );
 						 update_post_meta( $product_id, '_wcmp_preload', $preload );
 						 update_post_meta( $product_id, '_wcmp_on_cover', $on_cover );
 					 }
@@ -379,6 +405,7 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 			$player_title  = ( isset( $_REQUEST['_wcmp_player_title'] ) ) ? 1 : 0;
 			$merge_grouped = ( isset( $_REQUEST['_wcmp_merge_in_grouped'] ) ) ? 1 : 0;
 			$play_all      = ( isset( $_REQUEST['_wcmp_play_all'] ) ) ? 1 : 0;
+			$loop          = ( isset( $_REQUEST['_wcmp_loop'] ) ) ? 1 : 0;
 			$volume        = ( isset( $_REQUEST['_wcmp_player_volume'] ) && is_numeric( $_REQUEST['_wcmp_player_volume'] ) ) ? floatval( $_REQUEST['_wcmp_player_volume'] ) : 1;
 			$preload       = (
 					isset( $_REQUEST['_wcmp_preload'] ) &&
@@ -396,6 +423,7 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 			add_post_meta( $post_id, '_wcmp_merge_in_grouped', $merge_grouped, true );
 			add_post_meta( $post_id, '_wcmp_preload', $preload, true );
 			add_post_meta( $post_id, '_wcmp_play_all', $play_all, true );
+			add_post_meta( $post_id, '_wcmp_loop', $loop, true );
 			add_post_meta( $post_id, '_wcmp_on_cover', $on_cover, true );
 		} // End save_post
 
@@ -418,6 +446,7 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 			delete_post_meta( $post_id, '_wcmp_player_title' );
 			delete_post_meta( $post_id, '_wcmp_preload' );
 			delete_post_meta( $post_id, '_wcmp_play_all' );
+			delete_post_meta( $post_id, '_wcmp_loop' );
 			delete_post_meta( $post_id, '_wcmp_on_cover' );
 		} // End delete_post
 
@@ -440,11 +469,11 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 
 			// Registering resources
 			wp_enqueue_style( 'wp-mediaelement' );
-			wp_enqueue_style( 'wp-mediaelement-skins', 'https://cdnjs.cloudflare.com/ajax/libs/mediaelement/2.23.5/mejs-skins.min.css', array(), '1.0.177' );
-			wp_enqueue_style( 'wcmp-style', plugin_dir_url( __FILE__ ) . 'css/style.css', array(), '1.0.177' );
+			wp_enqueue_style( 'wp-mediaelement-skins', plugin_dir_url( __FILE__ ) . 'vendors/mejs-skins/mejs-skins.min.css', array(), WCMP_VERSION );
+			wp_enqueue_style( 'wcmp-style', plugin_dir_url( __FILE__ ) . 'css/style.css', array(), WCMP_VERSION );
 			wp_enqueue_script( 'jquery' );
 			wp_enqueue_script( 'wp-mediaelement' );
-			wp_enqueue_script( 'wcmp-script', plugin_dir_url( __FILE__ ) . 'js/public.js', array( 'jquery', 'wp-mediaelement' ), '1.0.177' );
+			wp_enqueue_script( 'wcmp-script', plugin_dir_url( __FILE__ ) . 'js/public.js', array( 'jquery', 'wp-mediaelement' ), WCMP_VERSION );
 
 			$play_all = $GLOBALS['WooCommerceMusicPlayer']->get_global_attr(
 				'_wcmp_play_all',
@@ -551,6 +580,7 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 					'class'                     => '',
 					'loop'                      => 0,
 					'purchased_times'           => 0,
+					'download_links'            => 0,
 				),
 				$atts
 			);
@@ -568,6 +598,7 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 			$class                     = $atts['class'];
 			$loop                      = $atts['loop'];
 			$purchased_times           = $atts['purchased_times'];
+			$download_links_flag       = $atts['download_links'];
 
 			// Typecasting variables.
 			$cover                     = is_numeric( $cover ) ? intval( $cover ) : 0;
@@ -645,28 +676,21 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 				}
 			}
 
-			$products = $wpdb->get_results( $query );
+			$products = $wpdb->get_results( $query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 			if ( ! empty( $products ) ) {
 				$product_purchased_times = array();
 				if ( $purchased_times ) {
 					$products_ids_str = ( is_array( $products_ids ) ) ? implode( ',', $products_ids ) : $products_ids;
 
-					$product_purchased_times = $wpdb->get_results(
-						'SELECT order_itemmeta.meta_value product_id, COUNT(order_itemmeta.meta_value) as times
-					FROM
-						' . $wpdb->prefix . 'posts as orders INNER JOIN ' . $wpdb->prefix . 'woocommerce_order_items as order_items ON (orders.ID=order_items.order_id)
-						INNER JOIN ' . $wpdb->prefix . 'woocommerce_order_itemmeta as order_itemmeta ON (order_items.order_item_id=order_itemmeta.order_item_id)
-					WHERE orders.post_type="shop_order" AND orders.post_status="wc-completed" AND order_itemmeta.meta_key="_product_id" ' . ( strlen( $products_ids_str ) && false === strpos( '*', $products_ids_str ) ? ' AND order_itemmeta.meta_value IN (' . $products_ids_str . ')' : '' ) . '
-					GROUP BY order_itemmeta.meta_value'
-					);
+					$product_purchased_times = $wpdb->get_results( 'SELECT order_itemmeta.meta_value product_id, COUNT(order_itemmeta.meta_value) as times FROM ' . $wpdb->prefix . 'posts as orders INNER JOIN ' . $wpdb->prefix . 'woocommerce_order_items as order_items ON (orders.ID=order_items.order_id) INNER JOIN ' . $wpdb->prefix . 'woocommerce_order_itemmeta as order_itemmeta ON (order_items.order_item_id=order_itemmeta.order_item_id) WHERE orders.post_type="shop_order" AND orders.post_status="wc-completed" AND order_itemmeta.meta_key="_product_id" ' . ( strlen( $products_ids_str ) && false === strpos( '*', $products_ids_str ) ? ' AND order_itemmeta.meta_value IN (' . $products_ids_str . ')' : '' ) . ' GROUP BY order_itemmeta.meta_value' ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 				}
 
 				// Enqueue resources
 
 				$this->enqueue_resources();
-				wp_enqueue_style( 'wcmp-playlist-widget-style', plugin_dir_url( __FILE__ ) . 'widgets/playlist_widget/css/style.css', array(), '1.0.177' );
-				wp_enqueue_script( 'wcmp-playlist-widget-script', plugin_dir_url( __FILE__ ) . 'widgets/playlist_widget/js/public.js', array(), '1.0.177' );
+				wp_enqueue_style( 'wcmp-playlist-widget-style', plugin_dir_url( __FILE__ ) . 'widgets/playlist_widget/css/style.css', array(), WCMP_VERSION );
+				wp_enqueue_script( 'wcmp-playlist-widget-script', plugin_dir_url( __FILE__ ) . 'widgets/playlist_widget/js/public.js', array(), WCMP_VERSION );
 				wp_localize_script(
 					'wcmp-playlist-widget-script',
 					'wcmp_widget_settings',
@@ -676,6 +700,7 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 				$output .= '<div data-loop="' . ( $loop ? 1 : 0 ) . '">';
 				foreach ( $products as $product ) {
 					$product_obj = wc_get_product( $product->ID );
+
 					$counter++;
 					$preload   = $this->get_product_attr( $product->ID, '_wcmp_preload', '' );
 					$row_class = 'wcmp-even-product';
@@ -692,10 +717,20 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 						$featured_image = get_the_post_thumbnail_url( $product->ID );
 					}
 
+					// Download files links
+					$download_links = '';
+
+					if ( $download_links_flag ) {
+						$download_links = $this->woocommerce_user_download( $product->ID );
+						if ( ! empty( $download_links ) ) {
+							$download_links = '<span class="wcmp-download-links">(' . $download_links . ')</span>';
+						}
+					}
+
 					if ( 'new' == $layout ) {
 						$price   = $product_obj->get_price();
 						$output .= '
-							<div class="wcmp-widget-product controls-' . esc_attr( $controls ) . ' ' . esc_attr( $class ) . ' ' . esc_attr( $row_class ) . ' ' . esc_attr( ( $product->ID == $current_post_id && $highlight_current_product ) ? 'wcmp-current-product' : '' ) . '">
+							<div class="wcmp-new-layout wcmp-widget-product controls-' . esc_attr( $controls ) . ' ' . esc_attr( $class ) . ' ' . esc_attr( $row_class ) . ' ' . esc_attr( ( $product->ID == $current_post_id && $highlight_current_product ) ? 'wcmp-current-product' : '' ) . '">
 								<div class="wcmp-widget-product-header">
 									<div class="wcmp-widget-product-title">
 										<a href="' . esc_url( get_permalink( $product->ID ) ) . '">' . $product_obj->get_name() . '</a>' .
@@ -703,15 +738,28 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 											$purchased_times ?
 											'<span class="wcmp-purchased-times">' .
 											sprintf(
-												__( $this->get_global_attr( '_wcmp_purchased_times_text', '- purchased %d time(s)' ), 'music-player-for-woocommerce' ),
+												/* translators: %d: purchased times */
+												__( $this->get_global_attr( '_wcmp_purchased_times_text', '- purchased %d time(s)' ), 'music-player-for-woocommerce' ), // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
 												$get_times( $product->ID, $product_purchased_times )
 											) . '</span>' : ''
 										) .
+									$download_links .
 									'</div><!-- product title -->
 						';
+
 						if ( 0 != @floatval( $price ) && 0 == $hide_purchase_buttons ) {
+							$product_id_for_add_to_cart = $product->ID;
+							if( $product_obj->is_type( 'variable' ) ){
+								$variations = $product_obj->get_available_variations();
+								$variations_id = wp_list_pluck( $variations, 'variation_id' );
+								if( ! empty( $variations_id ) ) $product_id_for_add_to_cart = $variations_id[0];
+							} elseif ( $product_obj->is_type( 'grouped' ) ) {
+								$children   = $product_obj->get_children();
+								if( ! empty( $children ) ) $product_id_for_add_to_cart = $children[0];
+							}
+
 							$output .= '<div class="wcmp-widget-product-purchase">
-											' . wc_price( $product_obj->get_price(), '' ) . ' <a href="?add-to-cart=' . $product->ID . '"></a>
+											' . wc_price( $product_obj->get_price(), '' ) . ' <a href="?add-to-cart=' . $product_id_for_add_to_cart . '"></a>
 										</div><!-- product purchase -->
 							';
 						}
@@ -762,7 +810,7 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 						';
 					} else // Load the previous playlist layout
 					{
-						$output .= '<ul class="wcmp-widget-playlist controls-' . esc_attr( $controls ) . ' ' . esc_attr( $class ) . ' ' . esc_attr( $row_class ) . ' ' . esc_attr( ( $product->ID == $current_post_id && $highlight_current_product ) ? 'wcmp-current-product' : '' ) . '">';
+						$output .= '<ul class="wcmp-widget-playlist wcmp-classic-layout controls-' . esc_attr( $controls ) . ' ' . esc_attr( $class ) . ' ' . esc_attr( $row_class ) . ' ' . esc_attr( ( $product->ID == $current_post_id && $highlight_current_product ) ? 'wcmp-current-product' : '' ) . '">';
 
 						if ( ! empty( $featured_image ) ) {
 							$output .= '<li style="display:table-row;"><img src="' . esc_attr( $featured_image ) . '" class="wcmp-widget-feature-image" /><div class="wcmp-widget-product-files-list"><ul>';
@@ -796,7 +844,8 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 								$purchased_times ?
 								'<span class="wcmp-purchased-times">' .
 								sprintf(
-									__( $this->get_global_attr( '_wcmp_purchased_times_text', '- purchased %d time(s)' ), 'music-player-for-woocommerce' ),
+									/* translators: %d: purchased times */
+									__( $this->get_global_attr( '_wcmp_purchased_times_text', '- purchased %d time(s)' ), 'music-player-for-woocommerce' ), // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
 									$get_times( $product->ID, $product_purchased_times )
 								) . '</span>' : ''
 							)
@@ -805,6 +854,9 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 						if ( ! empty( $featured_image ) ) {
 							$output .= '</ul></div></li>';
 						}
+
+						$output .= $download_links; // Download links
+
 						$output .= '</ul>';
 					}
 				}
@@ -826,10 +878,45 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 			return $allowedposttags;
 		} // End allowed_html_tags
 
+		public function preload( $preload, $audio_url ) {
+			$result = $preload;
+			if ( strpos( $audio_url, 'wcmp-action=play' ) !== false ) {
+				if ( $this->_preload_times ) {
+					$result = 'none';
+				}
+				$this->_preload_times++;
+			}
+			return $result;
+		} // End preload
+
 		// ******************** WOOCOMMERCE ACTIONS ************************
 
+		public function woocommerce_user_download( $product_id ) {
+			$download_links = '';
+			if ( is_user_logged_in() ) {
+				if ( empty( $this->_current_user_downloads ) && function_exists( 'wc_get_customer_available_downloads' ) ) {
+					$current_user = wp_get_current_user();
+					$this->_current_user_downloads = wc_get_customer_available_downloads( $current_user->ID );
+				}
+				$separator = '';
+				foreach ( $this->_current_user_downloads as $download ) {
+					if ( $download['product_id'] == $product_id ) {
+						$download_links .= $separator . '<a href="' . $download['download_url'] . '" target="_blank" class="wcmp-download-link">' . esc_html__( 'download', 'music-player-for-woocommerce' ) . '</a>';
+						$separator = ', ';
+					}
+				}
+			}
+
+			return $download_links;
+
+		}
+
 		public function woocommerce_product_title( $title, $product ) {
-			 $player = '';
+			global $wp;
+			if ( ! empty( $wp->query_vars['wcfm-products-manage'] )) {
+				return $title;
+			}
+			$player = '';
 			ob_start();
 			$this->include_main_player( $product );
 			$player .= ob_get_contents();
@@ -864,6 +951,7 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 				// This option is only for compatibility with versions previous to 1.0.28
 					$GLOBALS['WooCommerceMusicPlayer']->get_global_attr( 'preload', 'none' )
 			);
+			$preload = apply_filters( 'wcmp_preload', $preload, $audio_url );
 
 			return '<audio ' . (
 					(
@@ -894,9 +982,23 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 		}
 
 		public function include_main_player_filter( $value, $id ) {
+			global $wp;
 			if ( $this->_force_hook_title ) {
 				try {
-					if ( ( wp_doing_ajax() || ! is_admin() ) && ( ! function_exists( 'is_product' ) || ! is_product() ) && ! is_cart() && ! is_page( 'cart' ) && ! is_checkout() && is_int( $id ) ) {
+					if (
+						( wp_doing_ajax() || ! is_admin() ) &&
+						(
+							! function_exists( 'is_product' ) ||
+							! is_product() ||
+							( is_product() && get_queried_object_id() != $id )
+						) &&
+						! is_cart() &&
+						! is_page( 'cart' ) &&
+						! is_checkout() &&
+						is_int( $id ) &&
+						empty( $_REQUEST['wcmp_nonce'] ) &&
+						empty( $wp->query_vars['wcfm-products-manage'] )
+					) {
 						$p = wc_get_product( $id );
 						if ( ! empty( $p ) ) {
 							add_filter( 'esc_html', array( &$this, 'esc_html' ), 10, 2 );
@@ -976,12 +1078,12 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 
 				$output = '<div class="wcmp-player-container product-' . esc_attr( $file['product'] ) . '">' . $audio_tag . '</div>';
 				if ( $_echo ) {
-					print $output;
+					print $output; // phpcs:ignore WordPress.Security.EscapeOutput
 				}
 
 				do_action( 'wcmp_after_player_shop_page', $id );
 
-				return $output;
+				return $output; // phpcs:ignore WordPress.Security.EscapeOutput
 			}
 		} // End include_main_player
 
@@ -1014,6 +1116,7 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 				$volume             = @floatval( $this->get_product_attr( $id, '_wcmp_player_volume', WCMP_DEFAULT_PLAYER_VOLUME ) );
 				$player_controls    = $this->get_product_attr( $id, '_wcmp_player_controls', WCMP_DEFAULT_PLAYER_CONTROLS );
 				$player_title       = intval( $this->get_product_attr( $id, '_wcmp_player_title', WCMP_DEFAULT_PlAYER_TITLE ) );
+				$loop               = intval( $this->get_product_attr( $id, '_wcmp_loop', 0 ) );
 				$merge_grouped      = intval( $this->get_product_attr( $id, '_wcmp_merge_in_grouped', 0 ) );
 				$merge_grouped_clss = ( $merge_grouped ) ? 'merge_in_grouped_products' : '';
 
@@ -1044,9 +1147,9 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 						$audio_url
 					);
 					$title           = esc_html( ( $player_title ) ? apply_filters( 'wcmp_file_name', $file['name'], $id, $index ) : '' );
-					print '<div class="wcmp-player-container ' . esc_attr( $merge_grouped_clss ) . ' product-' . esc_attr( $file['product'] ) . '">' . $audio_tag . '</div><div class="wcmp-player-title">' . $title . '</div><div style="clear:both;"></div>';
+					print '<div class="wcmp-player-container ' . esc_attr( $merge_grouped_clss ) . ' product-' . esc_attr( $file['product'] ) . '" ' . ( $loop ? 'data-loop="1"' : '' ) . '>' . $audio_tag . '</div><div class="wcmp-player-title">' . wp_kses_post( $title ) . '</div><div style="clear:both;"></div>'; // phpcs:ignore WordPress.Security.EscapeOutput
 				} elseif ( $counter > 1 ) {
-					$before = '<table class="wcmp-player-list ' . $merge_grouped_clss . '">';
+					$before = '<table class="wcmp-player-list ' . $merge_grouped_clss . '" ' . ( $loop ? 'data-loop="1"' : '' ) . '>';
 					$after  = '';
 					foreach ( $files as $index => $file ) {
 						$evenOdd = ( 1 == $counter % 2 ) ? 'wcmp-odd-row' : 'wcmp-even-row';
@@ -1072,16 +1175,16 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 						);
 						$title     = esc_html( ( $player_title ) ? apply_filters( 'wcmp_file_name', $file['name'], $id, $index ) : '' );
 
-						print $before;
+						print $before; // phpcs:ignore WordPress.Security.EscapeOutput
 						$before = '';
 						$after  = '</table>';
 						if ( 'all' != $player_controls ) {
-							print '<tr class="' . esc_attr( $evenOdd ) . ' product-' . esc_attr( $file['product'] ) . '"><td class="wcmp-player-container wcmp-column-player-' . esc_attr( $player_style ) . '">' . $audio_tag . '</td><td class="wcmp-player-title wcmp-column-player-title">' . $title . '</td></tr>';
+							print '<tr class="' . esc_attr( $evenOdd ) . ' product-' . esc_attr( $file['product'] ) . '"><td class="wcmp-player-container wcmp-column-player-' . esc_attr( $player_style ) . '">' . $audio_tag . '</td><td class="wcmp-player-title wcmp-column-player-title">' . wp_kses_post( $title ) . '</td></tr>'; // phpcs:ignore WordPress.Security.EscapeOutput
 						} else {
-							print '<tr class="' . esc_attr( $evenOdd ) . ' product-' . esc_attr( $file['product'] ) . '"><td><div class="wcmp-player-container">' . $audio_tag . '</div><div class="wcmp-player-title wcmp-column-player-title">' . $title . '</div></td></tr>';
+							print '<tr class="' . esc_attr( $evenOdd ) . ' product-' . esc_attr( $file['product'] ) . '"><td><div class="wcmp-player-container">' . $audio_tag . '</div><div class="wcmp-player-title wcmp-column-player-title">' . wp_kses_post( $title ) . '</div></td></tr>'; // phpcs:ignore WordPress.Security.EscapeOutput
 						}
 					}
-					print $after;
+					print $after; // phpcs:ignore WordPress.Security.EscapeOutput
 				}
 				do_action( 'wcmp_after_players_product_page', $id );
 			}
@@ -1122,9 +1225,12 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 			return $html;
 		} // add_class_single_product_image
 
-		// ******************** PRIVATE METHODS ************************
+		public function init_force_in_title( $v = null ) {
+			if ( is_numeric( $v ) ) {
+				$this->_force_hook_title = intval( $v );
+				return;
+			}
 
-		private function _init_force_in_title() {
 			$this->_force_hook_title = $this->get_global_attr( '_wcmp_main_player_hook_title', 1 );
 
 			// Integration with "WOOF – Products Filter for WooCommerce" by realmag777
@@ -1132,7 +1238,9 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 				$this->_force_hook_title = 1;
 			}
 
-		} // End _init_force_in_title
+		} // End init_force_in_title
+
+		// ******************** PRIVATE METHODS ************************
 
 		private function _get_post_types( $mysql_in = false ) {
 			 $post_types = array( 'product' );
@@ -1194,7 +1302,7 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 							$wp_scripts->do_items();
 						}
 
-						print '<div class="wcmp-preview-container">' . $output . '</div>';
+						print '<div class="wcmp-preview-container">' . $output . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput
 						print '<script type="text/javascript">jQuery(window).on("load", function(){ var frameEl = window.frameElement; if(frameEl) frameEl.height = jQuery(".wcmp-preview-container").outerHeight(true)+25; });</script>';
 						exit;
 					}
@@ -1294,7 +1402,9 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 					if ( is_array( $file ) && ! empty( $file['file'] ) ) {
 						$ext       = pathinfo( $file['file'], PATHINFO_EXTENSION );
 						$file_name = md5( $file['file'] ) . ( ( ! empty( $ext ) ) ? '.' . $ext : '' );
-						@unlink( $this->_files_directory_path . $file_name );
+						if ( file_exists( $this->_files_directory_path . $file_name ) ) {
+							@unlink( $this->_files_directory_path . $file_name );
+						}
 					}
 				}
 			}
@@ -1432,7 +1542,7 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 
 			$audio_files = array();
 			foreach ( $files as $index => $file ) {
-				if ( ! empty( $file['file'] ) && false !== ( $media_type = $this->_is_audio( $file['file'] ) ) ) {
+				if ( ! empty( $file['file'] ) && false !== ( $media_type = $this->_is_audio( $file['file'] ) ) ) { // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments
 					$file['media_type'] = $media_type;
 
 					if ( ! empty( $args['file_id'] ) ) {
@@ -1499,7 +1609,7 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 			} else {
 				try {
 					$c = false;
-					if ( ( $path = $this->_is_local( $url_fixed ) ) !== false ) {
+					if ( ( $path = $this->_is_local( $url_fixed ) ) !== false ) { // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments
 						$c = copy( $path, $file_path );
 					} else {
 						$response = wp_remote_get(
@@ -1516,7 +1626,9 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 					}
 
 					if ( true === $c ) {
-						header( 'location: http' . ( ( is_ssl() ) ? 's:' : ':' ) . $this->_files_directory_url . $file_name );
+						header( 'Content-Type: audio/mpeg' );
+						readfile($file_path);
+						// header( 'location: http' . ( ( is_ssl() ) ? 's:' : ':' ) . $this->_files_directory_url . $file_name );
 						exit;
 					}
 				} catch ( Exception $err ) {
@@ -1569,7 +1681,9 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 			$file_path = false;
 			if ( file_exists( $url ) ) {
 				$file_path = $url;
-			} else {
+			}
+
+			if ( false === $file_path ) {
 				$attachment_id = attachment_url_to_postid( $url );
 				if ( $attachment_id ) {
 					$attachment_path = get_attached_file( $attachment_id );
@@ -1578,6 +1692,15 @@ if ( ! class_exists( 'WooCommerceMusicPlayer' ) ) {
 					}
 				}
 			}
+
+			if ( false === $file_path && defined( 'ABSPATH' ) ) {
+				$site_url = get_site_url( get_current_blog_id() );
+				$file_path = str_ireplace( $site_url . '/', ABSPATH, $url );
+				if ( ! file_exists( $file_path ) ) {
+					$file_path = false;
+				}
+			}
+
 			return apply_filters( 'wcmp_is_local', $file_path, $url );
 		} // End _is_local
 

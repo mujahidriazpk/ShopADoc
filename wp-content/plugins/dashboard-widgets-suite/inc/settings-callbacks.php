@@ -59,7 +59,7 @@ function dashboard_widgets_suite_section_system_info() {
 function dashboard_widgets_suite_section_log_debug() {
 	
 	echo '<p>'. esc_html__('This widget displays your WP Debug Log when WP_DEBUG is enabled.', 'dashboard-widgets-suite');
-	echo ' <a target="_blank" rel="noopener noreferrer" href="https://codex.wordpress.org/Debugging_in_WordPress">';
+	echo ' <a target="_blank" rel="noopener noreferrer" href="https://wordpress.org/support/article/debugging-in-wordpress/">';
 	echo esc_html__('Learn how to enable WP_DEBUG&nbsp;&rsaquo;', 'dashboard-widgets-suite') .'</a></p>';
 	
 }
@@ -318,5 +318,15 @@ function dashboard_widgets_suite_callback_rate($args) {
 	$text  = isset($args['label']) ? $args['label'] : esc_html__('Show support with a 5-star rating&nbsp;&raquo;', 'dashboard-widgets-suite');
 	
 	echo '<a target="_blank" rel="noopener noreferrer" class="dws-rate-plugin" href="'. $href .'" title="'. $title .'">'. $text .'</a>';
+	
+}
+
+function dashboard_widgets_suite_callback_support($args) {
+	
+	$href  = 'https://monzillamedia.com/donate.html';
+	$title = esc_attr__('Donate via PayPal, credit card, or cryptocurrency', 'dashboard-widgets-suite');
+	$text  = isset($args['label']) ? $args['label'] : esc_html__('Show support with a small donation&nbsp;&raquo;', 'dashboard-widgets-suite');
+	
+	echo '<a target="_blank" rel="noopener noreferrer" class="dws-show-support" href="'. $href .'" title="'. $title .'">'. $text .'</a>';
 	
 }

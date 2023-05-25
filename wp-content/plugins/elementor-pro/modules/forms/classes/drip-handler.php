@@ -18,11 +18,11 @@ class Drip_Handler {
 	 */
 	public function __construct( $api_token ) {
 		if ( empty( $api_token ) ) {
-			throw new \Exception( 'Invalid API key' );
+			throw new \Exception( 'Invalid API key.' );
 		}
 		$this->init_rest_client( $api_token );
 		if ( ! $this->is_valid_api_token() ) {
-			throw new \Exception( 'Invalid API key' );
+			throw new \Exception( 'Invalid API key.' );
 		}
 	}
 
@@ -60,7 +60,7 @@ class Drip_Handler {
 		$results = $this->rest_client->get( 'accounts' );
 
 		$accounts = [
-			'' => __( 'Select...', 'elementor-pro' ),
+			'' => esc_html__( 'Select...', 'elementor-pro' ),
 		];
 
 		if ( ! empty( $results['body']['accounts'] ) ) {

@@ -12,6 +12,7 @@ $text_link_color = get_post_meta( $postID, '_yaymail_email_textLinkColor_setting
 $paymentGateways  = wc_get_payment_gateway_by_order( $order );
 $yaymail_settings = get_option( 'yaymail_settings' );
 $cash_on_delivery = esc_html__( 'Cash on delivery', 'woocommerce' );
+$productItemCost  = isset( $yaymail_settings['product_item_cost'] ) ? $yaymail_settings['product_item_cost'] : 0;
 
 if ( ( 'customer_on_hold_order' === $this->template
 	|| 'customer_processing_order' === $this->template
@@ -141,6 +142,11 @@ if ( false != $paymentGateways && isset( $paymentGateways->account_details ) ) {
 			<th class="td" scope="col" style="text-align:left;vertical-align: middle;padding: 12px;font-size: 14px;border: 1px solid;border-color: inherit;">
 				<?php esc_html_e( 'Product', 'woocommerce' ); ?>
 			</th>
+			<?php if ( $productItemCost ) { ?>
+				<th class="td" scope="col" style="text-align:left;vertical-align: middle;padding: 12px;font-size: 14px;border: 1px solid;border-color: inherit;">
+					<?php esc_html_e( 'Cost', 'woocommerce' ); ?>
+				</th>
+			<?php } ?>
 			<th class="td" scope="col" style="text-align:left;vertical-align: middle;padding: 12px;font-size: 14px;border: 1px solid;border-color: inherit;">
 				<?php esc_html_e( 'Quantity', 'woocommerce' ); ?>
 			</th>
@@ -177,7 +183,7 @@ if ( false != $paymentGateways && isset( $paymentGateways->account_details ) ) {
 			?>
 
 		<tr>
-			<th class="td" scope="row" colspan="2" style="text-align:left;vertical-align: middle;padding: 12px;font-size: 14px;border: 1px solid;border-color: inherit; <?php echo esc_attr( ( 1 === $i ) ? 'border-top-width: 4px;' : '' ); ?>">
+		<th class="td" scope="row" colspan="<?php echo esc_attr( $productItemCost ? 3 : 2 ); ?>" style="text-align:left;vertical-align: middle;padding: 12px;font-size: 14px;border: 1px solid;border-color: inherit; <?php echo esc_attr( ( 1 === $i ) ? 'border-top-width: 4px;' : '' ); ?>">
 			<?php echo esc_html( $total['label'] ); ?>
 			</th>
 			<td class="td" style="text-align:left;vertical-align: middle;padding: 12px;font-size: 14px;border: 1px solid;border-color: inherit; <?php echo esc_attr( ( 1 === $i ) ? 'border-top-width: 4px;' : '' ); ?>">
@@ -193,7 +199,7 @@ if ( false != $paymentGateways && isset( $paymentGateways->account_details ) ) {
 			?>
 
 			<tr>
-				<th class="td" scope="row" colspan="2" style="text-align:left;vertical-align: middle;padding: 12px;font-size: 14px;border: 1px solid;border-color: inherit; <?php echo esc_attr( ( 1 === $i ) ? 'border-top-width: 4px;' : '' ); ?>">
+				<th class="td" scope="row" colspan="<?php echo esc_attr( $productItemCost ? 3 : 2 ); ?>" style="text-align:left;vertical-align: middle;padding: 12px;font-size: 14px;border: 1px solid;border-color: inherit; <?php echo esc_attr( ( 1 === $i ) ? 'border-top-width: 4px;' : '' ); ?>">
 			<?php esc_html_e( 'Note:', 'woocommerce' ); ?>
 				</th>
 				<td class="td" style="text-align:left;vertical-align: middle;padding: 12px;font-size: 14px;border: 1px solid;border-color: inherit; <?php echo esc_attr( ( 1 === $i ) ? 'border-top-width: 4px;' : '' ); ?>">

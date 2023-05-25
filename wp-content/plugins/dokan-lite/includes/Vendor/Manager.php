@@ -150,7 +150,6 @@ class Manager {
      */
     public function create( $data = [] ) {
         $defaults = [
-            'role'       => 'seller',
             'user_login' => '', // dokan_generate_username()
             'user_pass'  => wp_generate_password(),
         ];
@@ -161,6 +160,7 @@ class Manager {
         }
 
         $vendor_data = wp_parse_args( $data, $defaults );
+        $vendor_data['role'] = 'seller'; // this value can't be edited
         $vendor_id   = wp_insert_user( $vendor_data );
 
         if ( is_wp_error( $vendor_id ) ) {
@@ -308,10 +308,14 @@ class Manager {
 
         // update vendor other metadata | @todo: move all other metadata to 'dokan_profile_settings' meta
         if ( current_user_can( 'manage_woocommerce' ) ) {
-            if ( isset( $data['enabled'] ) && dokan_validate_boolean( $data['enabled'] ) ) {
-                $vendor->update_meta( 'dokan_enable_selling', 'yes' );
-            } else {
-                $vendor->update_meta( 'dokan_enable_selling', 'no' );
+            if ( isset( $data['enabled'] ) ) {
+                $previously_enabled = $vendor->is_enabled();
+                $newly_enabled      = dokan_validate_boolean( $data['enabled'] );
+
+                if ( $previously_enabled !== $newly_enabled ) {
+                    $vendor->update_meta( 'dokan_enable_selling', $newly_enabled ? 'yes' : 'no' );
+                    $vendor->change_product_status( $newly_enabled ? 'publish' : 'pending' );
+                }
             }
 
             if ( isset( $data['featured'] ) && dokan_validate_boolean( $data['featured'] ) ) {

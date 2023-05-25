@@ -89,8 +89,9 @@ if($dentist_office_state){
 if($dentist_office_zip_code){
 	$dentist_office_address .= ", ".$dentist_office_zip_code;
 }
+
 $distance = get_driving_information($dentist_office_address,trim($client_street." ".$client_apt_no." ".$address));
-$distance = 30;
+//$distance = 30;
 $client_ID = str_pad($post->post_author, 5, "0", STR_PAD_LEFT);
 $auction_current_bid_price = wc_price_mujahid(get_post_meta($product_id, '_auction_current_bid', true ));
 if($product_id==$demo_listing){
@@ -140,6 +141,12 @@ if($user_role =='seller' ) {?>
 </style>
 <?php }?>
 <style type="text/css">
+img {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+     user-select: none;
+    }
 #relist_auction_div{font-weight:normal !important;font-size:1.05em !important;}
 @media (min-width: 851px) {
 	.biding_form{opacity:0;}
@@ -182,7 +189,7 @@ function CountDownNew2(tillData,type){
 }
 function CountDownNew(tillData,type){
 	//var countDownDate = new Date("Jan 21, 2022 15:37:25").getTime();
-	/*var countDownDate = Date.parse(tillData)/1000;
+	/*var countDownDate = Date.parse(tillData)/1000; 
 	const str = new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' ,hour12: false });
 	var now = Date.parse(str)/1000;*/
 /*	var start = '<?php echo microtime(TRUE);?>';
@@ -238,7 +245,7 @@ if(is_user_logged_in() && $post->post_author == $current_user->ID && ($_auction_
 	if(strtotime($_auction_dates_to) < strtotime($today_date_time_seconds) && strtotime($today_date_time_seconds) >= strtotime($_flash_cycle_end) && ($_auction_current_bid == '' || $_auction_current_bid == 0)){?>
     	<?php
 		
-			$newtimestamp = strtotime($_flash_cycle_end.' + 3 minute');
+			$newtimestamp = strtotime($_flash_cycle_end.' + 7 minute');
 			$to_date = date('Y-m-d H:i:s', $newtimestamp);
 			if(strtotime($today_date_time_seconds) > strtotime($to_date)){
 				wp_redirect(get_permalink( $product_id )."?action=expire");
@@ -256,16 +263,21 @@ if(is_user_logged_in() && $post->post_author == $current_user->ID && ($_auction_
 					var timeLeft = parseInt('<?php echo $secs;?>');;
 					var elem = document.getElementById('timer_div');
 					var timerId = setInterval(countdown, 1000);
+					//var count = parseInt(localStorage.getItem('counter')) || 0;
 					function countdown() {
 					  if (timeLeft == 0) {
 						clearTimeout(timerId);
 						elem.innerHTML = '0 seconds';
 						window.location.replace("<?php echo get_permalink( $product_id );?>?action=expire");
 					  } else {
+						//count++;
+  						//localStorage.setItem('counter', count);
 						elem.innerHTML = timeLeft + ' seconds';
 						timeLeft--;
 					  }
 					}
+					//LoadRelist();
+					setTimeout("LoadRelist()",1000);
 				});
 			</script>
 			<style type="text/css">
@@ -431,7 +443,7 @@ if(is_user_logged_in() && $post->post_author == $current_user->ID && ($_auction_
 				opacity: 0.9;
 			}*/
 			.playBtnContainer .jconfirm{
-				z-index:100000002 !important;
+				z-index:100000001 !important;
 			}
 			.playBtnContainer .jconfirm.jconfirm-white .jconfirm-bg,.playBtnContainer .jconfirm.jconfirm-light .jconfirm-bg,.jconfirm-bg.blurBg{
 			  background: rgba(255, 255, 255, 0.1); 
@@ -471,12 +483,89 @@ if(is_user_logged_in() && $post->post_author == $current_user->ID && ($_auction_
 					margin-left:0;
 					/* text-align: center; */
 				}
+				@media only screen and (min-width:851px) and (max-width:990px) {
+					.play_btn_black{width:50% !important;}
+				}
 				@media only screen and (max-width: 850px) {
 					.play_btn_black{width:45%;}
 					.sound-popup{margin-top:0 !important;}
 				}
 			</style>
             <!--<div class="playBtnContainer"></div>-->
+            <style type="text/css">
+            /*#element {
+                margin: 40px auto 20px auto;
+                height: 200px;
+                width: 400px;
+                background-color: #e9e9e9;
+                font-size: 20px;
+                padding: 40px 0 0 0;
+                text-align: center;
+                box-sizing: border-box;
+            }*/
+
+            /*#go-button {
+                width: 200px;
+                display: block;
+                margin: 50px auto 0 auto;
+            }*/
+
+            /* webkit requires explicit width, height = 100% of sceeen */
+            /* webkit also takes margin into account in full screen also - so margin should be removed (otherwise black areas will be seen) */
+            body:-webkit-full-screen #element-inner{
+                width: 100%;
+                height: 100%;
+                background-image: url(/wp-content/themes/dokan-child/watermark.png);
+                background-repeat: no-repeat !important;
+                background-color: #F2F2F2 !important;
+                background-position: center 5% !important;
+                background-attachment: fixed !important;
+                background-size: auto;
+                -webkit-backface-visibility: visible !important;
+                margin: 0;
+                overflow-y: scroll;
+            }
+            #element:-webkit-full-screen .rotation_main,#element:-moz-full-screen .rotation_main,#element:-ms-fullscreen .rotation_main,#element:fullscreen .rotation_main{
+                    height: auto !important;
+            }
+            body:-moz-full-screen #element-inner{
+                 background-image: url(/wp-content/themes/dokan-child/watermark.png);
+                background-repeat: no-repeat !important;
+                background-color: #F2F2F2 !important;
+                background-position: center 5% !important;
+                background-attachment: fixed !important;
+                background-size: auto;
+                -webkit-backface-visibility: visible !important;
+                margin: 0;
+                overflow-y: scroll;
+            }
+
+            body:-ms-fullscreen #element-inner{
+                 background-image: url(/wp-content/themes/dokan-child/watermark.png);
+                background-repeat: no-repeat !important;
+                background-color: #F2F2F2 !important;
+                background-position: center 5% !important;
+                background-attachment: fixed !important;
+                background-size: auto;
+                -webkit-backface-visibility: visible !important;
+                margin: 0;
+                overflow-y: scroll;
+            }
+
+            /* W3C proposal that will eventually come in all browsers */
+            #body:fullscreen #element-inner{ 
+                 background-image: url(/wp-content/themes/dokan-child/watermark.png) !important;
+                background-repeat: no-repeat !important;
+                background-color: #F2F2F2 !important;
+                background-position: center 5% !important;
+                background-attachment: fixed !important;
+                background-size: auto;
+                -webkit-backface-visibility: visible !important;
+                margin: 0;
+                overflow-y: scroll;
+            }
+            </style>
+
             <script type="text/javascript">
                
 					//audio-5486-1_html5
@@ -500,6 +589,29 @@ if(is_user_logged_in() && $post->post_author == $current_user->ID && ($_auction_
 										//jQuery(".jconfirm.jconfirm-white .jconfirm-bg, .jconfirm.jconfirm-light .jconfirm-bg").css('background-color','rgba(255, 255, 255, 0.1)').css('opacity','1').css('opacity','1').css('opacity','1');
 										
 										jQuery( ".jconfirm-bg,.jconfirm-cell" ).click(function() {
+											
+											var windowsize = jQuery(window).width();
+                                            if(windowsize > 850){
+												let btn = document.getElementById("element");
+												btn.addEventListener("click", function(){
+												  let videoEle = document.querySelector('body');
+												  enterFullScreen(videoEle);
+												});
+
+												/*document.addEventListener('fullscreenchange webkitfullscreenchange mozfullscreenchange MSFullscreenChange', (event) => {
+												  if (document.fullscreenElement) {
+													console.log('Entered fullscreen:', document.fullscreenElement);
+												  } else {
+													  alert("Exited fullscreen.");
+												  }
+												});*/
+												//GoInFullscreen(jQuery("#element").get(0));
+                                                /*if(IsFullScreenCurrently()){
+                                                    GoOutFullscreen();
+                                                }else{
+                                                    GoInFullscreen(jQuery("#element").get(0));
+                                                }*/
+                                            }
 											jQuery(".mejs-play").click();
 											jQuery(".rotation_main").css('position',"inherit").css('z-index','auto');
 											jQuery(".play_btn_black").css('display',"none");
@@ -526,13 +638,35 @@ if(is_user_logged_in() && $post->post_author == $current_user->ID && ($_auction_
 										jQuery(".rotation_main").css('position',"inherit").css('z-index','100000001');
 										//jQuery(".jconfirm .jconfirm-cell").css("vertical-align","top");width="300px" 
 								},
-								content: '<img src="<?php echo home_url('/wp-content/themes/dokan-child/play_btn_black.png');?>" class="play_btn_black" align="center" style="float:none;display:none;margin:0 auto;" onclick="jQuery(\'.jconfirm-buttons button\').click();"/>',
+								content: '<img src="<?php echo home_url('/wp-content/themes/dokan-child/play_btn_black.png');?>" id="go-button" class="play_btn_black" align="center" style="float:none;display:none;margin:0 auto;" onclick="jQuery(\'.jconfirm-buttons button\').click();"/>',
 								buttons: {
 									Yes: {
 										text: "ENTER",
 										btnClass: 'btn-blue hide',
 										keys: ['enter'],
 										action: function(){
+                                           var windowsize = jQuery(window).width();
+                                           if(windowsize > 850){
+												/*let btn = document.getElementById("element");
+												btn.addEventListener("click", function(){
+												  let videoEle = document.querySelector('body');
+												  enterFullScreen(videoEle);
+												});
+
+												document.addEventListener('fullscreenchange', (event) => {
+												  if (document.fullscreenElement) {
+													console.log('Entered fullscreen:', document.fullscreenElement);
+												  } else {
+													console.log('Exited fullscreen.');
+												  }
+												});*/
+												//GoInFullscreen(jQuery("#element").get(0));
+                                                /*if(IsFullScreenCurrently()){
+                                                    GoOutFullscreen();
+                                                }else{
+                                                    GoInFullscreen(jQuery("#element").get(0));
+                                                }*/
+                                            }
 											jQuery(".mejs-play").click();
 											jQuery(".rotation_main").css('position',"inherit").css('z-index','auto');
 											jQuery(".play_btn_black").css('display',"none");
@@ -546,8 +680,66 @@ if(is_user_logged_in() && $post->post_author == $current_user->ID && ($_auction_
 							});
 						}
 					}, 1);
+
+function enterFullScreen(element) {
+  if(element.requestFullscreen) {
+	element.requestFullscreen();
+  }else if (element.mozRequestFullScreen) {
+	element.mozRequestFullScreen();     // Firefox
+  }else if (element.webkitRequestFullscreen) {
+	element.webkitRequestFullscreen();  // Safari
+  }else if(element.msRequestFullscreen) {
+	element.msRequestFullscreen();      // IE/Edge
+  }
+};
+/* Is currently in full screen or not */
+function IsFullScreenCurrently() {
+	var full_screen_element = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement || null;
+	// If no element is in full-screen
+	if(full_screen_element === null)
+		return false;
+	else
+		return true;
+}
+jQuery(document).on('fullscreenchange webkitfullscreenchange mozfullscreenchange MSFullscreenChange', function() {
+   if (navigator.userAgent.includes("OPR")) {
+	   	  jQuery('body').addClass('fullscreen');
+		  jQuery('.topExit,.topExitInner').css({"display":"block"});
+		  <?php if($user_role=='seller'){?>
+				jQuery('a#exitBtn').attr('data-href',"<?php echo home_url('auction-activity/auction/');?>");
+		  <?php }elseif($user_role=='shopadoc_admin'){?>
+				jQuery('a#exitBtn').attr('data-href',"<?php echo home_url('/wp-admin/admin.php?page=home_performance');?>");
+		  <?php }else{?>
+				jQuery('a#exitBtn').attr('data-href',"<?php echo home_url('shopadoc-auction-activity/');?>");
+		   <?php }?>
+   }else{
+	   if(IsFullScreenCurrently()) {
+		   //jQuery('.rotation_main').css('height','auto');
+		}else {
+			<?php if($user_role=='seller'){?>
+				window.location.href = "<?php echo home_url('auction-activity/auction/');?>";
+		   <?php }else{?>
+				window.location.href = "<?php echo home_url('shopadoc-auction-activity/');?>";
+		   <?php }?>
+		}
+   }
+});
+	   jQuery(document).on('webkitfullscreenchange', function() {
+		   
+			if (navigator.userAgent.includes("Mac")) {
+   				  jQuery('body').addClass('fullscreen');
+				  jQuery('.topExit,.topExitInner').css({"display":"block"});
+				  <?php if($user_role=='seller'){?>
+						jQuery('a#exitBtn').attr('data-href',"<?php echo home_url('auction-activity/auction/');?>");
+				  <?php }elseif($user_role=='shopadoc_admin'){?>
+						jQuery('a#exitBtn').attr('data-href',"<?php echo home_url('/wp-admin/admin.php?page=home_performance');?>");
+				  <?php }else{?>
+						jQuery('a#exitBtn').attr('data-href',"<?php echo home_url('shopadoc-auction-activity/');?>");
+				   <?php }?>
+			}
+		});
 					<?php } ?>
-       				 //CountDownNew('<?php echo strtotime(date("Y-m-d H:i:s",strtotime($_auction_dates_to)));?>','<?php echo $auction_detail_class;?>');
+       			//CountDownNew('<?php echo strtotime(date("Y-m-d H:i:s",strtotime($_auction_dates_to)));?>','<?php echo $auction_detail_class;?>');
 					 jQuery( document ).ready(function() {
                    // setTimeout('jQuery(".mejs-play button").click();',1000); 
 						
@@ -688,7 +880,7 @@ if(is_user_logged_in() && $post->post_author == $current_user->ID && ($_auction_
           
                   <div class="buttons_added current_bid"> 
                     <span class="bid_amount_txt">
-                        <span class="auction-price starting-bid" data-auction-id="<?php echo esc_attr( $product_id ); ?>" data-bid="" data-status="running"><span class="starting auction current_bid_txt">Current Bid:&nbsp;</span><span class="woocommerce-Price-amount_new amount"><?php if($_auction_start_price <=1 ){?><span class="woocommerce-Price-currencySymbol"></span><span class="underline_amt underline_new">NONE</span><?php }else{?><span class="underline_new">NONE</span><?php }?></span></span>
+                        <span class="auction-price starting-bid" data-auction-id="<?php echo esc_attr( $product_id ); ?>" data-bid="" data-status="running"><span class="starting auction bid_amount_txt current_bid_txt">Current Bid:&nbsp;</span><span class="woocommerce-Price-amount_new amount"><?php if($_auction_start_price <=1 ){?><span class="woocommerce-Price-currencySymbol"></span><span class="underline_amt underline_new">NONE</span><?php }else{?><span class="underline_new">NONE</span><?php }?></span></span>
                     </span>
                   </div>
           <?php }else{?>
@@ -718,7 +910,14 @@ if(is_user_logged_in() && $post->post_author == $current_user->ID && ($_auction_
                 <div id="no_bid_msg" style="display:none;">
                 	<!--<div class="woocommerce-error green" role="alert">Your bid is registered.</div> -->     	
                 </div>
-          <?php }?>
+          <?php }else{?>
+				<style type="text/css">
+					.current_bid_txt, .current.auction, .winned-for.auction {
+						color:red !important;
+					}
+					.current_bid_txt .amount{color:black !important;}
+				</style>
+			<?php }?>
       <?php }?>
       </div>
            <!-----------------------------End Auction Prices Section Live-------------------------------------------------->
@@ -939,7 +1138,481 @@ if(is_user_logged_in() && $post->post_author == $current_user->ID && ($_auction_
                 <?php }?>
             </div>
          </div>
+<?php if($user_role=='seller' || $user_role=='customer'){?>
+<!---Script For fullscreen---->
+<style type="text/css">
+.playBtnContainer .jconfirm {
+  z-index: 100000001 !important;
+}
+.playBtnContainer .jconfirm.jconfirm-white .jconfirm-bg, .playBtnContainer .jconfirm.jconfirm-light .jconfirm-bg, .jconfirm-bg.blurBg {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  opacity: 1;
+}
+.blurBg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  -webkit-transition: opacity .4s;
+  transition: opacity .4s;
+  z-index: 99999995;
+}
+.blurBg1 {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  -webkit-backdrop-filter: blur(15px);
+  backdrop-filter: blur(15px);
+  opacity: 1 !important;
+}
+.jconfirm .jconfirm-box div.jconfirm-content-pane {
+  max-height: unset !important;
+}
+.play_btn_black {
+  width: 100%;
+}
+.sound-popup {
+  margin-top: -10%;
+  float: none;
+  display: inline-block;
+  margin-top: -10%;
+  margin-left: 0;
+  /* text-align: center; */
+}
+@media only screen and (min-width:851px) and (max-width:990px) {
+	.play_btn_black{width:50% !important;}
+}
+@media only screen and (max-width: 850px) {
+  .play_btn_black {
+    width: 45%;
+  }
+  .sound-popup {
+    margin-top: 0 !important;
+  }
+}
+/* webkit requires explicit width, height = 100% of sceeen */
+/* webkit also takes margin into account in full screen also - so margin should be removed (otherwise black areas will be seen) */
+body:-webkit-full-screen #element-inner {
+  width: 100%;
+  height: 100%;
+  background-image: url(/wp-content/themes/dokan-child/watermark.png);
+  background-repeat: no-repeat !important;
+  background-color: #F2F2F2 !important;
+  background-position: center 5% !important;
+  background-attachment: fixed !important;
+  background-size: auto;
+  -webkit-backface-visibility: visible !important;
+  margin: 0;
+  overflow-y: scroll;
+}
+#element:-webkit-full-screen .rotation_main, #element:-moz-full-screen .rotation_main, #element:-ms-fullscreen .rotation_main, #element:fullscreen .rotation_main {
+  height: auto !important;
+}
+body:-moz-full-screen #element-inner {
+  background-image: url(/wp-content/themes/dokan-child/watermark.png);
+  background-repeat: no-repeat !important;
+  background-color: #F2F2F2 !important;
+  background-position: center 5% !important;
+  background-attachment: fixed !important;
+  background-size: auto;
+  -webkit-backface-visibility: visible !important;
+  margin: 0;
+  overflow-y: scroll;
+}
+body:-ms-fullscreen #element-inner {
+  background-image: url(/wp-content/themes/dokan-child/watermark.png);
+  background-repeat: no-repeat !important;
+  background-color: #F2F2F2 !important;
+  background-position: center 5% !important;
+  background-attachment: fixed !important;
+  background-size: auto;
+  -webkit-backface-visibility: visible !important;
+  margin: 0;
+  overflow-y: scroll;
+}
+/* W3C proposal that will eventually come in all browsers */
+#body:fullscreen #element-inner {
+  background-image: url(/wp-content/themes/dokan-child/watermark.png) !important;
+  background-repeat: no-repeat !important;
+  background-color: #F2F2F2 !important;
+  background-position: center 5% !important;
+  background-attachment: fixed !important;
+  background-size: auto;
+  -webkit-backface-visibility: visible !important;
+  margin: 0;
+  overflow-y: scroll;
+}			
+</style>
+<script type="text/javascript">
+	setTimeout(function(){
+						var timetext = jQuery(".mejs-playpause-button button").attr("title");
+						//var time = parseFloat(timetext.replace(":","."));
+						if (timetext == 'Pause') {
+						
+							//Its playing...do your job
+							console.log('played');
+						
+						} else {
+							jQuery.confirm({
+								title: '',
+								columnClass: 'col-md-3 col-md-offset-5 no-title sound-popup',
+								container:".playBtnContainer",
+								closeIcon: false, // hides the close icon.
+								onContentReady: function () {
+										jQuery( ".jconfirm-bg,.jconfirm-cell" ).click(function() {
+											var windowsize = jQuery(window).width();
+                                            if(windowsize > 850){
+												let btn = document.getElementById("element");
+												btn.addEventListener("click", function(){
+												  let videoEle = document.querySelector('body');
+												  enterFullScreen(videoEle);
+												});
+
+                                            }
+											jQuery(".rotation_main").css('position',"inherit").css('z-index','auto');
+											jQuery(".play_btn_black").css('display',"none");
+											jQuery(".jconfirm.jconfirm-light.jconfirm-open").remove();
+											jQuery(".jconfirm-bg.jconfirm-light").removeClass("blurBg");
+											jQuery(".jconfirm .jconfirm-cell").css('vertical-align','middle');
+											jQuery(".jc-bs3-container.container").css("text-align","left");	
+										});
+									
+										var node= jQuery( ".playBtnContainer .jconfirm.jconfirm-light .jconfirm-bg" );
+										jQuery( ".playBtnContainer .jconfirm.jconfirm-light .jconfirm-bg" ).remove();
+										jQuery( ".playBtnContainer" ).append(node[0]);
+										jQuery(".playBtnContainer .jconfirm-bg").addClass("blurBg").addClass("jconfirm-light");
+										
+										jQuery(".jc-bs3-container.container").css("text-align","center");	
+										jQuery(".play_btn_black").css('display',"block");
+										var windowsize = jQuery(window).width();
+										if(windowsize <= 850){
+											jQuery(".jconfirm .jconfirm-cell").css('vertical-align','top');
+										}									
+										jQuery(".rotation_main").css('position',"inherit").css('z-index','100000001');
+								},
+								content: '<img src="<?php echo home_url('/wp-content/themes/dokan-child/play_btn_black.png');?>" id="go-button" class="play_btn_black" align="center" style="float:none;display:none;margin:0 auto;" onclick="jQuery(\'.jconfirm-buttons button\').click();"/>',
+								buttons: {
+									Yes: {
+										text: "ENTER",
+
+										btnClass: 'btn-blue hide',
+										keys: ['enter'],
+										action: function(){
+                                           var windowsize = jQuery(window).width();
+                                           if(windowsize > 850){
+												
+                                            }
+											jQuery(".rotation_main").css('position',"inherit").css('z-index','auto');
+											jQuery(".play_btn_black").css('display',"none");
+											jQuery(".jconfirm.jconfirm-white .jconfirm-bg, .jconfirm.jconfirm-light .jconfirm-bg").removeClass("blurBg");
+											jQuery(".jconfirm .jconfirm-cell").css('vertical-align','middle');
+											jQuery(".jc-bs3-container.container").css("text-align","left");	
+											
+										}
+									}
+								}
+							});
+						}
+					}, 1);
+
+function enterFullScreen(element) {
+  if(element.requestFullscreen) {
+	element.requestFullscreen();
+  }else if (element.mozRequestFullScreen) {
+	element.mozRequestFullScreen();     // Firefox
+  }else if (element.webkitRequestFullscreen) {
+	element.webkitRequestFullscreen();  // Safari
+  }else if(element.msRequestFullscreen) {
+	element.msRequestFullscreen();      // IE/Edge
+  }
+}
+/* Is currently in full screen or not */
+function IsFullScreenCurrently() {
+	var full_screen_element = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement || null;
+	// If no element is in full-screen
+	if(full_screen_element === null)
+		return false;
+	else
+		return true;
+}
+jQuery(document).on('fullscreenchange webkitfullscreenchange mozfullscreenchange MSFullscreenChange', function() {
+   //alert(navigator.userAgent);
+   if (navigator.userAgent.includes("OPR")) {
+	   	  jQuery('body').addClass('fullscreen');
+		  jQuery('.topExit,.topExitInner').css({"display":"block"});
+		  <?php if($user_role=='seller'){?>
+				jQuery('a#exitBtn').attr('data-href',"<?php echo home_url('auction-activity/auction/');?>");
+		  <?php }elseif($user_role=='shopadoc_admin'){?>
+				jQuery('a#exitBtn').attr('data-href',"<?php echo home_url('/wp-admin/admin.php?page=home_performance');?>");
+		  <?php }else{?>
+				jQuery('a#exitBtn').attr('data-href',"<?php echo home_url('shopadoc-auction-activity/');?>");
+		   <?php }?>
+   }else{
+	   if(IsFullScreenCurrently()) {
+		   //jQuery('.rotation_main').css('height','auto');
+		}else {
+			<?php if($user_role=='seller'){?>
+				window.location.href = "<?php echo home_url('auction-activity/auction/');?>";
+		   <?php }else{?>
+				window.location.href = "<?php echo home_url('shopadoc-auction-activity/');?>";
+		   <?php }?>
+		}
+   }
+});
+jQuery(document).on('webkitfullscreenchange', function() {
+	if (navigator.userAgent.includes("Mac")) {
+		  jQuery('body').addClass('fullscreen');
+		  jQuery('.topExit,.topExitInner').css({"display":"block"});
+		  <?php if($user_role=='seller'){?>
+				jQuery('a#exitBtn').attr('data-href',"<?php echo home_url('auction-activity/auction/');?>");
+		  <?php }elseif($user_role=='shopadoc_admin'){?>
+				jQuery('a#exitBtn').attr('data-href',"<?php echo home_url('/wp-admin/admin.php?page=home_performance');?>");
+		  <?php }else{?>
+				jQuery('a#exitBtn').attr('data-href',"<?php echo home_url('shopadoc-auction-activity/');?>");
+		   <?php }?>
+	}
+});
+</script>
+<?php }?>
 <?php }elseif($product->is_closed() === TRUE){?>
+<?php if($user_role=='seller' || $user_role=='customer'){?>
+<!---Script For fullscreen---->
+<style type="text/css">
+.playBtnContainer .jconfirm {
+  z-index: 100000001 !important;
+}
+.playBtnContainer .jconfirm.jconfirm-white .jconfirm-bg, .playBtnContainer .jconfirm.jconfirm-light .jconfirm-bg, .jconfirm-bg.blurBg {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  opacity: 1;
+}
+.blurBg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  -webkit-transition: opacity .4s;
+  transition: opacity .4s;
+  z-index: 99999995;
+}
+.blurBg1 {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  -webkit-backdrop-filter: blur(15px);
+  backdrop-filter: blur(15px);
+  opacity: 1 !important;
+}
+.jconfirm .jconfirm-box div.jconfirm-content-pane {
+  max-height: unset !important;
+}
+.play_btn_black {
+  width: 100%;
+}
+.sound-popup {
+  margin-top: -10%;
+  float: none;
+  display: inline-block;
+  margin-top: -10%;
+  margin-left: 0;
+  /* text-align: center; */
+}
+@media only screen and (min-width:851px) and (max-width:990px) {
+	.play_btn_black{width:50% !important;}
+}
+@media only screen and (max-width: 850px) {
+  .play_btn_black {
+    width: 45%;
+  }
+  .sound-popup {
+    margin-top: 0 !important;
+  }
+}
+/* webkit requires explicit width, height = 100% of sceeen */
+/* webkit also takes margin into account in full screen also - so margin should be removed (otherwise black areas will be seen) */
+body:-webkit-full-screen #element-inner {
+  width: 100%;
+  height: 100%;
+  background-image: url(/wp-content/themes/dokan-child/watermark.png);
+  background-repeat: no-repeat !important;
+  background-color: #F2F2F2 !important;
+  background-position: center 5% !important;
+  background-attachment: fixed !important;
+  background-size: auto;
+  -webkit-backface-visibility: visible !important;
+  margin: 0;
+  overflow-y: scroll;
+}
+#element:-webkit-full-screen .rotation_main, #element:-moz-full-screen .rotation_main, #element:-ms-fullscreen .rotation_main, #element:fullscreen .rotation_main {
+  height: auto !important;
+}
+body:-moz-full-screen #element-inner {
+  background-image: url(/wp-content/themes/dokan-child/watermark.png);
+  background-repeat: no-repeat !important;
+  background-color: #F2F2F2 !important;
+  background-position: center 5% !important;
+  background-attachment: fixed !important;
+  background-size: auto;
+  -webkit-backface-visibility: visible !important;
+  margin: 0;
+  overflow-y: scroll;
+}
+body:-ms-fullscreen #element-inner {
+  background-image: url(/wp-content/themes/dokan-child/watermark.png);
+  background-repeat: no-repeat !important;
+  background-color: #F2F2F2 !important;
+  background-position: center 5% !important;
+  background-attachment: fixed !important;
+  background-size: auto;
+  -webkit-backface-visibility: visible !important;
+  margin: 0;
+  overflow-y: scroll;
+}
+/* W3C proposal that will eventually come in all browsers */
+#body:fullscreen #element-inner {
+  background-image: url(/wp-content/themes/dokan-child/watermark.png) !important;
+  background-repeat: no-repeat !important;
+  background-color: #F2F2F2 !important;
+  background-position: center 5% !important;
+  background-attachment: fixed !important;
+  background-size: auto;
+  -webkit-backface-visibility: visible !important;
+  margin: 0;
+  overflow-y: scroll;
+}			
+</style>
+<script type="text/javascript">
+	setTimeout(function(){
+						var timetext = jQuery(".mejs-playpause-button button").attr("title");
+						//var time = parseFloat(timetext.replace(":","."));
+						if (timetext == 'Pause') {
+						
+							//Its playing...do your job
+							console.log('played');
+						
+						} else {
+							jQuery.confirm({
+								title: '',
+								columnClass: 'col-md-3 col-md-offset-5 no-title sound-popup',
+								container:".playBtnContainer",
+								closeIcon: false, // hides the close icon.
+								onContentReady: function () {
+										jQuery( ".jconfirm-bg,.jconfirm-cell" ).click(function() {
+											var windowsize = jQuery(window).width();
+                                            if(windowsize > 850){
+												let btn = document.getElementById("element");
+												btn.addEventListener("click", function(){
+												  let videoEle = document.querySelector('body');
+												  enterFullScreen(videoEle);
+												});
+
+                                            }
+											jQuery(".rotation_main").css('position',"inherit").css('z-index','auto');
+											jQuery(".play_btn_black").css('display',"none");
+											jQuery(".jconfirm.jconfirm-light.jconfirm-open").remove();
+											jQuery(".jconfirm-bg.jconfirm-light").removeClass("blurBg");
+											jQuery(".jconfirm .jconfirm-cell").css('vertical-align','middle');
+											jQuery(".jc-bs3-container.container").css("text-align","left");	
+										});
+									
+										var node= jQuery( ".playBtnContainer .jconfirm.jconfirm-light .jconfirm-bg" );
+										jQuery( ".playBtnContainer .jconfirm.jconfirm-light .jconfirm-bg" ).remove();
+										jQuery( ".playBtnContainer" ).append(node[0]);
+										jQuery(".playBtnContainer .jconfirm-bg").addClass("blurBg").addClass("jconfirm-light");
+										
+										jQuery(".jc-bs3-container.container").css("text-align","center");	
+										jQuery(".play_btn_black").css('display',"block");
+										var windowsize = jQuery(window).width();
+										if(windowsize <= 850){
+											jQuery(".jconfirm .jconfirm-cell").css('vertical-align','top');
+										}									
+										jQuery(".rotation_main").css('position',"inherit").css('z-index','100000001');
+								},
+								content: '<img src="<?php echo home_url('/wp-content/themes/dokan-child/play_btn_black.png');?>" id="go-button" class="play_btn_black" align="center" style="float:none;display:none;margin:0 auto;" onclick="jQuery(\'.jconfirm-buttons button\').click();"/>',
+								buttons: {
+									Yes: {
+										text: "ENTER",
+
+										btnClass: 'btn-blue hide',
+										keys: ['enter'],
+										action: function(){
+                                           var windowsize = jQuery(window).width();
+                                           if(windowsize > 850){
+												
+                                            }
+											jQuery(".rotation_main").css('position',"inherit").css('z-index','auto');
+											jQuery(".play_btn_black").css('display',"none");
+											jQuery(".jconfirm.jconfirm-white .jconfirm-bg, .jconfirm.jconfirm-light .jconfirm-bg").removeClass("blurBg");
+											jQuery(".jconfirm .jconfirm-cell").css('vertical-align','middle');
+											jQuery(".jc-bs3-container.container").css("text-align","left");	
+											
+										}
+									}
+								}
+							});
+						}
+					}, 1);
+
+function enterFullScreen(element) {
+  if(element.requestFullscreen) {
+	element.requestFullscreen();
+  }else if (element.mozRequestFullScreen) {
+	element.mozRequestFullScreen();     // Firefox
+  }else if (element.webkitRequestFullscreen) {
+	element.webkitRequestFullscreen();  // Safari
+  }else if(element.msRequestFullscreen) {
+	element.msRequestFullscreen();      // IE/Edge
+  }
+};
+/* Is currently in full screen or not */
+function IsFullScreenCurrently() {
+	var full_screen_element = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement || null;
+	// If no element is in full-screen
+	if(full_screen_element === null)
+		return false;
+	else
+		return true;
+}
+jQuery(document).on('fullscreenchange webkitfullscreenchange mozfullscreenchange MSFullscreenChange', function() {
+   if (navigator.userAgent.includes("OPR")) {
+	   	  jQuery('body').addClass('fullscreen');
+		  jQuery('.topExit,.topExitInner').css({"display":"block"});
+		  <?php if($user_role=='seller'){?>
+				jQuery('a#exitBtn').attr('data-href',"<?php echo home_url('auction-activity/auction/');?>");
+		  <?php }elseif($user_role=='shopadoc_admin'){?>
+				jQuery('a#exitBtn').attr('data-href',"<?php echo home_url('/wp-admin/admin.php?page=home_performance');?>");
+		  <?php }else{?>
+				jQuery('a#exitBtn').attr('data-href',"<?php echo home_url('shopadoc-auction-activity/');?>");
+		   <?php }?>
+   }else{
+	   if(IsFullScreenCurrently()) {
+		   //jQuery('.rotation_main').css('height','auto');
+		}else {
+			<?php if($user_role=='seller'){?>
+				window.location.href = "<?php echo home_url('auction-activity/auction/');?>";
+		   <?php }else{?>
+				window.location.href = "<?php echo home_url('shopadoc-auction-activity/');?>";
+		   <?php }?>
+		}
+   }
+});
+jQuery(document).on('webkitfullscreenchange', function() {
+	if (navigator.userAgent.includes("Mac")) {
+		  jQuery('body').addClass('fullscreen');
+		  jQuery('.topExit,.topExitInner').css({"display":"block"});
+		  <?php if($user_role=='seller'){?>
+				jQuery('a#exitBtn').attr('data-href',"<?php echo home_url('auction-activity/auction/');?>");
+		  <?php }elseif($user_role=='shopadoc_admin'){?>
+				jQuery('a#exitBtn').attr('data-href',"<?php echo home_url('/wp-admin/admin.php?page=home_performance');?>");
+		  <?php }else{?>
+				jQuery('a#exitBtn').attr('data-href',"<?php echo home_url('shopadoc-auction-activity/');?>");
+		   <?php }?>
+	}
+});
+</script>
+<?php }?>
+
 	<!----------------------Auction Closed Section------------------------------------------------------------------>
     <?php if($_auction_current_bid){?>
     	<!-------------------Auction Ended With no Bid------------------------------------------------------------>
@@ -960,8 +1633,12 @@ if(is_user_logged_in() && $post->post_author == $current_user->ID && ($_auction_
                     
           		<?php }?>
                 <?php if(strtotime($today_date_time) >  strtotime($_auction_expired_date_time)  && $product_id != $demo_listing){?>
+					<style type="text/css">
+					</style>
                     <script type="text/javascript">
 							jQuery('.product.product-type-auction').html('<style type="text/css">.sgpb-content-1640,.sgpb-popup-overlay-1640{display:none !important;}</style><span class="bid_amount_txt" > <span class="starting-bid" data-auction-id="<?php echo esc_attr( $product_id ); ?>" data-bid="" data-status="running"><span class="starting auction red">EXPIRED LISTING&nbsp;</span></span> </span>');
+							jQuery('.playBtnContainer').html('');
+							setTimeout("jQuery('.playBtnContainer').html('')",500);
 							jQuery(document).ready(function() {
 							//jQuery(".details").attr("style","height:45.6% !important");
 							//jQuery(".bidding").attr("style","display:none !important");
@@ -1288,6 +1965,7 @@ if(is_user_logged_in() && $post->post_author == $current_user->ID && ($_auction_
                         <script type="text/javascript">
 							
 							jQuery('.product.product-type-auction').html('<style type="text/css">.sgpb-content-1640,.sgpb-popup-overlay-1640{display:none !important;}</style><span class="bid_amount_txt" > <span class="starting-bid" data-auction-id="<?php echo esc_attr( $product_id ); ?>" data-bid="" data-status="running"><span class="starting auction red">EXPIRED LISTING&nbsp;</span></span> </span>');
+							setTimeout("jQuery('.playBtnContainer').html('')",500);
 							//jQuery(".site-main.module__item.details").css("height","45.6%");
 							//jQuery(".module__item.bidding").hide();
 						</script> 
@@ -1709,7 +2387,7 @@ if((is_user_logged_in() && $post->post_author == $current_user->ID) || ($custome
 			.woocommerce-product-gallery__image img.zoomImg, .woocommerce div.product div.images img{float:left;}
 			.demo_ad_txt{text-align:left;}
 		}
-		.demo_txt{float:left;width:100%;text-align:center;margin-top:0;position:absolute;bottom:0;}
+		.demo_txt{float:left;width:100%;text-align:center;margin-top:0;position:absolute;bottom:7px;}
 		.demo_txt .priceBox{display:inline-block;width:auto;margin:0 auto !important;}
 		.site-main.details .content-wrap,.site-main.details .content-wrap div.row,#primary{
 			height:100%;
@@ -1826,7 +2504,14 @@ if((is_user_logged_in() && $post->post_author == $current_user->ID) || ($custome
 	});
 	</script>
     <?php }else{?>
-    <?php if(isset($_GET['screen']) && $_GET['screen']=='client'){
+    <?php global $current_user;
+		$company = 'AD DEMO';
+		if($current_user->roles[0]=='shopadoc_admin'){
+			if(isset($_GET['screen']) && $_GET['screen']=='advertiser'){
+				$company = 'ADVERTISER';
+			}
+		}
+		if(isset($_GET['screen']) && $_GET['screen']=='client'){
 			$ad_text = 'CLIENT ADS';
 		}else{
 			$ad_text = 'DENTIST ADS';
@@ -1846,7 +2531,7 @@ if((is_user_logged_in() && $post->post_author == $current_user->ID) || ($custome
 			.woocommerce-product-gallery__image img.zoomImg, .woocommerce div.product div.images img{float:left;}
 			.demo_ad_txt{text-align:left;}
 		}
-		.demo_txt{float:left;width:100%;text-align:center;margin-top:0;position:absolute;bottom:0;}
+		.demo_txt{float:left;width:100%;text-align:center;margin-top:0;position:absolute;bottom:7px;}
 		.demo_txt .priceBox{display:inline-block;width:auto;margin:0 auto !important;}
 		.site-main.details .content-wrap,.site-main.details .content-wrap div.row,#primary{
 			height:100%;
@@ -1897,17 +2582,17 @@ if((is_user_logged_in() && $post->post_author == $current_user->ID) || ($custome
 		jQuery(".demo_ad_txt .demo_ad_title").attr('style','width:'+img_width+'px !important');
 		var windowsize = jQuery(window).width();
 		if(windowsize <= 850 && windowsize > 448){
-			jQuery(".biding_form").html('<div class="demo_txt "><div class="price priceBox"><h1 class="center ad_demo">AD DEMO</h1></div></div>');
+			jQuery(".biding_form").html('<div class="demo_txt "><div class="price priceBox"><h1 class="center ad_demo"><?php echo $company;?></h1></div></div>');
 			jQuery(".biding_form,.demo_txt,.price.priceBox").css('height','100%');
 			jquery(".price.priceBox").attr('style','margin-bottom:0px !important');
 		}else if(windowsize <= 448){
 			jQuery(".demo_ad_txt .demo_ad_title").attr('style','width:100% !important');
 			//jQuery( '<div class="demo_txt "><div class="price priceBox"><h1 class="center ad_demo">AD DEMO</h1></div></div>' ).insertAfter( ".product" );
-			jQuery(".biding_form").html('<div class="demo_txt "><div class="price priceBox"><h1 class="center ad_demo">AD DEMO</h1></div></div>');
+			jQuery(".biding_form").html('<div class="demo_txt "><div class="price priceBox"><h1 class="center ad_demo"><?php echo $company;?></h1></div></div>');
 			jQuery(".biding_form,.demo_txt,.price.priceBox").css('height','100%');
 			jquery(".price.priceBox").attr('style','margin-bottom:0px !important');
 		}else{
-			jQuery( '<div class="demo_txt "><div class="price priceBox"><h1 class="center ad_demo">AD DEMO</h1></div></div>' ).insertAfter( ".product" );
+			jQuery( '<div class="demo_txt "><div class="price priceBox"><h1 class="center ad_demo"><?php echo $company;?></h1></div></div>' ).insertAfter( ".product" );
 		}
 		//jQuery(".biding_form").html('<div class="price priceBox"><h1 class="center realtime">AD DEMO</h1></div>');
 	</script>
@@ -1918,6 +2603,19 @@ if((is_user_logged_in() && $post->post_author == $current_user->ID) || ($custome
   <source src="/blank.ogg" type="video/ogg">
 Your browser does not support the video tag.
 </video>
+<style type="text/css">	
+	.playBtnContainer .jconfirm .jconfirm-holder{
+		padding: 0px !important;
+		position: absolute;
+		width: 100%;
+		top: 25%;
+	}
+	@media only screen and (max-width: 448px) {
+		.playBtnContainer .jconfirm .jconfirm-holder{
+			top: 20%;
+		}
+	}
+</style>
 <script type="application/javascript">
 //setTimeout(updateAuctionStatus, 5000);
 setInterval(function(){

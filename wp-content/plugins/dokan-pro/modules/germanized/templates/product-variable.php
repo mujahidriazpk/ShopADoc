@@ -113,7 +113,7 @@ foreach ( $variation_fields as $field => $value ) {
     </div>
 
     <div class="dokan-clearfix"></div>
-    <?php if ( WC_trusted_shops()->trusted_shops->is_enabled() ) : ?>
+    <?php if ( function_exists( 'WC_trusted_shops' ) && WC_trusted_shops()->trusted_shops->is_enabled() ) : ?>
         <div class="variable_gzd_ts_labels">
             <div class="dokan-form-group content-half-part">
                 <label for="variable_ts_gtin_<?php echo $loop; ?>" class="form-label"><?php echo esc_attr_x( 'GTIN', 'trusted-shops', 'dokan' ); ?> <?php echo Helper::display_help_tips( _x( 'ID that allows your products to be identified worldwide. If you want to display your Trusted Shops Product Reviews in Google Shopping and paid Google adverts, Google needs the GTIN.', 'trusted-shops', 'dokan' ) ); ?></label>

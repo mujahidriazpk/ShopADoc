@@ -672,16 +672,28 @@ function checkAuctionStatus(){
 						success:function (data){
 							var json =jQuery.parseJSON(data);
 							//console.log(json);
+							var windowsize = jQuery(window).width();
 							jQuery.each(json, function(index, item) {
 								//console.log(item.auctionid+"=="+item.stausTxt);
 								if(jQuery("#status_label_"+item.auctionid).html() != item.stausTxt){
-									jQuery("#status_label_"+item.auctionid).html(item.stausTxt);
+									if(windowsize <= 850){
+										jQuery("#status_label_"+item.auctionid).html(item.stausTxt);
+										jQuery( "#status_label_"+item.auctionid+" span" ).html(jQuery( "#status_label_"+item.auctionid+" span" ).text().replace(/\ /g, '<br>'));
+									}else{
+										jQuery("#status_label_"+item.auctionid).html(item.stausTxt);
+									}
+									/*
+									if(windowsize <= 850){	
+										jQuery(".status_col label span" ).each(function( index ) {
+										   jQuery( this ).html(jQuery( this ).text().replace(/\ /g, '<br>'));
+										});
+									}*/
 								}
 							});
 						}
 						});
 }
 <?php if(!empty($auctionids)){?>
-//var auctionStatus = setInterval(checkAuctionStatus,5000);
+var auctionStatus = setInterval(checkAuctionStatus,2000);
 <?php }?>
 </script>

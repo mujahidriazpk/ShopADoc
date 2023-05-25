@@ -19,7 +19,8 @@ class User_Role_Editor {
     protected $user_other_roles = null;
     
     // plugin's Settings page reference, we've got it from add_options_pages() call
-    protected $setting_page_hook = null;
+    protected $settings_page_hook = null;
+    
     // URE's key capability
     public $key_capability = 'not allowed';
 	
@@ -365,11 +366,16 @@ class User_Role_Editor {
             return;
         }
         
+        if ( !isset( $profileuser->ID ) ) {
+            return;
+        }
+        
+        $current_blog_id = get_current_blog_id();        
         // editing a user profile: it's correct to call is_super_admin() directly here, as permissions are raised for the $current_user only
-        if (!$this->lib->is_super_admin($current_user_id) && is_super_admin($profileuser->ID)) { // trying to edit a superadmin while himself is less than a superadmin
-            wp_die(esc_html__('You do not have permission to edit this user.', 'user-role-editor'));
-        } elseif (!( is_user_member_of_blog($profileuser->ID, get_current_blog_id()) && is_user_member_of_blog($current_user_id, get_current_blog_id()) )) { // editing user and edited user aren't members of the same blog
-            wp_die(esc_html__('You do not have permission to edit this user.', 'user-role-editor'));
+        if ( !$this->lib->is_super_admin( $current_user_id ) && is_super_admin( $profileuser->ID ) ) { // trying to edit a superadmin while himself is less than a superadmin
+            wp_die( esc_html__('You do not have permission to edit this user.', 'user-role-editor') );
+        } elseif ( !( is_user_member_of_blog( $profileuser->ID, $current_blog_id ) && is_user_member_of_blog( $current_user_id, $current_blog_id ) ) ) { // editing user and edited user aren't members of the same blog
+            wp_die( esc_html__('You do not have permission to edit this user.', 'user-role-editor') );
         }
 
     }

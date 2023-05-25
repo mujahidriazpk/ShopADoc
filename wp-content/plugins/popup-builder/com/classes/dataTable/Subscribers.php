@@ -49,8 +49,8 @@ class Subscribers extends SGPBTable
 
 		$filterColumnsDisplaySettings = apply_filters('sgpbAlterColumnIntoSubscribers', $filterColumnsDisplaySettings);
 
-		$this->setColumns(@$filterColumnsDisplaySettings['columns']);
-		$this->setDisplayColumns(@$filterColumnsDisplaySettings['displayColumns']);
+		$this->setColumns((isset($filterColumnsDisplaySettings['columns']) ? $filterColumnsDisplaySettings['columns'] : ''));
+		$this->setDisplayColumns((isset($filterColumnsDisplaySettings['displayColumns']) ? $filterColumnsDisplaySettings['displayColumns'] : ''));
 		$this->setSortableColumns(array(
 			'id' => array('id', false),
 			'firstName' => array('firstName', true),
@@ -161,7 +161,8 @@ class Subscribers extends SGPBTable
 				$gotDateList .= '<option value="'.$date['date-value'].'"'.$selected.'>'.$date['date-title'].'</option>';
 			}
 			if (empty($subscribersDates)) {
-				$gotDateList = '<option value="'.@$date['date-value'].'"'.$selected.'>'.__('Date', SG_POPUP_TEXT_DOMAIN).'</option>';
+				$dateValue = isset($date) && isset($date['date-value']) ? $date['date-value'] : '';
+				$gotDateList = '<option value="'.$dateValue.'"'.$selected.'>'.__('Date', SG_POPUP_TEXT_DOMAIN).'</option>';
 			}
 			echo wp_kses($dateList.$gotDateList, $allowed_html);
 			?>

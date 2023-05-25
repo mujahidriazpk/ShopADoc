@@ -5,7 +5,7 @@
  */
 function ccfwoo_core_enqueue_scripts() {
 
-	wp_enqueue_style( 'ccfwoo-style', plugin_dir_url( __FILE__ ) . '../assets/checkout-countdown.min.css', array(), '3.1.6' );
+	wp_enqueue_style( 'ccfwoo-style', plugin_dir_url( __FILE__ ) . '../assets/checkout-countdown.min.css', array(), '3.1.7' );
 
 	if ( ccfwoo_get_option( 'bar_position', false, 'top' ) === 'top' ) {
 		$position = 'position: relative;';
@@ -28,7 +28,7 @@ function ccfwoo_core_enqueue_scripts() {
 	 wp_add_inline_style( 'ccfwoo-style', $inline_css );
 
 	// Load Javascript and Access settings as variables.
-	wp_enqueue_script( 'ccfwoo-countdown', plugin_dir_url( __FILE__ ) . '../assets/checkout-countdown.min.js', array(), '3.1.6', true );
+	wp_enqueue_script( 'ccfwoo-countdown', plugin_dir_url( __FILE__ ) . '../assets/checkout-countdown.min.js', array(), '3.1.7', true );
 
 	$countdown_text = sprintf(
 		/* translators: %s: is the countdown text. */
@@ -63,7 +63,7 @@ function ccfwoo_core_enqueue_scripts() {
 	}
 	////////////////line change below//////////////////////////////
 	$data = array(
-		'ccfwoo_minutes'              => $countdown_time,
+		'ccfwoo_minutes'              => ccfwoo_get_option( 'countdown_time' ),
 		'top_banner_font_color'       => ccfwoo_get_option( 'top_banner_font_color' ),
 		'top_banner_background_color' => ccfwoo_get_option( 'top_banner_background_color' ),
 		'countdown_text'              => $countdown_text,

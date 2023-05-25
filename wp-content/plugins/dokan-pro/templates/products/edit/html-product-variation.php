@@ -11,6 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 extract( $variation_data ); // phpcs:ignore
+$now = dokan_current_datetime();
 ?>
 
 <div class="dokan-product-variation-itmes">
@@ -96,7 +97,7 @@ extract( $variation_data ); // phpcs:ignore
                     <input type="hidden" name="variable_sku[<?php echo esc_attr( $loop ); ?>]" value="<?php echo ( isset( $_sku ) ) ? esc_attr( $_sku ) : ''; ?>" />
                 <?php endif; ?>
 
-                <div class="stock-status">
+                <div class="stock-status hide_if_variation_manage_stock">
                     <label><?php esc_html_e( 'Stock status', 'dokan' ); ?> <i class="fas fa-question-circle tips" aria-hidden="true" data-title="<?php esc_attr_e( 'Controls whether or not the product is listed as "in stock" or "out of stock" on the frontend.', 'dokan' ); ?>"></i></label>
                     <select name="variable_stock_status[<?php echo esc_attr( $loop ); ?>]" class="dokan-form-control">
                         <?php
@@ -131,11 +132,11 @@ extract( $variation_data ); // phpcs:ignore
                 <div class="sale_price_dates_fields dokan-form-group" style="display: none">
                     <div class="content-half-part">
                         <label><?php esc_html_e( 'Sale start date', 'dokan' ); ?></label>
-                        <input type="text" class="dokan-form-control sale_price_dates_from datepicker" name="variable_sale_price_dates_from[<?php echo esc_attr( $loop ); ?>]" value="<?php echo ! empty( $_sale_price_dates_from ) ? date_i18n( 'Y-m-d', $_sale_price_dates_from ) : ''; ?>" placeholder="<?php echo esc_attr_x( 'From&hellip;', 'placeholder', 'dokan' ); ?> YYYY-MM-DD" maxlength="10" pattern="[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])" />
+                        <input type="text" class="dokan-form-control sale_price_dates_from datepicker" name="variable_sale_price_dates_from[<?php echo esc_attr( $loop ); ?>]" value="<?php echo ! empty( $_sale_price_dates_from ) && is_numeric( $_sale_price_dates_from ) ? $now->setTimestamp( $_sale_price_dates_from )->format( 'Y-m-d' ) : ''; ?>" placeholder="<?php echo esc_attr_x( 'From&hellip;', 'placeholder', 'dokan' ); ?> YYYY-MM-DD" maxlength="10" pattern="[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])" />
                     </div>
                     <div class="content-half-part">
                         <label><?php esc_html_e( 'Sale end date', 'dokan' ); ?></label>
-                        <input type="text" class="dokan-form-control sale_price_dates_to datepicker" name="variable_sale_price_dates_to[<?php echo esc_attr( $loop ); ?>]" value="<?php echo ! empty( $_sale_price_dates_to ) ? date_i18n( 'Y-m-d', $_sale_price_dates_to ) : ''; ?>" placeholder="<?php echo esc_attr_x( 'To&hellip;', 'placeholder', 'dokan' ); ?> YYYY-MM-DD" maxlength="10" pattern="[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])" />
+                        <input type="text" class="dokan-form-control sale_price_dates_to datepicker" name="variable_sale_price_dates_to[<?php echo esc_attr( $loop ); ?>]" value="<?php echo ! empty( $_sale_price_dates_to ) && is_numeric( $_sale_price_dates_to ) ? $now->setTimestamp( $_sale_price_dates_to )->format( 'Y-m-d' ) : ''; ?>" placeholder="<?php echo esc_attr_x( 'To&hellip;', 'placeholder', 'dokan' ); ?> YYYY-MM-DD" maxlength="10" pattern="[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])" />
                     </div>
                     <div class="dokan-clearfix"></div>
                 </div>
@@ -182,6 +183,11 @@ extract( $variation_data ); // phpcs:ignore
                             }
                             ?>
                         </select>
+                    </div>
+                    <div class="dokan-clearfix"></div>
+                    <div class="content-half-part">
+                        <label for="variable_low_stock_amount[<?php echo esc_attr( $loop ); ?>]"><?php esc_html_e( 'Low stock threshold', 'dokan' ); ?> <i class="fas fa-question-circle tips" aria-hidden="true" data-title="<?php esc_attr_e( 'When variation stock reaches this amount you will be notified by email.', 'dokan' ); ?>"></i></label>
+                        <input type="number" class="dokan-form-control" id="variable_low_stock_amount[<?php echo esc_attr( $loop ); ?>]" name="variable_low_stock_amount[<?php echo esc_attr( $loop ); ?>]" value="<?php echo ( isset( $_low_stock_amount ) ) ? esc_attr( wc_format_localized_decimal( $_low_stock_amount ) ) : ''; ?>" min="0" step="1" />
                     </div>
                     <div class="dokan-clearfix"></div>
                     <?php
@@ -364,7 +370,7 @@ extract( $variation_data ); // phpcs:ignore
                 </div>
                 <div class="content-half-part">
                     <label><?php esc_html_e( 'Download expiry', 'dokan' ); ?> <i class="fas fa-question-circle tips" aria-hidden="true" data-title="<?php esc_attr_e( 'Enter the number of days before a download link expires, or leave blank.', 'dokan' ); ?>"></i></label>
-                    <input type="text" class="dokan-form-control" name="variable_download_expiry[<?php echo esc_attr( $loop ); ?>]" value="<?php echo ( isset( $_download_expiry ) ) ? esc_attr( $_download_expiry ) : ''; ?>" placeholder="<?php esc_attr_e( 'Unlimited', 'dokan' ); ?>" />
+                    <input type="text" class="dokan-form-control" name="variable_download_expiry[<?php echo esc_attr( $loop ); ?>]" value="<?php echo ( isset( $_download_expiry ) ) ? esc_attr( $_download_expiry ) : ''; ?>" placeholder="<?php esc_attr_e( 'Never', 'dokan' ); ?>" />
                 </div>
 
                 <?php

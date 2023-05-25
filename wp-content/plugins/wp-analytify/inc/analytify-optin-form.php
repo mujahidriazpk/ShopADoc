@@ -259,7 +259,7 @@ a.analytify-ga-button.button.button-primary{
   height: 200px;
   width: 200px;
   margin: -12px -5px;
-  background: url("<?php echo plugins_url( 'assets/images/welcome-analytify.png', __FILE__ ); ?>") no-repeat;
+  background: url("<?php echo plugins_url( 'assets/img/welcome-analytify.png', __FILE__ ); ?>") no-repeat;
   background-size: 100% auto;
 }
 .about-wrap .wp-analytify-badge {
@@ -377,14 +377,14 @@ $website = get_site_url();
 echo '<form method="post" action="' . admin_url( 'admin.php?page=analytify-settings' ) . '">';
 // echo '<div id="analytify-logo-wrapper">';
 // echo '<div id="analytify-logo-wrapper-inner">';
-// echo '<img id="analytify-logo-text" src="' . plugins_url( 'assets/images/notice-logo.svg', dirname( __FILE__ ) )  . '">';
+// echo '<img id="analytify-logo-text" src="' . plugins_url( 'assets/img/notice-logo.svg', dirname( __FILE__ ) )  . '">';
 // echo '</div>';
 // echo '</div>';
 
 echo "<input type='hidden' name='email' value='$email'>";
 
 echo '<div id="analytify-splash">';
-echo '<h1> <img id="analytify-logo-text" src="' . plugins_url( 'assets/images/notice-logo.svg', dirname( __FILE__ ) )  . '"> ' . __( 'Welcome to Google Analytics by Analytify', 'wp-analytify' ) . '</h1>';
+echo '<h1> <img id="analytify-logo-text" src="' . plugins_url( 'assets/img/notice-logo.svg', dirname( __FILE__ ) )  . '"> ' . __( 'Welcome to Google Analytics by Analytify', 'wp-analytify' ) . '</h1>';
 
     echo '<div id="analytify-splash-main" class="analytify-splash-box">';
     echo '<div class="step-wrapper">';
@@ -467,7 +467,7 @@ jQuery(document).ready(function(s) {
     <div class="changelog">
     <br />
       <div class="feature-section">
-        <img width="414" src="<?php echo plugins_url( 'assets/images/authenticate2-new.png',dirname( __FILE__ ) );?>" alt="" class="wp-analytify-welcome-screenshots">
+        <img width="414" src="<?php echo plugins_url( 'assets/img/authenticate2-new.png',dirname( __FILE__ ) );?>" alt="" class="wp-analytify-welcome-screenshots">
         <div class="analytify-text-settings">
 
           <h4><?php esc_html_e( 'Step 1: Authentication', 'wp-analytify' );?></h4>
@@ -483,7 +483,7 @@ jQuery(document).ready(function(s) {
       <h3><?php esc_html_e( 'Step 2: Setting up profiles', 'wp-analytify' );?></h3>
 
       <div class="feature-section">
-        <img src="<?php echo plugins_url( 'assets/images/profile-data-new.png', dirname( __FILE__ ) );?>" alt="" class="wp-analytify-welcome-screenshots wp-analytify-left-screenshot">
+        <img src="<?php echo plugins_url( 'assets/img/profile-data-new.png', dirname( __FILE__ ) );?>" alt="" class="wp-analytify-welcome-screenshots wp-analytify-left-screenshot">
         <div class="analytify-text-settings">
           <h4><?php esc_html_e( 'Profile Tab', 'wp-analytify' );?></h4>
           <p><?php esc_html_e( 'This tab section consists of many important settings. After Authentication, Setup your profiles here. All of the options are easy to understand.', 'wp-analytify' );?></p>
@@ -512,7 +512,7 @@ jQuery(document).ready(function(s) {
 
       <div class="feature-section col three-col">
 
-        <img src="<?php echo plugins_url( 'assets/images/front-end-new.png', dirname( __FILE__ ) );?>" alt="" class="wp-analytify-welcome-screenshots">
+        <img src="<?php echo plugins_url( 'assets/img/front-end-new.png', dirname( __FILE__ ) );?>" alt="" class="wp-analytify-welcome-screenshots">
 
         <h4><?php esc_html_e( 'Front Tab', 'wp-analytify' );?></h4>
         <p><?php echo sprintf( esc_html__( 'In version %4$s, We have introduced the %1$s New Front-end Analytics%2$s which will fetch the stats like backend but with an awesome UI for front-end stats. It was a long awaited feature which was under development since 1.0 but finally It is here. It can be customized (if you are good at CSS) according to your website look and feel. %3$s Below are it\'s important options: ', 'wp-analytify' ), '<em>', '</em>', '<br /><br />', ANALYTIFY_VERSION);?></p>
@@ -546,7 +546,7 @@ jQuery(document).ready(function(s) {
 
         <div class="feature-section col three-col">
 
-          <img src="<?php echo plugins_url( 'assets/images/admin-end-new.png', dirname( __FILE__ ) );?>" alt="" class="wp-analytify-welcome-screenshots wp-analytify-left-screenshot">
+          <img src="<?php echo plugins_url( 'assets/img/admin-end-new.png', dirname( __FILE__ ) );?>" alt="" class="wp-analytify-welcome-screenshots wp-analytify-left-screenshot">
           <div class="analytify-text-settings">
             <h4><?php esc_html_e( 'Admin Tab', 'wp-analytify' );?></h4>
             <p><?php esc_html_e( 'Admin tab section is to manage the Analytics panels under EDIT screen of post/pages in wp-admin.', 'wp-analytify' );?></p>
@@ -593,7 +593,7 @@ jQuery(document).ready(function(s) {
 
         <div class="feature-section">
 
-          <img width="414" src="<?php echo plugins_url( 'assets/images/authenticate2-new.png', dirname( __FILE__ ) ); ?>" class="wp-analytify-welcome-screenshots"/>
+          <img width="414" src="<?php echo plugins_url( 'assets/img/authenticate2-new.png', dirname( __FILE__ ) ); ?>" class="wp-analytify-welcome-screenshots"/>
           <div class="analytify-text-settings">
             <h4><?php esc_html_e( 'Simple Authentication', 'wp-analytify' );?></h4>
             <p>
@@ -614,7 +614,7 @@ jQuery(document).ready(function(s) {
 
           <div class="feature-section">
 
-            <img src="<?php echo plugins_url( 'assets/images/analytify-shortcodes-dropdown.png', dirname( __FILE__ ) ); ?>" class="wp-analytify-welcome-screenshots wp-analytify-left-screenshot"/>
+            <img src="<?php echo plugins_url( 'assets/img/analytify-shortcodes-dropdown.png', dirname( __FILE__ ) ); ?>" class="wp-analytify-welcome-screenshots wp-analytify-left-screenshot"/>
             <div class="analytify-text-settings">
               <h4><?php esc_html_e( 'Analytify Shortcodes', 'wp-analytify' );?></h4>
               <p>
@@ -636,7 +636,7 @@ jQuery(document).ready(function(s) {
           </div>
 
           <div class="newfeatures">
-            <img width="414" height="" src="<?php echo plugins_url( 'assets/images/front-end-new.png', dirname( __FILE__ ) ); ?>" class="wp-analytify-welcome-screenshots"/>
+            <img width="414" height="" src="<?php echo plugins_url( 'assets/img/front-end-new.png', dirname( __FILE__ ) ); ?>" class="wp-analytify-welcome-screenshots"/>
             <div class="analytify-text-settings">
               <h3><?php esc_html_e( 'Front-end Statistics', 'wp-analytify' );?></h3>
               <p>

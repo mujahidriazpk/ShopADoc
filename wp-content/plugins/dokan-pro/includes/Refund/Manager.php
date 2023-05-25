@@ -97,7 +97,7 @@ class Manager {
      *
      * @param array $args
      *
-     * @return \WeDevs\DokanPro\Refund\Refund
+     * @return \WeDevs\DokanPro\Refund\Refund|WP_Error
      */
     public function create( $args ) {
         if ( isset( $args['id'] ) ) {
@@ -109,6 +109,13 @@ class Manager {
         }
 
         $args['status'] = 0;
+
+        // get order instance
+        $order = wc_get_order( $args['order_id'] );
+
+        if ( ! $order || $order->get_meta( 'has_sub_order' ) ) {
+            return new WP_Error( 'dokan_pro_refund_create', __( 'You can not refund orders that have suborders. Please refund from specific suborders.', 'dokan' ) );
+        }
 
         $seller_id = dokan_get_seller_id_by_order( $args['order_id'] );
 

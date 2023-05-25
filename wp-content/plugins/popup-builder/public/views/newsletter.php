@@ -114,8 +114,9 @@
 						if (empty($field)) {
 							continue;
 						}
+						$fieldName = isset($field['fieldName']) ? $field['fieldName'] : ''
 						?>
-						<input type="button" id="sgpb-newsletter-shortcode-<?php echo esc_attr($index); ?>" class="sgpb-btn sgpb-btn-blue-light sgpb-margin-5 buttonGroup__button_shortcodes" value="<?php echo esc_attr(@$field['fieldName']); ?>" data-value="[<?php echo esc_attr(@$field['fieldName']);?>]">
+						<input type="button" id="sgpb-newsletter-shortcode-<?php echo esc_attr($index); ?>" class="sgpb-btn sgpb-btn-blue-light sgpb-margin-5 buttonGroup__button_shortcodes" value="<?php echo esc_attr($fieldName); ?>" data-value="[<?php echo esc_attr($fieldName);?>]">
 						<?php
 					}
 					?>

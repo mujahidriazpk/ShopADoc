@@ -4,9 +4,9 @@ if (!defined('ABSPATH')) exit;
 
 function dashboard_widgets_suite_admin_notice() {
 	
-	$screen = get_current_screen();
+	$screen_id = dashboard_widgets_suite_get_current_screen_id();
 	
-	if ($screen->id === 'settings_page_dashboard_widgets_suite') {
+	if ($screen_id === 'settings_page_dashboard_widgets_suite') {
 		
 		if (isset($_GET['reset-options'])) {
 			

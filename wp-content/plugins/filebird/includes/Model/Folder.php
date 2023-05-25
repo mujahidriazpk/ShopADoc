@@ -66,6 +66,23 @@ class Folder {
 			array( '%d' )
 		);
 	}
+	public static function updateAuthor( $from_author, $to_author ) {
+		global $wpdb;
+		$wpdb->update(
+			self::getTable( self::$folder_table ),
+			array(
+				'created_by' => $to_author
+			),
+			array( 'created_by' => $from_author ),
+			array( '%d' ),
+			array( '%d' )
+		);
+	}
+	public static function deleteByAuthor( $author ) {
+		global $wpdb;
+		$wpdb->query( "DELETE FROM {$wpdb->prefix}fbv_attachment_folder WHERE folder_id IN (SELECT id FROM {$wpdb->prefix}fbv WHERE created_by = " . (int) $author . ")" );
+		$wpdb->query( "DELETE FROM {$wpdb->prefix}fbv WHERE created_by = " . (int) $author );
+	}
 	public static function rawInsert( $query ) {
 		global $wpdb;
 		$wpdb->query( 'INSERT INTO ' . self::getTable( self::$folder_table ) . ' ' . $query );
@@ -76,17 +93,21 @@ class Folder {
 	}
 	public static function getFolderFromPostId( $post_id ) {
 		global $wpdb;
-		global $wpdb;
 
+		$created = 0;
+		$user_has_own_folder = get_option( 'njt_fbv_folder_per_user', '0' ) === '1';
+		if ( $user_has_own_folder ) {
+			$created = get_current_user_id();
+		}
 		return $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT `folder_id`,`name` FROM {$wpdb->prefix}fbv as fbv
+            $wpdb->prepare(
+                "SELECT `folder_id`,`name` FROM {$wpdb->prefix}fbv as fbv
 				JOIN {$wpdb->prefix}fbv_attachment_folder as fbva ON fbv.id = fbva.folder_id
-				WHERE `attachment_id` = %d GROUP BY `folder_id`",
-				$post_id
+				WHERE `attachment_id` = %d AND `created_by` = %d GROUP BY `folder_id`",
+			$post_id, $created
 			),
-			OBJECT
-		);
+            OBJECT
+            );
 	}
 	public static function setFoldersForPosts( $post_ids, $folder_ids, $has_action = true ) {
 		global $wpdb;

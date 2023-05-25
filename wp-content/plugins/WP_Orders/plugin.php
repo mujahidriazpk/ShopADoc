@@ -420,6 +420,9 @@ class SP_Plugin_Order {
 				th,td{font-size:16px !important;}
 				.error,.notice{display:none;}
 				.widefat th,.widefat th.sortable, .widefat th.sorted{padding:8px 1px !important;}
+	  			.widefat td, .widefat th {
+    						padding: 8px 1px !important;
+				}
 			</style>
   <div id="poststuff">
     <div id="post-body" class="metabox-holder">
@@ -428,7 +431,7 @@ class SP_Plugin_Order {
           <form method="post" style="float:none;margin:0 auto;width:55%;padding:50px 0;" id="searchForm">
             <?php $search_str = ( isset( $_REQUEST['search_str'] ) && $_REQUEST['search_str'] ) ? $_REQUEST['search_str'] : '';?>
             <input type="text" class="validate[required]" name="search_str" id="search_str" value="<?php echo $search_str;?>" style="width:79%; margin-right: 1%;padding:10px;float:left;" data-prompt-position="topLeft:0,3"/>
-            <input type="submit" name="submit" value="Search" class="btn btn-primary" style="padding: 15px 10px;float:left;width:20%;"/>
+            <input type="submit" name="submit" value="Search" class="btn btn-primary" style="padding: 10px 10px;float:left;width:auto;"/>
           </form>
            <script type="text/javascript">
 		  	jQuery("#searchForm").validationEngine({'custom_error_messages' : {
@@ -450,12 +453,12 @@ class SP_Plugin_Order {
               <tr>
                 <th scope="col" id="6036312b3586a" class="manage-column " style="padding:8px 10px !important;"><span>Date</span></th>
                 <th scope="col" id="name" class="manage-column"><span>Originator</span></th>
-                <th scope="col" id="6036312b3a9dc" class="manage-column column-6036312b3a9dc">City</th>
-                <th scope="col" id="60e5c718d8654" class="manage-column column-60e5c718d8654">State</th>
-                <th scope="col" id="6036312b3ad5c" class="manage-column column-6036312b3ad5c">Zip</th>
-                <th scope="col" id="6039002027393" class="manage-column column-6039002027393">Payment</th>
-                <th scope="col" id="603906d6d0106" class="manage-column column-603906d6d0106">Processed</th>
-                <th scope="col" id="60390b3f8622a" class="manage-column column-60390b3f8622a">Last 4</th>
+                <th scope="col" id="6036312b3a9dc" class="manage-column column-6036312b3a9dc" style="text-align:center;">City</th>
+                <th scope="col" id="60e5c718d8654" class="manage-column column-60e5c718d8654" style="text-align:center;">State</th>
+                <th scope="col" id="6036312b3ad5c" class="manage-column column-6036312b3ad5c" style="text-align:center;">Zip</th>
+                <th scope="col" id="6039002027393" class="manage-column column-6039002027393" style="text-align:center;">Payment</th>
+                <th scope="col" id="603906d6d0106" class="manage-column column-603906d6d0106" style="text-align:center;">Processed</th>
+                <th scope="col" id="60390b3f8622a" class="manage-column column-60390b3f8622a" style="text-align:center;">Last 4</th>
               </tr>
             </thead>
             <tbody id="the-list">
@@ -484,14 +487,14 @@ class SP_Plugin_Order {
 							$credit_card_number = get_post_meta($row->ID, '_credit_card_number',true);
 					?>
                     <tr>
-              			<td><?php echo date('m/d/y',strtotime($date_created));?></td>
+              			<td style="padding:8px 10px !important;"><?php echo date('m/d/y',strtotime($date_created));?></td>
                         <td><?php echo $Originator ;?></td>
-                        <td><?php echo $billing_city ;?></td>
-                        <td><?php echo $billing_state ;?></td>
-                        <td><?php echo $billing_postcode ;?></td>
-                        <td><?php echo '$'.$order_total ;?></td>
-                        <td><?php echo date('m/d/y',strtotime($date_modified));?></td>
-                        <td><?php echo $credit_card_number;?></td>
+                        <td style="text-align:center;"><?php echo $billing_city ;?></td>
+                        <td style="text-align:center;"><?php echo $billing_state ;?></td>
+                        <td style="text-align:center;"><?php echo $billing_postcode ;?></td>
+                        <td style="text-align:center;"><?php echo '$'.$order_total ;?></td>
+                        <td style="text-align:center;"><?php echo date('m/d/y',strtotime($date_modified));?></td>
+                        <td style="text-align:center;"><?php echo $credit_card_number;?></td>
                         </tr>
               <?php }?>
             </tbody>
@@ -501,26 +504,26 @@ class SP_Plugin_Order {
           <table class="wp-list-table widefat fixed striped table-view-list posts">
             <thead>
               <tr>
-                <th scope="col" id="6036312b3586a" class="manage-column " style="padding:8px 5px !important;"><span>Date</span></th>
+                <th scope="col" id="6036312b3586a" class="manage-column " style="padding:8px 10px !important;"><span>Date</span></th>
                 <th scope="col" id="name" class="manage-column"><span>Originator</span></th>
-                <th scope="col" id="6036312b3a9dc" class="manage-column column-6036312b3a9dc">City</th>
-                <th scope="col" id="60e5c718d8654" class="manage-column column-60e5c718d8654">State</th>
-                <th scope="col" id="6036312b3ad5c" class="manage-column column-6036312b3ad5c">Zip</th>
-                <th scope="col" id="6039002027393" class="manage-column column-6039002027393">Payment</th>
-                <th scope="col" id="603906d6d0106" class="manage-column column-603906d6d0106">Processed</th>
-                <th scope="col" id="60390b3f8622a" class="manage-column column-60390b3f8622a">Last 4</th>
+                <th scope="col" id="6036312b3a9dc" class="manage-column column-6036312b3a9dc" style="text-align:center;">City</th>
+                <th scope="col" id="60e5c718d8654" class="manage-column column-60e5c718d8654" style="text-align:center;">State</th>
+                <th scope="col" id="6036312b3ad5c" class="manage-column column-6036312b3ad5c" style="text-align:center;">Zip</th>
+                <th scope="col" id="6039002027393" class="manage-column column-6039002027393" style="text-align:center;">Payment</th>
+                <th scope="col" id="603906d6d0106" class="manage-column column-603906d6d0106" style="text-align:center;">Processed</th>
+                <th scope="col" id="60390b3f8622a" class="manage-column column-60390b3f8622a" style="text-align:center;">Last 4</th>
               </tr>
             </thead>
             <tbody id="the-list">
             <tr>
-              			<td>-</td>
+              			<td style="padding:8px 10px !important;">-</td>
                         <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
+                        <td style="text-align:center;">-</td>
+                        <td style="text-align:center;">-</td>
+                        <td style="text-align:center;">-</td>
+                        <td style="text-align:center;">-</td>
+                        <td style="text-align:center;">-</td>
+                        <td style="text-align:center;">-</td>
                         </tr>
             </tbody>
           </table>

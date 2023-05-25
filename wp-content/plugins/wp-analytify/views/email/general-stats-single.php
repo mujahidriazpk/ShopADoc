@@ -3,7 +3,10 @@ function get_compared_colors( $results, $compare_results, $date_different ) {
 	if ( $compare_results != 0 ) {
 		$compare = number_format( ( ( $results - $compare_results ) / $compare_results ) * 100, 2 ) . "%";
 	} else {
-		return;
+		return array(
+			'#000000',  // default color code for positive difference
+			'#ffffff'   // default color code for lighter color
+		);
 	}
 
 	return array(
@@ -30,97 +33,23 @@ function pa_email_include_single_general( $current, $stats, $old_stats, $date_di
 	<tr>
 		<td bgcolor="#ffffff"  class="session-table">
 			<table cellspacing="20" cellpadding="0" border="0" align="center" bgcolor="#f9fafa" width="100%" class="box-table">
-				<tr>
-					<td style="border: 1px solid #e2e5e8;" width="33.333%">
-						<table width="100%" cellpadding="0" cellspacing="0" border="0">
-							<tr>
-								<td align="center" colspan="3" style="font: 500 14px 'Roboto', Arial, Helvetica, sans-serif;padding: 16px 5px 5px; text-transform: uppercase; letter-spacing: 0.01em;"><font color="#848484"><?php analytify_e( 'Sessions' ); ?></font></td>
-							</tr>
-							<tr>
-								<td width="45" ></td><td align="center"><hr style="margin:0;border:0;border-top: 1px solid #e5e5e5;"/></td><td width="45"></td>
-							</tr>
-							<tr>
-								<td align="center" colspan="3" style="padding: 13px 5px 10px; font: 400 24px 'Roboto', Arial, Helvetica, sans-serif;"><font color="#444444"><?php echo $stats->totalsForAllResults['ga:sessions']  ?></font></td>
-							</tr>
-						</table>
-					</td>
-					<td  style="border: 1px solid #e2e5e8;" width="33.333%">
-						<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff">
-							<tr>
-								<td align="center" colspan="3" style="font: 500 14px 'Roboto', Arial, Helvetica, sans-serif;padding: 16px 5px 5px; text-transform: uppercase; letter-spacing: 0.01em;"><font color="#848484"><?php analytify_e( 'Visitors' ); ?></font></td>
-							</tr>
-							<tr>
-								<td width="45"></td><td align="center"><hr style="margin:0;border:0;border-top: 1px solid #e5e5e5;"/></td><td width="45"></td>
-							</tr>
-							<tr>
-								<td align="center" colspan="3" style="padding: 13px 5px 10px; font: 400 24px 'Roboto', Arial, Helvetica, sans-serif;"><font color="#444444"><?php echo WPANALYTIFY_Utils::pretty_numbers( $stats->totalsForAllResults['ga:users'] ); ?></font></td>
-							</tr>
-
-						</table>
-					</td>
-
-					<td  style="border: 1px solid #e2e5e8;" width="33.333%">
-						<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff">
-							<tr>
-								<td align="center" colspan="3" style="font: 500 14px 'Roboto', Arial, Helvetica, sans-serif;padding: 16px 5px 5px; text-transform: uppercase; letter-spacing: 0.01em;"><font color="#848484"><?php analytify_e( 'Page View' ); ?></font></td>
-							</tr>
-							<tr>
-								<td width="45"></td><td align="center"><hr style="margin:0;border:0;border-top: 1px solid #e5e5e5;"/></td><td width="45"></td>
-							</tr>
-							<tr>
-								<td align="center" colspan="3" style="padding: 13px 5px 10px; font: 400 24px 'Roboto', Arial, Helvetica, sans-serif;"><font color="#444444"><?php echo WPANALYTIFY_Utils::pretty_numbers( $stats->totalsForAllResults['ga:pageviews'] ); ?></font></td>
-							</tr>
-
-						</table>
-					</td>
+				<tr style="display: flex; flex-wrap: wrap;">
+					<?php foreach ( $stats as $stat ) : ?>
+						<td style="border: 1px solid #e2e5e8; flex-basis: 32.9%;">
+							<table width="100%" cellpadding="0" cellspacing="0" border="0">
+								<tr>
+									<td align="center" colspan="3" style="font: 500 14px 'Roboto', Arial, Helvetica, sans-serif;padding: 16px 5px 5px; text-transform: uppercase; letter-spacing: 0.01em;"><font color="#848484"><?php analytify_e( $stat['title'] ); ?></font></td>
+								</tr>
+								<tr>
+									<td width="45" ></td><td align="center"><hr style="margin:0;border:0;border-top: 1px solid #e5e5e5;"/></td><td width="45"></td>
+								</tr>
+								<tr>
+									<td align="center" colspan="3" style="padding: 13px 5px 10px; font: 400 24px 'Roboto', Arial, Helvetica, sans-serif;"><font color="#444444"><?php echo $stat['value']; ?></font></td>
+								</tr>
+							</table>
+						</td>
+					<?php endforeach; ?>
 				</tr>
-				<tr>
-					<td  style="border: 1px solid #e2e5e8;" width="33.333%">
-						<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff">
-							<tr>
-								<td align="center" colspan="3" style="font: 500 14px 'Roboto', Arial, Helvetica, sans-serif;padding: 16px 5px 5px; text-transform: uppercase; letter-spacing: 0.01em;"><font color="#848484"><?php analytify_e( 'Avg. time on page' ); ?></font></td>
-							</tr>
-							<tr>
-								<td width="45"></td><td align="center"><hr style="margin:0;border:0;border-top: 1px solid #e5e5e5;"/></td><td width="45"></td>
-							</tr>
-							<tr>
-								<td align="center" colspan="3" style="padding: 13px 5px 10px; font: 400 24px 'Roboto', Arial, Helvetica, sans-serif;"><font color="#444444"><?php echo WPANALYTIFY_Utils::pretty_time( $stats->totalsForAllResults['ga:avgTimeOnPage'] ); ?></font></td>
-							</tr>
-
-						</table>
-					</td>
-
-					<td  style="border: 1px solid #e2e5e8;" width="33.333%">
-						<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff">
-							<tr>
-								<td align="center" colspan="3" style="font: 500 14px 'Roboto', Arial, Helvetica, sans-serif;padding: 16px 5px 5px; text-transform: uppercase; letter-spacing: 0.01em;"><font color="#848484"><?php analytify_e( 'Bounce Rate' ); ?></font></td>
-							</tr>
-							<tr>
-								<td width="45"></td><td align="center"><hr style="margin:0;border:0;border-top: 1px solid #e5e5e5;"/></td><td width="45"></td>
-							</tr>
-							<tr>
-								<td align="center" colspan="3" style="padding: 13px 5px 10px; font: 400 24px 'Roboto', Arial, Helvetica, sans-serif;"><font color="#444444"><?php echo number_format( $stats->totalsForAllResults['ga:bounceRate'] ) ?>%</font></td>
-							</tr>
-						</table>
-					</td>
-					<td style="border: 1px solid #e2e5e8;" width="33.333%">
-						<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff">
-							<tr>
-								<td align="center" colspan="3" style="font: 500 14px 'Roboto', Arial, Helvetica, sans-serif;padding: 16px 5px 5px; text-transform: uppercase; letter-spacing: 0.01em;"><font color="#848484"><?php analytify_e( '% New Session', 'wp-analytify' ); ?></font></td>
-							</tr>
-							<tr>
-								<td width="45" ></td><td align="center"><hr style="margin:0;border:0;border-top: 1px solid #e5e5e5;"/></td><td width="45"></td>
-							</tr>
-							<tr>
-								<td align="center" colspan="3" style="padding: 13px 5px 10px; font: 400 24px 'Roboto', Arial, Helvetica, sans-serif;"><font color="#444444"><?php echo WPANALYTIFY_Utils::pretty_numbers( $stats->totalsForAllResults['ga:percentNewSessions'] ); ?>%</font></td>
-							</tr>
-
-
-
-						</table>
-					</td>
-				</tr>
-
 			</table>
 		</td>
 	</tr>

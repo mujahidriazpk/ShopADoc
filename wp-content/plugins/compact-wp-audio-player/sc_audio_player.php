@@ -3,13 +3,13 @@
   Plugin Name: Compact Audio Player
   Plugin URI: https://www.tipsandtricks-hq.com/wordpress-audio-music-player-plugin-4556
   Description: Plays a specified audio file (.mp3 or .ogg) using a simple and compact audio player. The audio player is compatible with all major browsers and devices (Android, iPhone).
-  Version: 1.9.7
+  Version: 1.9.8
   Author: Tips and Tricks HQ
   Author URI: https://www.tipsandtricks-hq.com/
   License: GPL
  */
 
-define('SC_AUDIO_PLUGIN_VERSION', '1.9.7');
+define('SC_AUDIO_PLUGIN_VERSION', '1.9.8');
 define('SC_AUDIO_BASE_URL', plugins_url('/', __FILE__));
 
 include_once ('shortcodes-functions.php');
@@ -27,6 +27,17 @@ function wp_sc_audio_init() {
     }
 }
 
+// Add the settings link
+function scap_add_settings_link( $links, $file ) {
+    if ( $file == plugin_basename( __FILE__ ) ) {
+	$settings_link = '<a href="options-general.php?page=compact-wp-audio-player%2Fsc_audio_player.php">' . (__( "Settings", "compact-audio-player" )) . '</a>';
+	array_unshift( $links, $settings_link );
+    }
+    return $links;
+}
+add_filter( 'plugin_action_links', 'scap_add_settings_link', 10, 2 );
+
+//Footer code function
 function scap_footer_code() {
     $debug_marker = "<!-- WP Audio player plugin v" . SC_AUDIO_PLUGIN_VERSION . " - https://www.tipsandtricks-hq.com/wordpress-audio-music-player-plugin-4556/ -->";
     echo "\n${debug_marker}\n";

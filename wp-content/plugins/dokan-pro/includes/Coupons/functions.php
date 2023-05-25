@@ -18,22 +18,32 @@ function dokan_get_coupon_types() {
 }
 
 /**
- * Dokan get vendor product list for coupon
+ * Retrieves all the product IDs that can be included while creating a coupon by a seller.
  *
- * @return [type] [description]
+ * @since 3.7.7
+ *
+ * @param int|string $user_id (Optional) ID of the seller
+ *
+ * @return array List of the expected product IDs
  */
-function dokan_get_coupon_products_list() {
+function dokan_coupon_get_seller_product_ids( $user_id = false ) {
     global $wpdb;
 
-    $user_id = dokan_get_current_user_id();
+    if ( empty( $user_id ) ) {
+        $user_id = dokan_get_current_user_id();
+    }
 
-    $sql = "SELECT $wpdb->posts.* FROM $wpdb->posts
-            WHERE $wpdb->posts.post_author IN ( $user_id )
-                AND $wpdb->posts.post_type = 'product'
-                AND ( ( $wpdb->posts.post_status = 'publish' OR $wpdb->posts.post_status = 'draft' OR $wpdb->posts.post_status = 'pending') )
-            ORDER BY $wpdb->posts.post_date DESC";
-
-    return $wpdb->get_results( $sql );
+    return $wpdb->get_col(
+        $wpdb->prepare(
+            "SELECT posts.ID
+            FROM $wpdb->posts AS posts
+            WHERE posts.post_author = %d
+            AND posts.post_type = 'product'
+            AND posts.post_status IN ( 'publish', 'draft', 'pending' )
+            ORDER BY posts.post_date DESC",
+            $user_id
+        )
+    );
 }
 
 /**

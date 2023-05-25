@@ -8,8 +8,6 @@
 <script type="text/html" id="tmpl-withdraw-schedule-popup">
     <div id="withdraw-schedule-popup" class="white-popup dokan-withdraw-popup">
         <div id="dokan-send-withdraw-schedule-popup-form">
-            <h2><i class="fa fa-clock-o" aria-hidden="true"></i>&nbsp;<?php esc_html_e( 'Edit Withdraw Schedule', 'dokan' ); ?></h2>
-
             <?php do_action( 'dokan_send_withdraw_schedule_form_content' ); ?>
 
             <div class="withdraw-schedule-select-container">

@@ -79,7 +79,7 @@ class Analytify_Logs {
 
   function log_page() {
     // add_submenu_page( string $parent_slug, string $page_title, string $menu_title, string $capability, string $menu_slug, callable $function = '' )
-    add_submenu_page( null, __( 'Analytify Logs', 'wp-analytify' ), __( 'Analytify Logs', 'wp-analytify' ), 'manage_options', 'analytify-logs', array( $this, 'add_logs_page' )  );
+    add_submenu_page( 'admin.php', __( 'Analytify Logs', 'wp-analytify' ), __( 'Analytify Logs', 'wp-analytify' ), 'manage_options', 'analytify-logs', array( $this, 'add_logs_page' )  );
 
   }
 

@@ -21,7 +21,7 @@
 		<?php if ( isset( $attrs['title'] ) ) : ?>
 		  <h1
 			style='margin: 0px; line-height: normal; font-size: 26px;
-				<?php echo 'font-family: ' . wp_kses_post( $attrs['family'] ); ?>;
+				<?php echo 'font-family: ' . wp_kses_post( str_replace( '"', '', $attrs['family'] ) ); ?>;
 				<?php echo esc_attr( 'color: ' . $attrs['textColor'] ); ?>;
 				<?php echo esc_attr( 'font-size: ' . $attrs['fontSizeTitle'] ); ?>;
 			'
@@ -31,7 +31,7 @@
 		<?php if ( isset( $attrs['subTitle'] ) ) : ?>
 		  <h4
 			style='font-weight: 500; margin-bottom: 0px; font-size: 16px; margin: 0px 0px 8px;
-				<?php echo 'font-family: ' . wp_kses_post( $attrs['family'] ); ?>;
+				<?php echo 'font-family: ' . wp_kses_post( str_replace( '"', '', $attrs['family'] ) ); ?>;
 				<?php echo esc_attr( 'color: ' . $attrs['textColor'] ); ?>;
 				<?php echo esc_attr( 'font-size: ' . $attrs['fontSizeSubTitle'] ); ?>;
 			'

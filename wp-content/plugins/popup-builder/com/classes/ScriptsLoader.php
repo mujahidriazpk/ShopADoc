@@ -61,7 +61,7 @@ class ScriptsLoader
 	 *
 	 * @param object $popup
 	 *
-	 * @return array|mixed|string|void $popupOptions
+	 * @return array|mixed|string $popupOptions
 	 */
 	private function getEncodedOptionsFromPopup($popup)
 	{
@@ -72,11 +72,13 @@ class ScriptsLoader
 
 		$popupOptions = array_merge($popupOptions, $extraOptions);
 		$popupOptions['sgpbConditions'] = apply_filters('sgpbRenderCondtions',  $popupCondition);
-		// These two lines have been added in order to not use the json_econde and to support PHP 5.3 version.
-		$popupOptions = AdminHelper::serializeData($popupOptions);
-		$popupOptions = base64_encode($popupOptions);
-
-		return $popupOptions;
+		// JSON_UNESCAPED_UNICODE does not exist since 5.4.0
+		if (PHP_VERSION < '5.4.0'){
+			$popupOptions = json_encode($popupOptions);
+		} else {
+			$popupOptions = json_encode($popupOptions,JSON_UNESCAPED_UNICODE);
+		}
+		return base64_encode($popupOptions);
 	}
 
 	// load popup scripts and styles and add popup data to the footer
@@ -279,7 +281,9 @@ class ScriptsLoader
 			foreach ($script['jsFiles'] as $jsFile) {
 
 				if (empty($jsFile['folderUrl'])) {
-					wp_enqueue_script(@$jsFile['filename']);
+					if(isset($jsFile['filename'])){
+						wp_enqueue_script($jsFile['filename']);
+					}
 					continue;
 				}
 

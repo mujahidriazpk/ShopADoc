@@ -21,13 +21,13 @@ class Convertkit_Handler {
 	 */
 	public function __construct( $api_key ) {
 		if ( empty( $api_key ) ) {
-			throw new \Exception( 'Invalid API Key' );
+			throw new \Exception( 'Invalid API key.' );
 		}
 
 		$this->init_rest_client( $api_key );
 
 		if ( ! $this->is_valid_api_key() ) {
-			throw new \Exception( 'Invalid API Key' );
+			throw new \Exception( 'Invalid API key.' );
 		}
 	}
 
@@ -73,7 +73,7 @@ class Convertkit_Handler {
 		$results = $this->rest_client->get( 'forms/?api_key=' . $this->api_key );
 
 		$forms = [
-			'' => __( 'Select...', 'elementor-pro' ),
+			'' => esc_html__( 'Select...', 'elementor-pro' ),
 		];
 
 		if ( ! empty( $results['body']['forms'] ) ) {
@@ -96,7 +96,7 @@ class Convertkit_Handler {
 		$results = $this->rest_client->get( 'tags/?api_key=' . $this->api_key );
 
 		$tags = [
-			'' => __( 'Select...', 'elementor-pro' ),
+			'' => esc_html__( 'Select...', 'elementor-pro' ),
 		];
 
 		if ( ! empty( $results['body']['tags'] ) ) {

@@ -1,3 +1,7 @@
+## 1.4.0 - 2022-09-02
+### Changed
+- Copy
+
 ## 1.3.2 - 2022-08-01
 ### Fixed
 - Connection to API

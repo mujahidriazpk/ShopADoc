@@ -9,12 +9,21 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
+
+/**
+ * @var false|null|WC_Product $_product Product.
+ */
+
+$product_url = '';
+if ( $_product && 'trash' !== $_product->get_status() ) {
+    $product_url = current_user_can( 'dokan_edit_product' ) ? dokan_edit_product_url( absint( dokan_get_prop( $_product, 'id' ) ) ) : $_product->get_permalink();
+}
 ?>
 <tr class="item <?php echo apply_filters( 'woocommerce_admin_html_order_item_class', ( ! empty( $class ) ? $class : '' ), $item ); ?>" data-order_item_id="<?php echo $item_id; ?>">
 	<!-- <td class="check-column"><input type="checkbox" /></td> -->
 	<td class="thumb">
-		<?php if ( $_product ) : ?>
-			<a href="<?php echo esc_url( admin_url( 'post.php?post=' . absint( dokan_get_prop( $_product, 'id' ) ) . '&action=edit' ) ); ?>" class="tips" data-tip="<?php
+		<?php if ( $_product && 'trash' !== $_product->get_status() ) : ?>
+			<a href="<?php echo esc_url( $product_url ); ?>" class="tips" data-tip="<?php
 
 				echo '<strong>' . __( 'Product ID:', 'dokan' ) . '</strong> ' . absint( $item['product_id'] );
 
@@ -33,6 +42,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 				}
 
 			?>"><?php echo $_product->get_image( 'shop_thumbnail', array( 'title' => '' ) ); ?></a>
+        <?php elseif ( $_product && 'trash' === $_product->get_status() ) : ?>
+            <?php echo $_product->get_image( 'shop_thumbnail', array( 'title' => $_product->get_title() ) ); ?>
 		<?php else : ?>
 			<?php echo wc_placeholder_img( 'shop_thumbnail' ); ?>
 		<?php endif; ?>
@@ -41,8 +52,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		<?php echo ( $_product && $_product->get_sku() ) ? esc_html( $_product->get_sku() ) . ' &ndash; ' : ''; ?>
 
-		<?php if ( $_product ) : ?>
-			<a target="_blank" href="<?php echo esc_url( dokan_edit_product_url( absint( dokan_get_prop( $_product, 'id' ) ) ) ); ?>">
+		<?php if ( $_product && 'trash' !== $_product->get_status() ) : ?>
+			<a target="_blank" href="<?php echo esc_url( $product_url ); ?>">
 				<?php echo esc_html( $item['name'] ); ?>
 			</a>
 		<?php else : ?>

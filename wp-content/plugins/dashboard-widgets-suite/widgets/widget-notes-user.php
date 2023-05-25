@@ -82,6 +82,8 @@ function dashboard_widgets_suite_notes_user_form($data) {
 	
 	$return = '<div id="dws-notes-user" class="dws-dashboard-widget">';
 	
+	$return .= (!empty($data)) ? '<div class="dws-notes-caption">'. esc_html__('Double-click any note to edit', 'dashboard-widgets-suite') .'</div>' : '';
+	
 	foreach ($data as $key => $value) {
 		
 		if ($i === $count) break;
@@ -121,7 +123,7 @@ function dashboard_widgets_suite_notes_user_form($data) {
 			
 		} else {
 			
-			$return .= dashboard_widgets_suite_notes_user_message();
+			$return .= esc_html(dashboard_widgets_suite_notes_user_message());
 			
 		}
 		
@@ -143,7 +145,6 @@ function dashboard_widgets_suite_notes_user_form($data) {
 		
 		$return .= '<div class="dws-notes-user-button-add">';
 		$return .= '<span class="fa fa-plus-circle"></span> <a href="#dws-notes-user-add">'. esc_html__('Add Note', 'dashboard-widgets-suite') .'</a>';
-		$return .= ($i > 0) ? '<span class="dws-notes-caption">'. esc_html__('Double-click any note to edit', 'dashboard-widgets-suite') .'</span>' : '';
 		$return .= '</div>';
 		
 		$return .= dashboard_widgets_suite_notes_user_form_add($display_name);

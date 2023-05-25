@@ -3,8 +3,8 @@ Contributors: webheadllc
 Donate link: https://webheadcoder.com/donate-clear-cache-for-me
 Tags: wpengine, cache, clear, purge, js, css, widget
 Requires at least: 3.8
-Tested up to: 5.9
-Stable tag: 1.8
+Tested up to: 6.2
+Stable tag: 2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -18,7 +18,7 @@ In addition to clearing those pesky caching engines, Clear Cache for Me can forc
 
 The popular Qode themes has a options to set your own custom CSS and JS.  Sometimes you may not see your changes for a long while because your browser is trying to get the cached file.  Whenever you save your Qode's options, the CSS and JS files will be forced to reload in the browser on the public side.
 
-Works with the following caching systems:
+Works with the following caching plugins:
 
 * Autoptimize
 * Breeze Cache
@@ -26,10 +26,12 @@ Works with the following caching systems:
 * GoDaddy Cache
 * Kinsta Cache
 * LiteSpeed Cache
+* Premium Addons for Elementor
 * SiteGround SuperCacher
 * WP Fastest Cache
-* WP Super Cache
 * WP Optimize Cache
+* WP Rocket
+* WP Super Cache
 * W3 Total Cache
 * WPEngine Cache
 
@@ -59,6 +61,11 @@ Clears all cache for following actions (requires a caching system above to be ac
 1. The button on the dashboard.  
 
 == Changelog ==
+
+= 2.0 =
+Added cache clearing for additional plugins that save their own cache.  
+Added cache clearing for WP Rocket.  
+Organized code.  
 
 = 1.8 =
 Updated cache clearing for LiteSpeed Cache.  

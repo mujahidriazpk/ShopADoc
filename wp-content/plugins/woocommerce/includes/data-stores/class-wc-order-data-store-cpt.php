@@ -74,10 +74,11 @@ class WC_Order_Data_Store_CPT extends Abstract_WC_Order_Data_Store_CPT implement
 		'_recorded_coupon_usage_counts',
 		'_download_permissions_granted',
 		'_order_stock_reduced',
+		'_new_order_email_sent',
 	);
 
 	/**
-	 * Getters for internal key in data stores.
+	 * Custom setters for props. Add key here if it has corresponding set_ and get_ method present.
 	 *
 	 * @var string[]
 	 */
@@ -85,18 +86,9 @@ class WC_Order_Data_Store_CPT extends Abstract_WC_Order_Data_Store_CPT implement
 		'_download_permissions_granted' => 'download_permissions_granted',
 		'_recorded_sales'               => 'recorded_sales',
 		'_recorded_coupon_usage_counts' => 'recorded_coupon_usage_counts',
-		'_order_stock_reduced'          => 'stock_reduced',
-		'_new_order_email_sent'         => 'email_sent',
+		'_order_stock_reduced'          => 'order_stock_reduced',
+		'_new_order_email_sent'         => 'new_order_email_sent',
 	);
-
-	/**
-	 * Return internal key getters name.
-	 *
-	 * @return string[]
-	 */
-	public function get_internal_data_store_key_getters() {
-		return $this->internal_data_store_key_getters;
-	}
 
 	/**
 	 * Method to create a new order in the database.
@@ -134,39 +126,46 @@ class WC_Order_Data_Store_CPT extends Abstract_WC_Order_Data_Store_CPT implement
 
 		$order->set_props(
 			array(
-				'order_key'            => get_post_meta( $id, '_order_key', true ),
-				'customer_id'          => get_post_meta( $id, '_customer_user', true ),
-				'billing_first_name'   => get_post_meta( $id, '_billing_first_name', true ),
-				'billing_last_name'    => get_post_meta( $id, '_billing_last_name', true ),
-				'billing_company'      => get_post_meta( $id, '_billing_company', true ),
-				'billing_address_1'    => get_post_meta( $id, '_billing_address_1', true ),
-				'billing_address_2'    => get_post_meta( $id, '_billing_address_2', true ),
-				'billing_city'         => get_post_meta( $id, '_billing_city', true ),
-				'billing_state'        => get_post_meta( $id, '_billing_state', true ),
-				'billing_postcode'     => get_post_meta( $id, '_billing_postcode', true ),
-				'billing_country'      => get_post_meta( $id, '_billing_country', true ),
-				'billing_email'        => get_post_meta( $id, '_billing_email', true ),
-				'billing_phone'        => get_post_meta( $id, '_billing_phone', true ),
-				'shipping_first_name'  => get_post_meta( $id, '_shipping_first_name', true ),
-				'shipping_last_name'   => get_post_meta( $id, '_shipping_last_name', true ),
-				'shipping_company'     => get_post_meta( $id, '_shipping_company', true ),
-				'shipping_address_1'   => get_post_meta( $id, '_shipping_address_1', true ),
-				'shipping_address_2'   => get_post_meta( $id, '_shipping_address_2', true ),
-				'shipping_city'        => get_post_meta( $id, '_shipping_city', true ),
-				'shipping_state'       => get_post_meta( $id, '_shipping_state', true ),
-				'shipping_postcode'    => get_post_meta( $id, '_shipping_postcode', true ),
-				'shipping_country'     => get_post_meta( $id, '_shipping_country', true ),
-				'shipping_phone'       => get_post_meta( $id, '_shipping_phone', true ),
-				'payment_method'       => get_post_meta( $id, '_payment_method', true ),
-				'payment_method_title' => get_post_meta( $id, '_payment_method_title', true ),
-				'transaction_id'       => get_post_meta( $id, '_transaction_id', true ),
-				'customer_ip_address'  => get_post_meta( $id, '_customer_ip_address', true ),
-				'customer_user_agent'  => get_post_meta( $id, '_customer_user_agent', true ),
-				'created_via'          => get_post_meta( $id, '_created_via', true ),
-				'date_completed'       => $date_completed,
-				'date_paid'            => $date_paid,
-				'cart_hash'            => get_post_meta( $id, '_cart_hash', true ),
-				'customer_note'        => $post_object->post_excerpt,
+				'order_key'                    => get_post_meta( $id, '_order_key', true ),
+				'customer_id'                  => get_post_meta( $id, '_customer_user', true ),
+				'billing_first_name'           => get_post_meta( $id, '_billing_first_name', true ),
+				'billing_last_name'            => get_post_meta( $id, '_billing_last_name', true ),
+				'billing_company'              => get_post_meta( $id, '_billing_company', true ),
+				'billing_address_1'            => get_post_meta( $id, '_billing_address_1', true ),
+				'billing_address_2'            => get_post_meta( $id, '_billing_address_2', true ),
+				'billing_city'                 => get_post_meta( $id, '_billing_city', true ),
+				'billing_state'                => get_post_meta( $id, '_billing_state', true ),
+				'billing_postcode'             => get_post_meta( $id, '_billing_postcode', true ),
+				'billing_country'              => get_post_meta( $id, '_billing_country', true ),
+				'billing_email'                => get_post_meta( $id, '_billing_email', true ),
+				'billing_phone'                => get_post_meta( $id, '_billing_phone', true ),
+				'shipping_first_name'          => get_post_meta( $id, '_shipping_first_name', true ),
+				'shipping_last_name'           => get_post_meta( $id, '_shipping_last_name', true ),
+				'shipping_company'             => get_post_meta( $id, '_shipping_company', true ),
+				'shipping_address_1'           => get_post_meta( $id, '_shipping_address_1', true ),
+				'shipping_address_2'           => get_post_meta( $id, '_shipping_address_2', true ),
+				'shipping_city'                => get_post_meta( $id, '_shipping_city', true ),
+				'shipping_state'               => get_post_meta( $id, '_shipping_state', true ),
+				'shipping_postcode'            => get_post_meta( $id, '_shipping_postcode', true ),
+				'shipping_country'             => get_post_meta( $id, '_shipping_country', true ),
+				'shipping_phone'               => get_post_meta( $id, '_shipping_phone', true ),
+				'payment_method'               => get_post_meta( $id, '_payment_method', true ),
+				'payment_method_title'         => get_post_meta( $id, '_payment_method_title', true ),
+				'transaction_id'               => get_post_meta( $id, '_transaction_id', true ),
+				'customer_ip_address'          => get_post_meta( $id, '_customer_ip_address', true ),
+				'customer_user_agent'          => get_post_meta( $id, '_customer_user_agent', true ),
+				'created_via'                  => get_post_meta( $id, '_created_via', true ),
+				'date_completed'               => $date_completed,
+				'date_paid'                    => $date_paid,
+				'cart_hash'                    => get_post_meta( $id, '_cart_hash', true ),
+				'customer_note'                => $post_object->post_excerpt,
+
+				// Operational data props.
+				'order_stock_reduced'          => get_post_meta( $id, '_order_stock_reduced', true ),
+				'download_permissions_granted' => get_post_meta( $id, '_download_permissions_granted', true ),
+				'new_order_email_sent'         => get_post_meta( $id, '_new_order_email_sent', true ),
+				'recorded_sales'               => wc_string_to_bool( get_post_meta( $id, '_recorded_sales', true ) ),
+				'recorded_coupon_usage_counts' => get_post_meta( $id, '_recorded_coupon_usage_counts', true ),
 			)
 		);
 	}
@@ -208,17 +207,22 @@ class WC_Order_Data_Store_CPT extends Abstract_WC_Order_Data_Store_CPT implement
 		$updated_props     = array();
 		$id                = $order->get_id();
 		$meta_key_to_props = array(
-			'_order_key'            => 'order_key',
-			'_customer_user'        => 'customer_id',
-			'_payment_method'       => 'payment_method',
-			'_payment_method_title' => 'payment_method_title',
-			'_transaction_id'       => 'transaction_id',
-			'_customer_ip_address'  => 'customer_ip_address',
-			'_customer_user_agent'  => 'customer_user_agent',
-			'_created_via'          => 'created_via',
-			'_date_completed'       => 'date_completed',
-			'_date_paid'            => 'date_paid',
-			'_cart_hash'            => 'cart_hash',
+			'_order_key'                    => 'order_key',
+			'_customer_user'                => 'customer_id',
+			'_payment_method'               => 'payment_method',
+			'_payment_method_title'         => 'payment_method_title',
+			'_transaction_id'               => 'transaction_id',
+			'_customer_ip_address'          => 'customer_ip_address',
+			'_customer_user_agent'          => 'customer_user_agent',
+			'_created_via'                  => 'created_via',
+			'_date_completed'               => 'date_completed',
+			'_date_paid'                    => 'date_paid',
+			'_cart_hash'                    => 'cart_hash',
+			'_download_permissions_granted' => 'download_permissions_granted',
+			'_recorded_sales'               => 'recorded_sales',
+			'_recorded_coupon_usage_counts' => 'recorded_coupon_usage_counts',
+			'_new_order_email_sent'         => 'new_order_email_sent',
+			'_order_stock_reduced'          => 'order_stock_reduced',
 		);
 
 		$props_to_update = $this->get_props_to_update( $order, $meta_key_to_props );
@@ -231,6 +235,27 @@ class WC_Order_Data_Store_CPT extends Abstract_WC_Order_Data_Store_CPT implement
 				case 'date_completed':
 					$value = ! is_null( $value ) ? $value->getTimestamp() : '';
 					break;
+				case 'download_permissions_granted':
+				case 'recorded_sales':
+				case 'recorded_coupon_usage_counts':
+				case 'order_stock_reduced':
+					if ( is_null( $value ) || '' === $value ) {
+						break;
+					}
+					$value = is_bool( $value ) ? wc_bool_to_string( $value ) : $value;
+					break;
+				case 'new_order_email_sent':
+					if ( is_null( $value ) || '' === $value ) {
+						break;
+					}
+					$value = is_bool( $value ) ? wc_bool_to_string( $value ) : $value;
+					$value = 'yes' === $value ? 'true' : 'false'; // For backward compatibility, we store as true/false in DB.
+					break;
+			}
+
+			// We want to persist internal data store keys as 'yes' or 'no' if they are boolean to maintain compatibility.
+			if ( is_bool( $value ) && in_array( $prop, array_values( $this->internal_data_store_key_getters ), true ) ) {
+				$value = wc_bool_to_string( $value );
 			}
 
 			$updated = $this->update_or_delete_post_meta( $order, $meta_key, $value );
@@ -317,57 +342,6 @@ class WC_Order_Data_Store_CPT extends Abstract_WC_Order_Data_Store_CPT implement
 		}
 
 		do_action( 'woocommerce_order_object_updated_props', $order, $updated_props );
-	}
-
-	/**
-	 * Given an initialized order object, update the post/postmeta records.
-	 *
-	 * @param WC_Order $order Order object.
-	 *
-	 * @return bool Whether the order was updated.
-	 */
-	public function update_order_from_object( $order ) {
-		if ( ! $order->get_id() ) {
-			return false;
-		}
-		$this->update_order_meta_from_object( $order );
-		return wp_update_post(
-			array(
-				'ID'            => $order->get_id(),
-				'post_date'     => gmdate( 'Y-m-d H:i:s', $order->get_date_created( 'edit' )->getOffsetTimestamp() ),
-				'post_date_gmt' => gmdate( 'Y-m-d H:i:s', $order->get_date_created( 'edit' )->getTimestamp() ),
-				'post_status'   => $this->get_post_status( $order ),
-				'post_parent'   => $order->get_parent_id(),
-				'post_excerpt'  => $this->get_post_excerpt( $order ),
-				'post_type'     => 'shop_order',
-			)
-		);
-	}
-
-	/**
-	 * Helper method to update order metadata from intialized order object.
-	 *
-	 * @param WC_Order $order Order object.
-	 */
-	private function update_order_meta_from_object( $order ) {
-		if ( is_null( $order->get_meta() ) ) {
-			return;
-		}
-
-		$existing_meta_data = get_post_meta( $order->get_id() );
-
-		foreach ( $order->get_meta_data() as $meta_data ) {
-			if ( isset( $existing_meta_data[ $meta_data->key ] ) ) {
-				if ( $existing_meta_data[ $meta_data->key ] === $meta_data->value ) {
-					continue;
-				}
-				delete_post_meta( $order->get_id(), $meta_data->key );
-				unset( $existing_meta_data[ $meta_data->key ] );
-			}
-			add_post_meta( $order->get_id(), $meta_data->key, $meta_data->value, false );
-		}
-
-		$this->update_post_meta( $order );
 	}
 
 	/**
@@ -655,6 +629,9 @@ class WC_Order_Data_Store_CPT extends Abstract_WC_Order_Data_Store_CPT implement
 	 * @param bool         $set True or false.
 	 */
 	public function set_download_permissions_granted( $order, $set ) {
+		if ( $order instanceof WC_Order ) {
+			$order->set_download_permissions_granted( $set );
+		}
 		$order_id = WC_Order_Factory::get_order_id( $order );
 		update_post_meta( $order_id, '_download_permissions_granted', wc_bool_to_string( $set ) );
 	}
@@ -677,6 +654,9 @@ class WC_Order_Data_Store_CPT extends Abstract_WC_Order_Data_Store_CPT implement
 	 * @param bool         $set True or false.
 	 */
 	public function set_recorded_sales( $order, $set ) {
+		if ( $order instanceof WC_Order ) {
+			$order->set_recorded_sales( $set );
+		}
 		$order_id = WC_Order_Factory::get_order_id( $order );
 		update_post_meta( $order_id, '_recorded_sales', wc_bool_to_string( $set ) );
 	}
@@ -699,6 +679,9 @@ class WC_Order_Data_Store_CPT extends Abstract_WC_Order_Data_Store_CPT implement
 	 * @param bool         $set True or false.
 	 */
 	public function set_recorded_coupon_usage_counts( $order, $set ) {
+		if ( $order instanceof WC_Order ) {
+			$order->set_recorded_coupon_usage_counts( $set );
+		}
 		$order_id = WC_Order_Factory::get_order_id( $order );
 		update_post_meta( $order_id, '_recorded_coupon_usage_counts', wc_bool_to_string( $set ) );
 	}
@@ -716,14 +699,40 @@ class WC_Order_Data_Store_CPT extends Abstract_WC_Order_Data_Store_CPT implement
 	}
 
 	/**
+	 * Whether email have been sent for this order.
+	 *
+	 * @param WC_Order|int $order Order ID or order object.
+	 *
+	 * @return bool               Whether email is sent.
+	 */
+	public function get_new_order_email_sent( $order ) {
+		return $this->get_email_sent( $order );
+	}
+
+	/**
 	 * Stores information about whether email was sent.
 	 *
 	 * @param WC_Order|int $order Order ID or order object.
 	 * @param bool         $set True or false.
 	 */
 	public function set_email_sent( $order, $set ) {
+		if ( $order instanceof WC_Order ) {
+			$order->set_new_order_email_sent( $set );
+		}
 		$order_id = WC_Order_Factory::get_order_id( $order );
-		update_post_meta( $order_id, '_new_order_email_sent', wc_bool_to_string( $set ) );
+		$value    = wc_bool_to_string( $set );
+		$value    = 'yes' === $value ? 'true' : 'false'; // For backward compat, we store this as true|false string.
+		update_post_meta( $order_id, '_new_order_email_sent', $value );
+	}
+
+	/**
+	 * Stores information about whether email was sent.
+	 *
+	 * @param WC_Order|int $order Order ID or order object.
+	 * @param bool         $set True or false.
+	 */
+	public function set_new_order_email_sent( $order, $set ) {
+		$this->set_email_sent( $order, $set );
 	}
 
 	/**
@@ -822,11 +831,34 @@ class WC_Order_Data_Store_CPT extends Abstract_WC_Order_Data_Store_CPT implement
 	 * Stores information about whether stock was reduced.
 	 *
 	 * @param WC_Order|int $order Order ID or order object.
+	 * @return bool
+	 */
+	public function get_order_stock_reduced( $order ) {
+		return $this->get_stock_reduced( $order );
+	}
+
+	/**
+	 * Stores information about whether stock was reduced.
+	 *
+	 * @param WC_Order|int $order Order ID or order object.
 	 * @param bool         $set True or false.
 	 */
 	public function set_stock_reduced( $order, $set ) {
+		if ( $order instanceof WC_Order ) {
+			$order->set_order_stock_reduced( $set );
+		}
 		$order_id = WC_Order_Factory::get_order_id( $order );
 		update_post_meta( $order_id, '_order_stock_reduced', wc_bool_to_string( $set ) );
+	}
+
+	/**
+	 * Gets information about whether stock was reduced.
+	 *
+	 * @param WC_Order|int $order Order ID or order object.
+	 * @param bool         $set True or false.
+	 */
+	public function set_order_stock_reduced( $order, $set ) {
+		$this->set_stock_reduced( $order, $set );
 	}
 
 	/**
@@ -1000,10 +1032,7 @@ class WC_Order_Data_Store_CPT extends Abstract_WC_Order_Data_Store_CPT implement
 		}
 		$orders = array();
 
-		// Lets do some cache hydrations so that we don't have to fetch data from DB for every order.
-		$this->prime_raw_meta_cache_for_orders( $order_ids, $query_vars );
-		$this->prime_refund_caches_for_order( $order_ids, $query_vars );
-		$this->prime_order_item_caches_for_orders( $order_ids, $query_vars );
+		$this->prime_caches_for_orders( $order_ids, $query_vars );
 
 		foreach ( $query->posts as $post ) {
 			$order = wc_get_order( $post );
@@ -1017,6 +1046,19 @@ class WC_Order_Data_Store_CPT extends Abstract_WC_Order_Data_Store_CPT implement
 		}
 
 		return $orders;
+	}
+
+	/**
+	 * Helper method to prime caches for orders. Call this if you are going to be fetching orders in a loop.
+	 *
+	 * @param array $order_ids List of order IDS to prime caches for.
+	 * @param array $query_vars Original query arguments.
+	 */
+	public function prime_caches_for_orders( $order_ids, $query_vars ) {
+		// Lets do some cache hydrations so that we don't have to fetch data from DB for every order.
+		$this->prime_raw_meta_cache_for_orders( $order_ids, $query_vars );
+		$this->prime_refund_caches_for_order( $order_ids, $query_vars );
+		$this->prime_order_item_caches_for_orders( $order_ids, $query_vars );
 	}
 
 	/**
@@ -1077,76 +1119,6 @@ class WC_Order_Data_Store_CPT extends Abstract_WC_Order_Data_Store_CPT implement
 	}
 
 	/**
-	 * Prime following caches:
-	 *  1. item-$order_item_id   For individual items.
-	 *  2. order-items-$order-id For fetching items associated with an order.
-	 *  3. order-item meta.
-	 *
-	 * @param array $order_ids  Order Ids to prime cache for.
-	 * @param array $query_vars Query vars for the query.
-	 */
-	private function prime_order_item_caches_for_orders( $order_ids, $query_vars ) {
-		global $wpdb;
-		if ( isset( $query_vars['fields'] ) && 'all' !== $query_vars['fields'] ) {
-			$line_items = array(
-				'line_items',
-				'shipping_lines',
-				'fee_lines',
-				'coupon_lines',
-			);
-
-			if ( is_array( $query_vars['fields'] ) && 0 === count( array_intersect( $line_items, $query_vars['fields'] ) ) ) {
-				return;
-			}
-		}
-		$cache_keys     = array_map(
-			function ( $order_id ) {
-				return 'order-items-' . $order_id;
-			},
-			$order_ids
-		);
-		$cache_values   = wc_cache_get_multiple( $cache_keys, 'orders' );
-		$non_cached_ids = array();
-		foreach ( $order_ids as $order_id ) {
-			if ( false === $cache_values[ 'order-items-' . $order_id ] ) {
-				$non_cached_ids[] = $order_id;
-			}
-		}
-		if ( empty( $non_cached_ids ) ) {
-			return;
-		}
-
-		$non_cached_ids        = esc_sql( $non_cached_ids );
-		$non_cached_ids_string = implode( ',', $non_cached_ids );
-		$order_items           = $wpdb->get_results(
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			"SELECT order_item_type, order_item_id, order_id, order_item_name FROM {$wpdb->prefix}woocommerce_order_items WHERE order_id in ( $non_cached_ids_string ) ORDER BY order_item_id;"
-		);
-		if ( empty( $order_items ) ) {
-			return;
-		}
-
-		$order_items_for_all_orders = array_reduce(
-			$order_items,
-			function ( $order_items_collection, $order_item ) {
-				if ( ! isset( $order_items_collection[ $order_item->order_id ] ) ) {
-					$order_items_collection[ $order_item->order_id ] = array();
-				}
-				$order_items_collection[ $order_item->order_id ][] = $order_item;
-				return $order_items_collection;
-			}
-		);
-		foreach ( $order_items_for_all_orders as $order_id => $items ) {
-			wp_cache_set( 'order-items-' . $order_id, $items, 'orders' );
-		}
-		foreach ( $order_items as $item ) {
-			wp_cache_set( 'item-' . $item->order_item_id, $item, 'order-items' );
-		}
-		$order_item_ids = wp_list_pluck( $order_items, 'order_item_id' );
-		update_meta_cache( 'order_item', $order_item_ids );
-	}
-
-	/**
 	 * Prime cache for raw meta data for orders in bulk. Difference between this and WP built-in metadata is that this method also fetches `meta_id` field which we use and cache it.
 	 *
 	 * @param array $order_ids  Order Ids to prime cache for.
@@ -1197,18 +1169,5 @@ class WC_Order_Data_Store_CPT extends Abstract_WC_Order_Data_Store_CPT implement
 			array()
 		);
 		WC_Order::prime_raw_meta_data_cache( $raw_meta_data_collection, 'orders' );
-	}
-
-	/**
-	 * Return the order type of a given item which belongs to WC_Order.
-	 *
-	 * @since  3.2.0
-	 * @param  WC_Order $order Order Object.
-	 * @param  int      $order_item_id Order item id.
-	 * @return string Order Item type
-	 */
-	public function get_order_item_type( $order, $order_item_id ) {
-		global $wpdb;
-		return $wpdb->get_var( $wpdb->prepare( "SELECT DISTINCT order_item_type FROM {$wpdb->prefix}woocommerce_order_items WHERE order_id = %d and order_item_id = %d;", $order->get_id(), $order_item_id ) );
 	}
 }

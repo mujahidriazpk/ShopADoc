@@ -1,7 +1,14 @@
 <?php
 namespace ElementorPro\Modules\AssetsManager\AssetTypes;
 
+use Elementor\Core\Admin\Menu\Admin_Menu_Manager;
+use Elementor\Utils;
+use ElementorPro\Core\Utils as Pro_Utils;
 use Elementor\Core\Common\Modules\Ajax\Module as Ajax;
+use ElementorPro\Core\Behaviors\Feature_Lock;
+use ElementorPro\License\API;
+use ElementorPro\Modules\AssetsManager\AssetTypes\AdminMenuItems\Custom_Fonts_Menu_Item;
+use ElementorPro\Modules\AssetsManager\AssetTypes\AdminMenuItems\Custom_Fonts_Promotion_Menu_Item;
 use ElementorPro\Modules\AssetsManager\Classes;
 use Elementor\Settings;
 
@@ -21,6 +28,10 @@ class Fonts_Manager {
 
 	const FONTS_NAME_TYPE_OPTION_NAME = 'elementor_fonts_manager_font_types';
 
+	const MENU_SLUG = 'edit.php?post_type=' . self::CPT;
+
+	const PROMOTION_MENU_SLUG = 'e-custom-fonts';
+
 	private $post_type_object;
 
 	private $taxonomy_object;
@@ -28,6 +39,8 @@ class Fonts_Manager {
 	private $enqueued_fonts = [];
 
 	protected $font_types = [];
+
+	private $has_fonts = null;
 
 	/**
 	 * get a font type object for a given type
@@ -65,15 +78,15 @@ class Fonts_Manager {
 		$labels = [
 			'name' => _x( 'Custom Fonts', 'CPT Name', 'elementor-pro' ),
 			'singular_name' => _x( 'Font', 'CPT Singular Name', 'elementor-pro' ),
-			'add_new' => __( 'Add New', 'elementor-pro' ),
-			'add_new_item' => __( 'Add New Font', 'elementor-pro' ),
-			'edit_item' => __( 'Edit Font', 'elementor-pro' ),
-			'new_item' => __( 'New Font', 'elementor-pro' ),
-			'all_items' => __( 'All Fonts', 'elementor-pro' ),
-			'view_item' => __( 'View Font', 'elementor-pro' ),
-			'search_items' => __( 'Search Font', 'elementor-pro' ),
-			'not_found' => __( 'No fonts found', 'elementor-pro' ),
-			'not_found_in_trash' => __( 'No fonts found in trash', 'elementor-pro' ),
+			'add_new' => esc_html__( 'Add New', 'elementor-pro' ),
+			'add_new_item' => esc_html__( 'Add New Font', 'elementor-pro' ),
+			'edit_item' => esc_html__( 'Edit Font', 'elementor-pro' ),
+			'new_item' => esc_html__( 'New Font', 'elementor-pro' ),
+			'all_items' => esc_html__( 'All Fonts', 'elementor-pro' ),
+			'view_item' => esc_html__( 'View Font', 'elementor-pro' ),
+			'search_items' => esc_html__( 'Search Font', 'elementor-pro' ),
+			'not_found' => esc_html__( 'No fonts found', 'elementor-pro' ),
+			'not_found_in_trash' => esc_html__( 'No fonts found in trash', 'elementor-pro' ),
 			'parent_item_colon' => '',
 			'menu_name' => _x( 'Custom Fonts', 'CPT Menu Name', 'elementor-pro' ),
 		];
@@ -96,18 +109,18 @@ class Fonts_Manager {
 		$taxonomy_labels = [
 			'name' => _x( 'Font Types', 'Font type taxonomy general name', 'elementor-pro' ),
 			'singular_name' => _x( 'Font Type', 'Font type singular name', 'elementor-pro' ),
-			'search_items' => __( 'Search Font Types', 'elementor-pro' ),
-			'popular_items' => __( 'Popular Font Types', 'elementor-pro' ),
-			'all_items' => __( 'All Font Types', 'elementor-pro' ),
-			'edit_item' => __( 'Edit Font Type', 'elementor-pro' ),
-			'update_item' => __( 'Update Font Type', 'elementor-pro' ),
-			'add_new_item' => __( 'Add New Font Type', 'elementor-pro' ),
-			'new_item_name' => __( 'New Font Type Name', 'elementor-pro' ),
-			'separate_items_with_commas' => __( 'Separate Font Types with commas', 'elementor-pro' ),
-			'add_or_remove_items' => __( 'Add or remove Font Types', 'elementor-pro' ),
-			'choose_from_most_used' => __( 'Choose from the most used Font Types', 'elementor-pro' ),
-			'not_found' => __( 'No Font Types found.', 'elementor-pro' ),
-			'menu_name' => __( 'Font Types', 'elementor-pro' ),
+			'search_items' => esc_html__( 'Search Font Types', 'elementor-pro' ),
+			'popular_items' => esc_html__( 'Popular Font Types', 'elementor-pro' ),
+			'all_items' => esc_html__( 'All Font Types', 'elementor-pro' ),
+			'edit_item' => esc_html__( 'Edit Font Type', 'elementor-pro' ),
+			'update_item' => esc_html__( 'Update Font Type', 'elementor-pro' ),
+			'add_new_item' => esc_html__( 'Add New Font Type', 'elementor-pro' ),
+			'new_item_name' => esc_html__( 'New Font Type Name', 'elementor-pro' ),
+			'separate_items_with_commas' => esc_html__( 'Separate Font Types with commas', 'elementor-pro' ),
+			'add_or_remove_items' => esc_html__( 'Add or remove Font Types', 'elementor-pro' ),
+			'choose_from_most_used' => esc_html__( 'Choose from the most used Font Types', 'elementor-pro' ),
+			'not_found' => esc_html__( 'No Font Types found.', 'elementor-pro' ),
+			'menu_name' => esc_html__( 'Font Types', 'elementor-pro' ),
 		];
 
 		$taxonomy_args = [
@@ -127,17 +140,17 @@ class Fonts_Manager {
 	public function post_updated_messages( $messages ) {
 		$messages[ self::CPT ] = [
 			0 => '', // Unused. Messages start at index 1.
-			1 => __( 'Font updated.', 'elementor-pro' ),
-			2 => __( 'Custom field updated.', 'elementor-pro' ),
-			3 => __( 'Custom field deleted.', 'elementor-pro' ),
-			4 => __( 'Font updated.', 'elementor-pro' ),
-			/* translators: %s: date and time of the revision */
-			5 => isset( $_GET['revision'] ) ? sprintf( __( 'Font restored to revision from %s', 'elementor-pro' ), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
-			6 => __( 'Font saved.', 'elementor-pro' ),
-			7 => __( 'Font saved.', 'elementor-pro' ),
-			8 => __( 'Font submitted.', 'elementor-pro' ),
-			9 => __( 'Font updated.', 'elementor-pro' ),
-			10 => __( 'Font draft updated.', 'elementor-pro' ),
+			1 => esc_html__( 'Font updated.', 'elementor-pro' ),
+			2 => esc_html__( 'Custom field updated.', 'elementor-pro' ),
+			3 => esc_html__( 'Custom field deleted.', 'elementor-pro' ),
+			4 => esc_html__( 'Font updated.', 'elementor-pro' ),
+			/* translators: %s: Date and time of the revision. */
+			5 => isset( $_GET['revision'] ) ? sprintf( esc_html__( 'Font restored to revision from %s', 'elementor-pro' ), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
+			6 => esc_html__( 'Font saved.', 'elementor-pro' ),
+			7 => esc_html__( 'Font saved.', 'elementor-pro' ),
+			8 => esc_html__( 'Font submitted.', 'elementor-pro' ),
+			9 => esc_html__( 'Font updated.', 'elementor-pro' ),
+			10 => esc_html__( 'Font draft updated.', 'elementor-pro' ),
 		];
 
 		return $messages;
@@ -165,7 +178,9 @@ class Fonts_Manager {
 				$options .= sprintf( '<option value="%s"%s>%s</option>' . "\n", $type, selected( $slug, $type, false ), $instance->get_name() );
 			}
 			?>
-			<select class="widefat" name="<?php echo esc_attr( $name ); ?>"><?php echo $options; ?></select>
+			<select class="widefat" name="<?php echo esc_attr( $name ); ?>">
+				<?php Utils::print_unescaped_internal_string( $options ); ?>
+			</select>
 		</div>
 		<?php
 	}
@@ -173,20 +188,36 @@ class Fonts_Manager {
 	/**
 	 * Add Font manager link to admin menu
 	 */
-	public function register_admin_menu() {
-		$menu_title = _x( 'Custom Fonts', 'Elementor Font', 'elementor-pro' );
-		add_submenu_page(
-			Settings::PAGE_ID,
-			$menu_title,
-			$menu_title,
-			self::CAPABILITY,
-			'edit.php?post_type=' . self::CPT
-		);
+	private function register_admin_menu( Admin_Menu_Manager $admin_menu_manager ) {
+		if ( $this->can_use_custom_fonts() ) {
+			$admin_menu_manager->register( static::MENU_SLUG, new Custom_Fonts_Menu_Item() );
+		} else {
+			$admin_menu_manager->register( static::PROMOTION_MENU_SLUG, new Custom_Fonts_Promotion_Menu_Item() );
+		}
+	}
+
+	private function can_use_custom_fonts() {
+		return ( API::is_license_active() || $this->has_fonts() );
+	}
+
+	private function has_fonts() {
+		if ( null !== $this->has_fonts ) {
+			return $this->has_fonts;
+		}
+
+		$existing_fonts = new \WP_Query( [
+			'post_type' => static::CPT,
+			'posts_per_page' => 1,
+		] );
+
+		$this->has_fonts = $existing_fonts->post_count > 0;
+
+		return $this->has_fonts;
 	}
 
 	public function redirect_admin_old_page_to_new() {
 		if ( ! empty( $_GET['page'] ) && 'elementor_custom_fonts' === $_GET['page'] ) {
-			wp_safe_redirect( admin_url( 'edit.php?post_type=' . self::CPT ) );
+			wp_safe_redirect( admin_url( static::MENU_SLUG ) );
 			die;
 		}
 	}
@@ -219,17 +250,17 @@ class Fonts_Manager {
 	 */
 	public function assets_manager_panel_action_data( array $data ) {
 		if ( empty( $data['type'] ) ) {
-			throw new \Exception( 'font_type_is_required' );
+			throw new \Exception( 'Font type is required.' );
 		}
 
 		if ( empty( $data['font'] ) ) {
-			throw new \Exception( 'font_is_required' );
+			throw new \Exception( 'Font is required.' );
 		}
 
 		$asset = $this->get_font_type_object( $data['type'] );
 
 		if ( ! $asset ) {
-			throw new \Exception( 'font_type_not_found' );
+			throw new \Exception( 'Font type not found.' );
 		}
 
 		try {
@@ -258,7 +289,7 @@ class Fonts_Manager {
 
 	public function update_enter_title_here( $title, $post ) {
 		if ( isset( $post->post_type ) && self::CPT === $post->post_type ) {
-			return __( 'Enter Font Family', 'elementor-pro' );
+			return esc_html__( 'Enter Font Family', 'elementor-pro' );
 		}
 
 		return $title;
@@ -294,8 +325,8 @@ class Fonts_Manager {
 	public function manage_columns( $columns ) {
 		return [
 			'cb' => '<input type="checkbox" />',
-			'title' => __( 'Font Family', 'elementor-pro' ),
-			'font_preview' => __( 'Preview', 'elementor-pro' ),
+			'title' => esc_html__( 'Font Family', 'elementor-pro' ),
+			'font_preview' => esc_html__( 'Preview', 'elementor-pro' ),
 		];
 	}
 
@@ -306,7 +337,7 @@ class Fonts_Manager {
 			$custom_fonts = $this->get_font_types();
 		}
 
-		return array_merge( $custom_fonts, $fonts );
+		return array_replace( $custom_fonts, $fonts );
 	}
 
 	public function register_fonts_groups( $font_groups ) {
@@ -316,7 +347,7 @@ class Fonts_Manager {
 			$new_groups[ $type ] = $instance->get_name();
 		}
 
-		return array_merge( $new_groups, $font_groups );
+		return array_replace( $new_groups, $font_groups );
 	}
 
 	/**
@@ -374,8 +405,8 @@ class Fonts_Manager {
 			if ( false === $font_type ) {
 				continue;
 			}
-			$font_types = array_merge( $font_types, $font_type->get_font_family_type( $font->ID, $font->post_title ) );
-			$new_fonts = array_merge( $new_fonts, $font_type->get_font_data( $font->ID, $font->post_title ) );
+			$font_types = array_replace( $font_types, $font_type->get_font_family_type( $font->ID, $font->post_title ) );
+			$new_fonts = array_replace( $new_fonts, $font_type->get_font_data( $font->ID, $font->post_title ) );
 		}
 
 		update_option( self::FONTS_NAME_TYPE_OPTION_NAME, $font_types );
@@ -411,7 +442,10 @@ class Fonts_Manager {
 		}
 
 		// Verify that the nonce is valid.
-		if ( ! wp_verify_nonce( $_POST[ self::CPT . '_nonce' ], self::CPT ) ) {
+		if ( ! wp_verify_nonce(
+			Pro_Utils::_unstable_get_super_global_value( $_POST, self::CPT . '_nonce' ),
+			self::CPT
+		) ) {
 			return $post_id;
 		}
 
@@ -422,7 +456,8 @@ class Fonts_Manager {
 		wp_set_object_terms( $post_id, $custom_font->get_type(), self::TAXONOMY );
 
 		// Let Font type handle saving
-		$custom_font->save_meta( $post_id, $_POST );
+		// Sanitize the whole $_POST array
+		$custom_font->save_meta( $post_id, Pro_Utils::_unstable_get_super_global_value( [ 'data' => $_POST ], 'data' ) );
 	}
 
 	/**
@@ -440,15 +475,15 @@ class Fonts_Manager {
 	 *
 	 * @return array|bool|mixed
 	 */
-	public function get_fonts( $force = false ) {
+	public function get_fonts() {
 		static $fonts = false;
-		if ( false !== $fonts && ! $force ) {
+
+		if ( false !== $fonts ) {
 			return $fonts;
 		}
 
-		if ( $force ) {
-			$fonts = $this->generate_fonts_list();
-		}
+		$fonts = $this->generate_fonts_list();
+
 		$fonts = get_option( self::FONTS_OPTION_NAME, false );
 
 		return $fonts;
@@ -490,11 +525,17 @@ class Fonts_Manager {
 
 	public function add_finder_item( array $categories ) {
 		$categories['settings']['items']['custom-fonts'] = [
-			'title' => __( 'Custom Fonts', 'elementor-pro' ),
+			'title' => esc_html__( 'Custom Fonts', 'elementor-pro' ),
 			'icon' => 'typography',
-			'url' => admin_url( 'edit.php?post_type=' . self::CPT ),
+			'url' => admin_url( static::MENU_SLUG ),
 			'keywords' => [ 'custom', 'fonts', 'elementor' ],
 		];
+
+		if ( ! $this->can_use_custom_fonts() ) {
+			$lock = new Feature_Lock( [ 'type' => 'custom-font' ] );
+
+			$categories['settings']['items']['custom-fonts']['lock'] = $lock->get_config();
+		}
 
 		return $categories;
 	}
@@ -507,10 +548,32 @@ class Fonts_Manager {
 
 		if ( is_admin() ) {
 			add_action( 'init', [ $this, 'redirect_admin_old_page_to_new' ] );
-			add_action( 'admin_menu', [ $this, 'register_admin_menu' ], 50 );
+
+			add_action( 'elementor/admin/menu/register', function ( Admin_Menu_Manager $admin_menu_manager ) {
+				$this->register_admin_menu( $admin_menu_manager );
+			} );
+
+			// TODO: BC - Remove after `Admin_Menu_Manager` will be the standard.
+			add_action( 'admin_menu', function () {
+				if ( did_action( 'elementor/admin/menu/register' ) ) {
+					return;
+				}
+
+				$menu_title = _x( 'Custom Fonts', 'Elementor Font', 'elementor-pro' );
+
+				add_submenu_page(
+					Settings::PAGE_ID,
+					$menu_title,
+					$menu_title,
+					self::CAPABILITY,
+					static::MENU_SLUG
+				);
+			}, 50 );
+
 			add_action( 'admin_head', [ $this, 'clean_admin_listing_page' ] );
 		}
 
+		// TODO: Maybe just ignore all of those when the user can't use custom fonts?
 		add_filter( 'post_row_actions', [ $this, 'post_row_actions' ], 10, 2 );
 		add_filter( 'manage_' . self::CPT . '_posts_columns', [ $this, 'manage_columns' ], 100 );
 		add_action( 'save_post_' . self::CPT, [ $this, 'save_post_meta' ], 10, 3 );

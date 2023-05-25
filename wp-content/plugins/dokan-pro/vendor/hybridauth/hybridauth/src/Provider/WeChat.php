@@ -82,11 +82,9 @@ class WeChat extends OAuth2
         unset($this->tokenExchangeParameters['client_id']);
         unset($this->tokenExchangeParameters['client_secret']);
 
-        if ($this->isRefreshTokenAvailable()) {
-            $this->tokenRefreshParameters += [
-                'appid' => $this->clientId,
-            ];
-        }
+        $this->tokenRefreshParameters += [
+            'appid' => $this->clientId
+        ];
 
         $this->apiRequestParameters = [
             'appid' => $this->clientId,

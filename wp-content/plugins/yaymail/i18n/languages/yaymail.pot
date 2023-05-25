@@ -2,15 +2,15 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: YayMail - WooCommerce Email Customizer\n"
-"POT-Creation-Date: 2021-12-23 16:30+0700\n"
-"PO-Revision-Date: 2021-12-23 16:27+0700\n"
+"POT-Creation-Date: 2023-03-15 15:29+0700\n"
+"PO-Revision-Date: 2023-03-15 15:28+0700\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
-"X-Generator: Poedit 3.0.1\n"
+"X-Generator: Poedit 3.2.2\n"
 "X-Poedit-Basepath: ../..\n"
 "X-Poedit-Flags-xgettext: --add-comments=translators:\n"
 "X-Poedit-WPHeader: yaymail.php\n"
@@ -20,143 +20,59 @@ msgstr ""
 "_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: *.min.js\n"
-"X-Poedit-SearchPathExcluded-1: apps\n"
-"X-Poedit-SearchPathExcluded-2: assets\n"
-"X-Poedit-SearchPathExcluded-3: views/templates/emails/email-order-details."
-"php\n"
 
 #: includes/Ajax.php:55
 msgid "Export successfully."
 msgstr ""
 
-#: includes/Ajax.php:165 includes/Ajax.php:244 includes/Ajax.php:340
-#: includes/Ajax.php:454 includes/Ajax.php:503 includes/Ajax.php:526
-#: includes/Ajax.php:713 includes/Ajax.php:744 includes/Helper/Helper.php:12
+#: includes/Ajax.php:167 includes/Ajax.php:246 includes/Ajax.php:351
+#: includes/Ajax.php:482 includes/Ajax.php:533 includes/Ajax.php:556
+#: includes/Ajax.php:728 includes/Ajax.php:759 includes/Helper/Helper.php:12
 msgid "Nonce is invalid"
 msgstr ""
 
-#: includes/Ajax.php:182
+#: includes/Ajax.php:184
 msgid "Plugin installation successful."
 msgstr ""
 
-#: includes/Ajax.php:252
+#: includes/Ajax.php:254
 msgid "Invalid email format!"
 msgstr ""
 
-#: includes/Ajax.php:282
+#: includes/Ajax.php:284
 msgid "Email has been sent."
 msgstr ""
 
-#: includes/Ajax.php:289 includes/Ajax.php:438 includes/Ajax.php:483
-#: includes/Ajax.php:486 includes/Ajax.php:584
+#: includes/Ajax.php:291 includes/Ajax.php:466 includes/Ajax.php:513
+#: includes/Ajax.php:516 includes/Ajax.php:599
 msgid "Template not Exists!."
 msgstr ""
 
-#: includes/Ajax.php:293
+#: includes/Ajax.php:295
 msgid "Error send mail!"
 msgstr ""
 
-#: includes/Ajax.php:436
+#: includes/Ajax.php:305
+msgid "Email Test"
+msgstr ""
+
+#: includes/Ajax.php:460
 msgid "Email has been saved."
 msgstr ""
 
-#: includes/Ajax.php:441 includes/Ajax.php:489
+#: includes/Ajax.php:469 includes/Ajax.php:519
 msgid "Error save data."
 msgstr ""
 
-#: includes/Ajax.php:478
+#: includes/Ajax.php:508
 msgid "Copied Template successfully."
 msgstr ""
 
-#: includes/Ajax.php:513 includes/Ajax.php:588
+#: includes/Ajax.php:543 includes/Ajax.php:603
 msgid "Error Reset Template!"
 msgstr ""
 
-#: includes/Ajax.php:535
-#: views/templates/emails/email-order-details-border.php:136
-#: views/templates/emails/email-order-item-download.php:16
-#: views/templates/emails/email-order-item-download.php:31
-#: views/templates/emails/email-order-items.php:26
-#: views/templates/emails/sampleOrder/email-order-details-border.php:27
-#: views/templates/emails/sampleOrder/email-order-details.php:23
-#: views/templates/emails/sampleOrder/email-order-item-download.php:16
-#: views/templates/emails/sampleOrder/email-order-item-download.php:28
-msgid "Product"
-msgstr ""
-
-#: includes/Ajax.php:536
-#: views/templates/emails/email-order-details-border.php:139
-#: views/templates/emails/sampleOrder/email-order-details-border.php:30
-#: views/templates/emails/sampleOrder/email-order-details.php:26
-msgid "Quantity"
-msgstr ""
-
-#: includes/Ajax.php:537 includes/Ajax.php:547
-#: views/templates/emails/email-order-details-border.php:142
-#: views/templates/emails/sampleOrder/email-order-details-border.php:33
-#: views/templates/emails/sampleOrder/email-order-details.php:29
-msgid "Price"
-msgstr ""
-
-#: includes/Ajax.php:538
-#: views/templates/emails/sampleOrder/email-order-details-border.php:51
-msgid "Subtotal:"
-msgstr ""
-
-#: includes/Ajax.php:539
-#: views/templates/emails/sampleOrder/email-order-details-border.php:59
-#: views/templates/emails/sampleOrder/email-order-details.php:49
-#: views/templates/emails/sampleOrder/email-order-details.php:68
-msgid "Payment method:"
-msgstr ""
-
-#: includes/Ajax.php:540
-#: views/templates/emails/email-order-details-border-content.php:78
-#: views/templates/emails/email-order-details-border-content.php:89
-#: views/templates/emails/email-order-details-border-content.php:100
-msgid "Order fully refunded."
-msgstr ""
-
-#: includes/Ajax.php:541
-#: views/templates/emails/sampleOrder/email-order-details-border.php:67
-#: views/templates/emails/sampleOrder/email-order-details.php:57
-#: views/templates/emails/sampleOrder/email-order-details.php:76
-msgid "Total:"
-msgstr ""
-
-#: includes/Ajax.php:542
-msgid "ID"
-msgstr ""
-
-#: includes/Ajax.php:543
-msgid "Start date"
-msgstr ""
-
-#: includes/Ajax.php:544
-msgid "End date"
-msgstr ""
-
-#: includes/Ajax.php:545
-msgid "Recurring total"
-msgstr ""
-
-#: includes/Ajax.php:546
-msgid "Subscription"
-msgstr ""
-
-#: includes/Ajax.php:548
-msgid "Last Order Date"
-msgstr ""
-
-#: includes/Ajax.php:549
-msgid "End of Prepaid Term"
-msgstr ""
-
-#: includes/Ajax.php:550
-msgid "Date Suspended"
-msgstr ""
-
-#: includes/Ajax.php:559 includes/Ajax.php:579
+#: includes/Ajax.php:572 includes/Ajax.php:593
 #: includes/Page/Source/DefaultElement.php:12
 #: includes/Templates/DefaultTemplate/CancelledOrder.php:30
 #: includes/Templates/DefaultTemplate/CustomOrderStastus.php:50
@@ -168,11 +84,12 @@ msgstr ""
 #: includes/Templates/DefaultTemplate/CustomerRefundedOrder.php:28
 #: includes/Templates/DefaultTemplate/FailedOrder.php:29
 #: includes/Templates/DefaultTemplate/NewOrder.php:27
+#: views/templates/emails/email-billing-shipping-address-title.php:13
 #: views/templates/emails/email-billing-shipping-address.php:21
 msgid "Shipping Address"
 msgstr ""
 
-#: includes/Ajax.php:560 includes/Ajax.php:580
+#: includes/Ajax.php:573 includes/Ajax.php:594
 #: includes/Page/Source/DefaultElement.php:13
 #: includes/Templates/DefaultTemplate/CancelledOrder.php:31
 #: includes/Templates/DefaultTemplate/CustomOrderStastus.php:51
@@ -184,39 +101,40 @@ msgstr ""
 #: includes/Templates/DefaultTemplate/CustomerRefundedOrder.php:29
 #: includes/Templates/DefaultTemplate/FailedOrder.php:30
 #: includes/Templates/DefaultTemplate/NewOrder.php:28
+#: views/templates/emails/email-billing-shipping-address-title.php:14
 #: views/templates/emails/email-billing-shipping-address.php:14
 msgid "Billing Address"
 msgstr ""
 
-#: includes/Ajax.php:572 includes/Ajax.php:582
+#: includes/Ajax.php:586 includes/Ajax.php:597
 msgid "Template reset successfully."
 msgstr ""
 
-#: includes/Ajax.php:691
+#: includes/Ajax.php:706
 msgid "Import Failed."
 msgstr ""
 
-#: includes/Ajax.php:693
+#: includes/Ajax.php:708
 msgid "Imported successfully."
 msgstr ""
 
-#: includes/Ajax.php:695
+#: includes/Ajax.php:710
 msgid "File not found."
 msgstr ""
 
-#: includes/Ajax.php:698
+#: includes/Ajax.php:713
 msgid "File not correct format."
 msgstr ""
 
-#: includes/Ajax.php:701
+#: includes/Ajax.php:716
 msgid "Please upload 1 file to import."
 msgstr ""
 
-#: includes/Ajax.php:728 includes/Ajax.php:752
+#: includes/Ajax.php:743 includes/Ajax.php:767
 msgid "Settings saved."
 msgstr ""
 
-#: includes/Ajax.php:730 includes/Ajax.php:754
+#: includes/Ajax.php:745 includes/Ajax.php:769
 msgid "Settings Failed!."
 msgstr ""
 
@@ -231,14 +149,555 @@ msgstr ""
 msgid "Read more details."
 msgstr ""
 
+#: includes/Helper/Helper.php:232 includes/Helper/Helper.php:259
+#: views/templates/emails/email-order-details-border.php:142
+#: views/templates/emails/email-order-details.php:144
+#: views/templates/emails/email-order-item-download.php:23
+#: views/templates/emails/email-order-items-preview.php:30
+#: views/templates/emails/email-order-items.php:30
+#: views/templates/emails/sampleOrder/email-order-details-border.php:27
+#: views/templates/emails/sampleOrder/email-order-details.php:27
+#: views/templates/emails/sampleOrder/email-order-item-download.php:23
+msgid "Product"
+msgstr ""
+
+#: includes/Helper/Helper.php:233
+msgid "Cost"
+msgstr ""
+
+#: includes/Helper/Helper.php:234
+#: views/templates/emails/email-order-details-border.php:145
+#: views/templates/emails/email-order-details.php:147
+#: views/templates/emails/sampleOrder/email-order-details-border.php:30
+#: views/templates/emails/sampleOrder/email-order-details.php:30
+msgid "Quantity"
+msgstr ""
+
+#: includes/Helper/Helper.php:235 includes/Helper/Helper.php:248
+#: views/templates/emails/email-order-details-border.php:148
+#: views/templates/emails/email-order-details.php:150
+#: views/templates/emails/sampleOrder/email-order-details-border.php:33
+#: views/templates/emails/sampleOrder/email-order-details.php:33
+msgid "Price"
+msgstr ""
+
+#: includes/Helper/Helper.php:236
+#: views/templates/emails/sampleOrder/email-order-details-border.php:51
+#: views/templates/emails/sampleOrder/email-order-details.php:51
+msgid "Subtotal:"
+msgstr ""
+
+#: includes/Helper/Helper.php:237
+msgid "Discount:"
+msgstr ""
+
+#: includes/Helper/Helper.php:238
+msgid "Shipping:"
+msgstr ""
+
+#: includes/Helper/Helper.php:239
+#: views/templates/emails/sampleOrder/email-order-details-border.php:59
+#: views/templates/emails/sampleOrder/email-order-details.php:59
+msgid "Payment method:"
+msgstr ""
+
+#: includes/Helper/Helper.php:240
+#: views/templates/emails/email-order-details-border-content.php:106
+#: views/templates/emails/email-order-details-border-content.php:115
+#: views/templates/emails/email-order-details-border-content.php:129
+#: views/templates/emails/email-order-details-border-content.php:146
+msgid "Order fully refunded."
+msgstr ""
+
+#: includes/Helper/Helper.php:241
+#: views/templates/emails/email-order-details-border.php:197
+#: views/templates/emails/email-order-details.php:200
+msgid "Note:"
+msgstr ""
+
+#: includes/Helper/Helper.php:242
+#: views/templates/emails/sampleOrder/email-order-details-border.php:67
+#: views/templates/emails/sampleOrder/email-order-details.php:67
+msgid "Total:"
+msgstr ""
+
+#: includes/Helper/Helper.php:243
+msgid "ID"
+msgstr ""
+
+#: includes/Helper/Helper.php:244
+msgid "Start date"
+msgstr ""
+
+#: includes/Helper/Helper.php:245
+msgid "End date"
+msgstr ""
+
+#: includes/Helper/Helper.php:246
+msgid "Recurring total"
+msgstr ""
+
+#: includes/Helper/Helper.php:247
+msgid "Subscription"
+msgstr ""
+
+#: includes/Helper/Helper.php:249
+msgid "Last Order Date"
+msgstr ""
+
+#: includes/Helper/Helper.php:250
+msgid "End of Prepaid Term"
+msgstr ""
+
+#: includes/Helper/Helper.php:251
+msgid "Date Suspended"
+msgstr ""
+
+#: includes/Helper/Helper.php:258
+msgid "Downloads"
+msgstr ""
+
+#: includes/Helper/Helper.php:260
+#: views/templates/emails/email-order-item-download.php:24
+#: views/templates/emails/sampleOrder/email-order-item-download.php:24
+msgid "Expires"
+msgstr ""
+
+#: includes/Helper/Helper.php:261
+#: views/templates/emails/email-order-item-download.php:25
+#: views/templates/emails/sampleOrder/email-order-item-download.php:25
+msgid "Download"
+msgstr ""
+
+#: includes/I18n.php:37
+msgid "ELEMENTS"
+msgstr ""
+
+#: includes/I18n.php:38
+msgid "SETTINGS"
+msgstr ""
+
+#: includes/I18n.php:39
+msgid "WooCommerce Email Customizer"
+msgstr ""
+
+#: includes/I18n.php:40 includes/I18n.php:78
+msgid "BACKGROUND COLOR"
+msgstr ""
+
+#: includes/I18n.php:41 includes/I18n.php:79
+msgid "Select Color"
+msgstr ""
+
+#: includes/I18n.php:42
+msgid "Basic"
+msgstr ""
+
+#: includes/I18n.php:43
+msgid "General"
+msgstr ""
+
+#: includes/I18n.php:44
+msgid "WooCommerce"
+msgstr ""
+
+#: includes/I18n.php:45
+msgid "DIRECTION RTL"
+msgstr ""
+
+#: includes/I18n.php:46
+msgid "CONTAINER WIDTH (PX)"
+msgstr ""
+
+#: includes/I18n.php:47
+msgid "Email width must be 480px (min) - 900px (max)"
+msgstr ""
+
+#: includes/I18n.php:48
+msgid "Please input container width!"
+msgstr ""
+
+#: includes/I18n.php:49
+msgid "DISPLAY PAYMENT INSTRUCTION AND DETAILS"
+msgstr ""
+
+#: includes/I18n.php:50
+msgid "Yes"
+msgstr ""
+
+#: includes/I18n.php:51
+msgid "No"
+msgstr ""
+
+#: includes/I18n.php:52
+msgid "Only for customer"
+msgstr ""
+
+#: includes/I18n.php:53
+msgid "SHOW PRODUCT IMAGE"
+msgstr ""
+
+#: includes/I18n.php:54
+msgid "PRODUCT IMAGE POSITION"
+msgstr ""
+
+#: includes/I18n.php:55
+msgid "IMAGE SIZE"
+msgstr ""
+
+#: includes/I18n.php:56
+msgid "Thumbnail"
+msgstr ""
+
+#: includes/I18n.php:57
+msgid "Full"
+msgstr ""
+
+#: includes/I18n.php:58
+msgid "IMAGE HEIGHT (PX)"
+msgstr ""
+
+#: includes/I18n.php:59
+msgid "Image height must be 30px (min) - 300px (max)"
+msgstr ""
+
+#: includes/I18n.php:60
+msgid "Please input imgage height!"
+msgstr ""
+
+#: includes/I18n.php:61
+msgid "IMAGE WIDTH (PX)"
+msgstr ""
+
+#: includes/I18n.php:62
+msgid "Image width must be 30px (min) - 300px (max)"
+msgstr ""
+
+#: includes/I18n.php:63
+msgid "Please input imgage width!"
+msgstr ""
+
+#: includes/I18n.php:64
+msgid "SHOW PRODUCT SKU"
+msgstr ""
+
+#: includes/I18n.php:65
+msgid "SHOW PRODUCT DESCRIPTION"
+msgstr ""
+
+#: includes/I18n.php:66
+msgid "SHOW PRODUCT HYPERLINKS"
+msgstr ""
+
+#: includes/I18n.php:67
+msgid "SHOW PRODUCT REGULAR PRICE"
+msgstr ""
+
+#: includes/I18n.php:68
+msgid "SHOW PRODUCT ITEM COST"
+msgstr ""
+
+#: includes/I18n.php:69
+msgid "CUSTOM CSS"
+msgstr ""
+
+#: includes/I18n.php:70
+msgid "Refresh"
+msgstr ""
+
+#: includes/I18n.php:71
+msgid "Cancel"
+msgstr ""
+
+#: includes/I18n.php:72
+msgid "Change email subject and form name"
+msgstr ""
+
+#: includes/I18n.php:73
+msgid "Click here"
+msgstr ""
+
+#: includes/I18n.php:74
+msgid "Please check again"
+msgstr ""
+
+#: includes/I18n.php:75
+msgid "Save"
+msgstr ""
+
+#: includes/I18n.php:76
+msgid ""
+"Please refresh page to apply Custom CSS. Make sure to save your changes "
+"before refreshing."
+msgstr ""
+
+#: includes/I18n.php:77
+msgid "Email Settings"
+msgstr ""
+
+#: includes/I18n.php:80
+msgid "EMAIL CONTENT BACKGROUND COLOR"
+msgstr ""
+
+#: includes/I18n.php:81
+msgid "Reset Default"
+msgstr ""
+
+#: includes/I18n.php:82
+msgid "TEXT LINK COLOR"
+msgstr ""
+
+#: includes/I18n.php:83
+msgid "Enable/Disable Templates"
+msgstr ""
+
+#: includes/I18n.php:84
+msgid "Reset Templates"
+msgstr ""
+
+#: includes/I18n.php:85
+msgid "RESET ALL TEMPLATES TO DEFAULT"
+msgstr ""
+
+#: includes/I18n.php:86
+msgid "Reset"
+msgstr ""
+
+#: includes/I18n.php:87
+msgid "Yes, sure!"
+msgstr ""
+
+#: includes/I18n.php:88
+msgid "All your saved template will be reset to default"
+msgstr ""
+
+#: includes/I18n.php:89
+msgid "Import/Export Templates"
+msgstr ""
+
+#: includes/I18n.php:90
+msgid "EXPORT"
+msgstr ""
+
+#: includes/I18n.php:91
+msgid "Export Templates"
+msgstr ""
+
+#: includes/I18n.php:92
+msgid "IMPORT TEMPLATES"
+msgstr ""
+
+#: includes/I18n.php:93
+msgid "Choose File1"
+msgstr ""
+
+#: includes/I18n.php:94 includes/I18n.php:120
+msgid "Import"
+msgstr ""
+
+#: includes/I18n.php:95
+msgid "No file chosen"
+msgstr ""
+
+#: includes/I18n.php:96
+msgid "BACK TO DASHBOARD"
+msgstr ""
+
+#: includes/I18n.php:97
+msgid "Sample order to show"
+msgstr ""
+
+#: includes/I18n.php:98
+msgid "Shortcodes"
+msgstr ""
+
+#: includes/I18n.php:99
+msgid "generals"
+msgstr ""
+
+#: includes/I18n.php:100
+msgid "order Details"
+msgstr ""
+
+#: includes/I18n.php:101
+msgid "shippings"
+msgstr ""
+
+#: includes/I18n.php:102
+msgid "billings"
+msgstr ""
+
+#: includes/I18n.php:103
+msgid "Vendor"
+msgstr ""
+
+#: includes/I18n.php:104
+msgid "payments"
+msgstr ""
+
+#: includes/I18n.php:105
+msgid "new users"
+msgstr ""
+
+#: includes/I18n.php:106
+msgid "reset password"
+msgstr ""
+
+#: includes/I18n.php:107
+msgid "ORDER TAXES"
+msgstr ""
+
+#: includes/I18n.php:108
+msgid "CUSTOM ORDER META"
+msgstr ""
+
+#: includes/I18n.php:109
+msgid "AUTOMATEWOO"
+msgstr ""
+
+#: includes/I18n.php:110
+msgid "Send Email"
+msgstr ""
+
+#: includes/I18n.php:111
+msgid "Email address for test"
+msgstr ""
+
+#: includes/I18n.php:112
+msgid "Yay! Email sent successfully."
+msgstr ""
+
+#: includes/I18n.php:113
+msgid "To send emails to inbox, we recommend:"
+msgstr ""
+
+#: includes/I18n.php:114
+msgid "YaySMTP – Simple WP SMTP Mail"
+msgstr ""
+
+#: includes/I18n.php:115
+msgid "Details"
+msgstr ""
+
+#: includes/I18n.php:116
+msgid "Free Install Now"
+msgstr ""
+
+#: includes/I18n.php:117
+msgid "Are you sure you want to leave?"
+msgstr ""
+
+#: includes/I18n.php:118
+msgid "Leave"
+msgstr ""
+
+#: includes/I18n.php:119
+msgid "Import template from"
+msgstr ""
+
+#: includes/I18n.php:121
+msgid "Copy From"
+msgstr ""
+
+#: includes/I18n.php:122
+msgid "Are you sure you want to reset this template?"
+msgstr ""
+
+#: includes/I18n.php:123
+msgid "All changes you made won't be saved."
+msgstr ""
+
+#: includes/I18n.php:124
+msgid "Preview"
+msgstr ""
+
+#: includes/I18n.php:125
+msgid "Email preview"
+msgstr ""
+
+#: includes/I18n.php:126
+msgid "Desktop preview"
+msgstr ""
+
+#: includes/I18n.php:127
+msgid "Mobile preview"
+msgstr ""
+
+#: includes/I18n.php:128
+msgid "Yay! You've made the right choice!"
+msgstr ""
+
+#: includes/I18n.php:129
+msgid "Get YayMail Pro"
+msgstr ""
+
+#: includes/I18n.php:130
+msgid "Unlock full features and premium support"
+msgstr ""
+
+#: includes/I18n.php:131
+msgid "Undo & Redo"
+msgstr ""
+
+#: includes/I18n.php:132
+msgid "Get recent editing actions and revisions"
+msgstr ""
+
+#: includes/I18n.php:133
+msgid "Compatible with 20+ third-party plugins"
+msgstr ""
+
+#: includes/I18n.php:134
+msgid "Custom Order Status"
+msgstr ""
+
+#: includes/I18n.php:135
+msgid "WooCommerce Shipment Tracking"
+msgstr ""
+
+#: includes/I18n.php:136
+msgid "Checkout Field Editor"
+msgstr ""
+
+#: includes/I18n.php:137
+msgid "WPML, Polylang, TranslatePress, and more!"
+msgstr ""
+
+#: includes/I18n.php:138
+msgid "Buy Now"
+msgstr ""
+
+#. translators: %s: param
+#: includes/License/EDD_SL_Plugin_Updater.php:272
+#, php-format
+msgid ""
+"There is a new version of %1$s available. %2$sView version %3$s details%4$s."
+msgstr ""
+
+#. translators: %s: param
+#: includes/License/EDD_SL_Plugin_Updater.php:281
+#, php-format
+msgid ""
+"There is a new version of %1$s available. %2$sView version %3$s details%4$s "
+"or %5$supdate now%6$s."
+msgstr ""
+
+#: includes/License/EDD_SL_Plugin_Updater.php:538
+msgid "You do not have permission to install plugin updates"
+msgstr ""
+
+#: includes/License/EDD_SL_Plugin_Updater.php:538
+msgid "Error"
+msgstr ""
+
 #. translators: woocommerce-pip.
-#: includes/MailBuilder/PIPTemplate.php:110
+#: includes/MailBuilder/PIPTemplate.php:113
 #, php-format
 msgid "[%1$s] Packing List for invoice %2$s - order %3$s from %4$s"
 msgstr ""
 
 #. translators: woocommerce-pip.
-#: includes/MailBuilder/PIPTemplate.php:146
+#: includes/MailBuilder/PIPTemplate.php:156
 #, php-format
 msgid "%d order"
 msgid_plural "%d orders"
@@ -246,207 +705,226 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: woocommerce-pip.
-#: includes/MailBuilder/PIPTemplate.php:149
+#: includes/MailBuilder/PIPTemplate.php:159
 #, php-format
 msgid "[%1$s] Pick List for %2$s"
 msgstr ""
 
 #. translators: woocommerce-pip.
-#: includes/MailBuilder/PIPTemplate.php:238
+#: includes/MailBuilder/PIPTemplate.php:252
 #, php-format
 msgid "[%1$s] Invoice %2$s for order %3$s from %4$s"
 msgstr ""
 
-#: includes/MailBuilder/Shortcodes.php:459
-#: includes/MailBuilder/Shortcodes.php:982
-#: includes/MailBuilder/Shortcodes.php:1204
+#: includes/MailBuilder/Shortcodes.php:529
+#: includes/MailBuilder/Shortcodes.php:1154
+#: includes/MailBuilder/Shortcodes.php:1412
 msgid "Click here to reset your password"
 msgstr ""
 
-#: includes/MailBuilder/Shortcodes.php:813
-#: includes/MailBuilder/Shortcodes.php:1160
+#: includes/MailBuilder/Shortcodes.php:969
+#: includes/MailBuilder/Shortcodes.php:1362
 msgid "Order"
 msgstr ""
 
-#: includes/MailBuilder/Shortcodes.php:835
-#: includes/MailBuilder/Shortcodes.php:1169
+#: includes/MailBuilder/Shortcodes.php:1000
+#: includes/MailBuilder/Shortcodes.php:1376
 msgid "Payment page"
 msgstr ""
 
-#: includes/MailBuilder/Shortcodes.php:1041
+#: includes/MailBuilder/Shortcodes.php:1216
 msgid "Your Order"
 msgstr ""
 
-#: includes/MailBuilder/Shortcodes.php:1168
+#: includes/MailBuilder/Shortcodes.php:1375
 #: views/templates/emails/email-order-details-border-before.php:54
-#: views/templates/emails/email-order-details-border.php:56
-#: views/templates/emails/sampleOrder/email-order-details-border-content.php:55
+#: views/templates/emails/email-order-details-border.php:59
+#: views/templates/emails/email-order-details.php:59
+#: views/templates/emails/email-order-payment-gateways.php:35
+#: views/templates/emails/sampleOrder/email-order-details-border-content.php:71
 #: views/templates/emails/sampleOrder/email-order-details-border.php:62
-#: views/templates/emails/sampleOrder/email-order-details.php:52
-#: views/templates/emails/sampleOrder/email-order-details.php:71
+#: views/templates/emails/sampleOrder/email-order-details.php:62
 msgid "Direct bank transfer"
 msgstr ""
 
-#: includes/MailBuilder/Shortcodes.php:1171
+#: includes/MailBuilder/Shortcodes.php:1378
+msgid "Payment Instructions"
+msgstr ""
+
+#: includes/MailBuilder/Shortcodes.php:1379
 msgid "Check payments"
 msgstr ""
 
-#: includes/MailBuilder/Shortcodes.php:1175
+#: includes/MailBuilder/Shortcodes.php:1383
 msgid "333"
 msgstr ""
 
-#: includes/MailBuilder/Shortcodes.php:1177
-#: includes/MailBuilder/Shortcodes.php:1178
+#: includes/MailBuilder/Shortcodes.php:1385
+#: includes/MailBuilder/Shortcodes.php:1386
 msgid "755 E North Grove Rd"
 msgstr ""
 
-#: includes/MailBuilder/Shortcodes.php:1179
+#: includes/MailBuilder/Shortcodes.php:1387
 msgid "Mayville, Michigan"
 msgstr ""
 
 #. Author of the plugin/theme
-#: includes/MailBuilder/Shortcodes.php:1180
-#: includes/MailBuilder/Shortcodes.php:1194
+#: includes/MailBuilder/Shortcodes.php:1388
+#: includes/MailBuilder/Shortcodes.php:1402
 msgid "YayCommerce"
 msgstr ""
 
-#: includes/MailBuilder/Shortcodes.php:1182
-#: includes/MailBuilder/Shortcodes.php:1183
-#: includes/MailBuilder/Shortcodes.php:1197
+#: includes/MailBuilder/Shortcodes.php:1390
+#: includes/MailBuilder/Shortcodes.php:1391
+#: includes/MailBuilder/Shortcodes.php:1405
 msgid "John"
 msgstr ""
 
-#: includes/MailBuilder/Shortcodes.php:1185
-#: includes/MailBuilder/Shortcodes.php:1200
+#: includes/MailBuilder/Shortcodes.php:1393
+#: includes/MailBuilder/Shortcodes.php:1408
 msgid "48744"
 msgstr ""
 
-#: includes/MailBuilder/Shortcodes.php:1186
-#: includes/MailBuilder/Shortcodes.php:1201
+#: includes/MailBuilder/Shortcodes.php:1394
+#: includes/MailBuilder/Shortcodes.php:1409
 msgid "Random"
 msgstr ""
 
-#: includes/MailBuilder/Shortcodes.php:1187
-#: includes/MailBuilder/Shortcodes.php:1199
+#: includes/MailBuilder/Shortcodes.php:1395
+#: includes/MailBuilder/Shortcodes.php:1407
 msgid "(910) 529-1147"
 msgstr ""
 
-#: includes/MailBuilder/Shortcodes.php:1191
-#: includes/MailBuilder/Shortcodes.php:1192
+#: includes/MailBuilder/Shortcodes.php:1399
+#: includes/MailBuilder/Shortcodes.php:1400
 msgid "7400 Edwards Rd"
 msgstr ""
 
-#: includes/MailBuilder/Shortcodes.php:1193
+#: includes/MailBuilder/Shortcodes.php:1401
 msgid "Edwards Rd"
 msgstr ""
 
-#: includes/MailBuilder/Shortcodes.php:1196
+#: includes/MailBuilder/Shortcodes.php:1404
 msgid "johndoe@gmail.com"
 msgstr ""
 
-#: includes/MailBuilder/Shortcodes.php:1198
+#: includes/MailBuilder/Shortcodes.php:1406
 msgid "Doe"
 msgstr ""
 
-#: includes/MailBuilder/Shortcodes.php:1208
+#: includes/MailBuilder/Shortcodes.php:1417
 msgid "G(UAM1(eIX#G"
 msgstr ""
 
-#: includes/MailBuilder/Shortcodes.php:1213
+#: includes/MailBuilder/Shortcodes.php:1422
 msgid "note"
 msgstr ""
 
-#: includes/MailBuilder/Shortcodes.php:1214
+#: includes/MailBuilder/Shortcodes.php:1423
 msgid "notes"
 msgstr ""
 
-#: includes/MailBuilder/Shortcodes.php:1215
+#: includes/MailBuilder/Shortcodes.php:1424
 msgid "provided note"
 msgstr ""
 
-#: includes/MailBuilder/Shortcodes.php:1236
+#: includes/MailBuilder/Shortcodes.php:1446
 msgid "yaymail_code"
 msgstr ""
 
-#: includes/MailBuilder/WooTemplate.php:161
+#. translators: none.
+#: includes/MailBuilder/WooTemplate.php:264
 #, php-format
 msgid "[%s] Password Reset"
 msgstr ""
 
-#: includes/Page/Settings.php:78
+#: includes/Page/Settings.php:90
 msgid "Customize with YayMail"
 msgstr ""
 
-#: includes/Page/Settings.php:102
+#: includes/Page/Settings.php:114
 msgid "View WooCommerce Email Builder"
 msgstr ""
 
-#: includes/Page/Settings.php:102
+#: includes/Page/Settings.php:114
 msgid "Start Customizing"
 msgstr ""
 
-#: includes/Page/Settings.php:104
+#: includes/Page/Settings.php:116
 msgid "Go Pro"
 msgstr ""
 
-#: includes/Page/Settings.php:110 includes/Page/Settings.php:111
+#: includes/Page/Settings.php:130 includes/Page/Settings.php:131
 msgid "Email Template"
 msgstr ""
 
-#: includes/Page/Settings.php:112
+#: includes/Page/Settings.php:132
 msgid "Add New Email Template"
 msgstr ""
 
-#: includes/Page/Settings.php:113
+#: includes/Page/Settings.php:133
 msgid "Add a new Email Template"
 msgstr ""
 
-#: includes/Page/Settings.php:114
+#: includes/Page/Settings.php:134
 msgid "Edit Email Template"
 msgstr ""
 
-#: includes/Page/Settings.php:115
+#: includes/Page/Settings.php:135
 msgid "New Email Template"
 msgstr ""
 
-#: includes/Page/Settings.php:116
+#: includes/Page/Settings.php:136
 msgid "View Email Template"
 msgstr ""
 
-#: includes/Page/Settings.php:117
+#: includes/Page/Settings.php:137
 msgid "Search Email Template"
 msgstr ""
 
-#: includes/Page/Settings.php:118
+#: includes/Page/Settings.php:138
 msgid "No Email Template found"
 msgstr ""
 
-#: includes/Page/Settings.php:119
+#: includes/Page/Settings.php:139
 msgid "No Email Template currently trashed"
 msgstr ""
 
-#: includes/Page/Settings.php:141
+#: includes/Page/Settings.php:161
 msgid "Email Builder Settings"
 msgstr ""
 
-#: includes/Page/Settings.php:141
+#: includes/Page/Settings.php:161
 msgid "Email Customizer"
 msgstr ""
 
-#: includes/Page/Settings.php:225 includes/Templates/Templates.php:63
+#: includes/Page/Settings.php:248 includes/Templates/Templates.php:63
 msgid "AutomateWoo Referrals Email"
 msgstr ""
 
-#: includes/Page/Source/DisplayAddonNotice.php:199
+#: includes/Page/Settings.php:489
+msgid "Custom Shortcode For "
+msgstr ""
+
+#: includes/Page/Settings.php:493
+msgid "Custom Shortcode"
+msgstr ""
+
+#: includes/Page/Source/DefaultElement.php:692
+#: views/templates/emails/additional-order-details.php:32
+msgid "Additional Order Details"
+msgstr ""
+
+#: includes/Page/Source/DisplayAddonNotice.php:203
 msgid ""
 "Recommend: You can use YayMail Addons to customize all email templates of:"
 msgstr ""
 
-#: includes/Page/Source/DisplayAddonNotice.php:210
+#: includes/Page/Source/DisplayAddonNotice.php:214
 msgid "See Addons"
 msgstr ""
 
-#: includes/Page/Source/DisplayAddonNotice.php:211
+#: includes/Page/Source/DisplayAddonNotice.php:215
 #: includes/Page/Source/DisplayNotice.php:26
 msgid "No, thanks"
 msgstr ""
@@ -704,95 +1182,104 @@ msgstr ""
 msgid "You've received the following order from "
 msgstr ""
 
-#: views/templates/emails/additional-order-details.php:32
-msgid "Additional Order Details"
+#: views/templates/emails/LatePoint/SampleTemplate/latepoint-booking-detail.php:11
+#: views/templates/emails/LatePoint/latepoint-booking-detail.php:33
+msgid "Booking Number:"
+msgstr ""
+
+#: views/templates/emails/LatePoint/SampleTemplate/latepoint-booking-detail.php:18
+#: views/templates/emails/LatePoint/latepoint-booking-detail.php:40
+msgid "Date/Tanggal"
+msgstr ""
+
+#: views/templates/emails/LatePoint/SampleTemplate/latepoint-booking-detail.php:21
+#: views/templates/emails/LatePoint/latepoint-booking-detail.php:43
+msgid "Time"
+msgstr ""
+
+#: views/templates/emails/LatePoint/SampleTemplate/latepoint-booking-detail.php:24
+#: views/templates/emails/LatePoint/latepoint-booking-detail.php:46
+msgid "Name/Nama"
+msgstr ""
+
+#: views/templates/emails/LatePoint/SampleTemplate/latepoint-booking-detail.php:27
+#: views/templates/emails/LatePoint/latepoint-booking-detail.php:49
+msgid "Adult"
+msgstr ""
+
+#: views/templates/emails/LatePoint/SampleTemplate/latepoint-booking-detail.php:31
+#: views/templates/emails/LatePoint/latepoint-booking-detail.php:53
+msgid "Child"
 msgstr ""
 
 #: views/templates/emails/email-order-details-border-before.php:12
 #: views/templates/emails/email-order-details-border.php:14
+#: views/templates/emails/email-order-details.php:14
+#: views/templates/emails/email-order-payment-gateways.php:12
 msgid "Cash on delivery"
 msgstr ""
 
 #: views/templates/emails/email-order-details-border-before.php:70
-#: views/templates/emails/email-order-details-border.php:72
+#: views/templates/emails/email-order-details-border.php:78
+#: views/templates/emails/email-order-details.php:78
+#: views/templates/emails/email-order-payment-gateways.php:41
 msgid "Our bank details"
-msgstr ""
-
-#: views/templates/emails/email-order-details-border-content.php:127
-#: views/templates/emails/email-order-details-border.php:191
-msgid "Note:"
 msgstr ""
 
 #. translators: %s: Order ID.
 #: views/templates/emails/email-order-details-border-title.php:16
 #: views/templates/emails/email-order-details-border-title.php:21
-#: views/templates/emails/email-order-details-border.php:121
-#: views/templates/emails/email-order-details-border.php:126
+#: views/templates/emails/email-order-details-border.php:127
+#: views/templates/emails/email-order-details-border.php:132
+#: views/templates/emails/email-order-details.php:128
+#: views/templates/emails/email-order-details.php:133
 #: views/templates/emails/sampleOrder/email-order-details-border-title.php:14
 #: views/templates/emails/sampleOrder/email-order-details-border.php:19
-#: views/templates/emails/sampleOrder/email-order-details.php:14
+#: views/templates/emails/sampleOrder/email-order-details.php:19
 #, php-format
 msgid "[Order #%s]"
 msgstr ""
 
-#: views/templates/emails/email-order-item-download-title.php:11
-msgid "Downloads"
-msgstr ""
-
-#: views/templates/emails/email-order-item-download.php:17
-#: views/templates/emails/email-order-item-download.php:34
-#: views/templates/emails/sampleOrder/email-order-item-download.php:17
-#: views/templates/emails/sampleOrder/email-order-item-download.php:31
-msgid "Expires"
-msgstr ""
-
-#: views/templates/emails/email-order-item-download.php:18
-#: views/templates/emails/email-order-item-download.php:37
-#: views/templates/emails/sampleOrder/email-order-item-download.php:18
-#: views/templates/emails/sampleOrder/email-order-item-download.php:34
-msgid "Download"
-msgstr ""
-
-#: views/templates/emails/email-order-item-download.php:67
+#: views/templates/emails/email-order-item-download.php:74
 msgid "Never"
 msgstr ""
 
-#: views/templates/emails/email-order-items.php:85
-#: views/templates/emails/email-order-items.php:90
+#: views/templates/emails/email-order-items-preview.php:162
+#: views/templates/emails/email-order-items-preview.php:168
+#: views/templates/emails/email-order-items-preview.php:170
+#: views/templates/emails/email-order-items.php:96
+#: views/templates/emails/email-order-items.php:101
 msgid "Product image"
 msgstr ""
 
-#: views/templates/emails/sampleOrder/email-order-details-border-content.php:32
-#: views/templates/emails/sampleOrder/email-order-details.php:37
+#: views/templates/emails/sampleOrder/email-order-details-border-content.php:43
 msgid "Happy YayCommerce"
 msgstr ""
 
-#: views/templates/emails/sampleOrder/email-order-details-border-content.php:37
-#: views/templates/emails/sampleOrder/email-order-details-border-content.php:47
-#: views/templates/emails/sampleOrder/email-order-details-border-content.php:63
-#: views/templates/emails/sampleOrder/email-order-details-border.php:45
-#: views/templates/emails/sampleOrder/email-order-details-border.php:54
-#: views/templates/emails/sampleOrder/email-order-details-border.php:70
-#: views/templates/emails/sampleOrder/email-order-details.php:43
-#: views/templates/emails/sampleOrder/email-order-details.php:60
-#: views/templates/emails/sampleOrder/email-order-details.php:79
-msgid "£18.00"
-msgstr ""
-
 #: views/templates/emails/sampleOrder/email-order-details-border.php:40
+#: views/templates/emails/sampleOrder/email-order-details.php:40
 msgid "Happy YayCommerce2"
 msgstr ""
 
-#: views/templates/emails/sampleOrder/email-order-item-download.php:41
+#: views/templates/emails/sampleOrder/email-order-details-border.php:45
+#: views/templates/emails/sampleOrder/email-order-details-border.php:54
+#: views/templates/emails/sampleOrder/email-order-details-border.php:70
+#: views/templates/emails/sampleOrder/email-order-details.php:45
+#: views/templates/emails/sampleOrder/email-order-details.php:54
+#: views/templates/emails/sampleOrder/email-order-details.php:70
+msgid "£18.00"
+msgstr ""
+
+#: views/templates/emails/sampleOrder/email-order-item-download.php:48
 msgid "Downloadable Product"
 msgstr ""
 
-#: views/templates/emails/sampleOrder/email-order-item-download.php:47
+#: views/templates/emails/sampleOrder/email-order-item-download.php:54
 msgid "Download.doc"
 msgstr ""
 
 #. translators: %s: search WooCommerce plugin link
-#: yaymail.php:78
+#: yaymail.php:83
 #, php-format
 msgid ""
 "is enabled but not effective. It requires %1$sWooCommerce%2$s in order to "

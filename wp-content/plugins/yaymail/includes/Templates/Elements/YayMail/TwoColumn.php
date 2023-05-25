@@ -26,7 +26,7 @@
 		  class="web-two-columns"
 		  align="left"
 		  style='font-size: 13px;  line-height: 22px; word-break: break-word;
-		  font-family: <?php echo wp_kses_post( $attrs['family'] ); ?>;
+		  font-family: <?php echo wp_kses_post( str_replace( '"', '', $attrs['family'] ) ); ?>;
 		  <?php echo esc_attr( 'color: ' . $attrs['textColor'] ); ?>;
 		  <?php echo esc_attr( 'max-width: ' . $general_attrs['tableWidth'] ); ?>;
 		  <?php echo esc_attr( 'padding: ' . $attrs['paddingTop'] . 'px ' . $attrs['paddingRight'] . 'px ' . $attrs['paddingBottom'] . 'px ' . $attrs['paddingLeft'] . 'px;' ); ?>;

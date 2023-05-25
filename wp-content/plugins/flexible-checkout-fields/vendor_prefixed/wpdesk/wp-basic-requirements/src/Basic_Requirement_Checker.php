@@ -442,7 +442,7 @@ if (!\class_exists('FcfVendor\\WPDesk_Basic_Requirement_Checker')) {
             if (\count($this->module_require) > 0) {
                 foreach ($this->module_require as $module_name => $nice_module_name) {
                     if (!self::is_module_active($module_name)) {
-                        $notices[] = $this->prepare_notice_message(\sprintf(\__('The &#8220;%s&#8221; plugin cannot run without %s php module installed. Please contact your host and ask them to install %s.', $this->get_text_domain()), \esc_html($this->plugin_name), \esc_html(\basename($nice_module_name)), \esc_html(\basename($nice_module_name))));
+                        $notices[] = $this->prepare_notice_message(\sprintf(\__('The &#8220;%s&#8221; plugin cannot run without %s PHP module installed. Please contact your host and ask them to install %s.', $this->get_text_domain()), \esc_html($this->plugin_name), \esc_html(\basename($nice_module_name)), \esc_html(\basename($nice_module_name))));
                     }
                 }
             }
@@ -467,7 +467,7 @@ if (!\class_exists('FcfVendor\\WPDesk_Basic_Requirement_Checker')) {
             if (\count($this->setting_require) > 0) {
                 foreach ($this->setting_require as $setting => $value) {
                     if (!self::is_setting_set($setting, $value)) {
-                        $notices[] = $this->prepare_notice_message(\sprintf(\__('The &#8220;%s&#8221; plugin cannot run without %s php setting set to %s. Please contact your host and ask them to set %s.', $this->get_text_domain()), \esc_html($this->plugin_name), \esc_html(\basename($setting)), \esc_html(\basename($value)), \esc_html(\basename($setting))));
+                        $notices[] = $this->prepare_notice_message(\sprintf(\__('The &#8220;%s&#8221; plugin cannot run without %s PHP setting set to %s. Please contact your host and ask them to set %s.', $this->get_text_domain()), \esc_html($this->plugin_name), \esc_html(\basename($setting)), \esc_html(\basename($value)), \esc_html(\basename($setting))));
                     }
                 }
             }

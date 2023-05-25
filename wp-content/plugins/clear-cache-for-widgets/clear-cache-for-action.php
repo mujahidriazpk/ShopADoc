@@ -115,6 +115,15 @@ function ccfm_acf_update_fields( $post_id, $post ) {
     }
 }
 
+/**
+ * Clear cache when Tablepress fields are updated
+ */
+function ccfm_tablepress_update_fields( $post_id, $post ) {
+    if ( $post->post_type == 'tablepress_table' ) {
+        ccfm_clear_cache_for_me( 'tablepress' );
+        remove_action( 'save_post', 'ccfm_tablepress_update_fields', 10, 2 );
+    }
+}
 
 /**
  * Add all urls to be purged and purge it in GoDaddy Cache.

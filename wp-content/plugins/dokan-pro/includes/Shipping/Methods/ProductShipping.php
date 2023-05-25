@@ -278,8 +278,8 @@ class ProductShipping extends WC_Shipping_Method {
                     $price[ $seller_id ]['add_product'] = 0;
                 }
 
-                $dps_country_rates = get_user_meta( $seller_id, '_dps_country_rates', true );
-                $dps_state_rates   = get_user_meta( $seller_id, '_dps_state_rates', true );
+                $dps_country_rates = (array) get_user_meta( $seller_id, '_dps_country_rates', true );
+                $dps_state_rates   = (array) get_user_meta( $seller_id, '_dps_state_rates', true );
 
                 if ( isset( $dps_state_rates[$destination_country] ) ) {
 

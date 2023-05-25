@@ -28,7 +28,8 @@ class Review {
         add_action( 'dokan_review_content_area_header', array( $this, 'dokan_review_header_render' ), 10 );
         add_action( 'dokan_review_content', array( $this, 'dokan_review_content_render' ), 10 );
         add_action( 'dokan_review_content_status_filter', array( $this, 'dokan_review_status_filter' ), 10, 2);
-        add_action( 'dokan_review_content_listing', array( $this, 'dokan_review_content_listing' ), 10, 2 );
+        add_action( 'dokan_review_content_listing', [ $this, 'review_content_listing' ], 10, 1 );
+        add_action( 'dokan_manage_reviews_form', [ $this, 'render_manage_reviews_form' ], 10, 1 );
         add_action( 'dokan_review_listing_table_body', array( $this, 'dokan_render_listing_table_body' ), 10 );
         add_action( 'dokan_review_content_inside_after', array( $this, 'dokan_render_listing_table_script_template' ), 10 );
         add_action( 'template_redirect', array( $this, 'handle_status' ), 10 );
@@ -251,34 +252,63 @@ class Review {
      * Render Review Listing content
      *
      * @since 2.4
+     * @since 3.7.13 Updated method name from 'dokan_review_content_listing' to 'review_content_listing'.
      *
-     * @param  string $post_type
-     * @param  object $counts
+     * @param string $post_type
      *
      * @return void
      */
-    public function dokan_review_content_listing( $post_type, $counts ) {
-        $this->show_comment_table( $post_type, $counts );
+    public function review_content_listing( $post_type ) {
+        if ( ! current_user_can( 'dokan_manage_reviews' ) && ! current_user_can( 'dokan_view_reviews' ) ) {
+            return;
+        }
+
+        $comment_status = 'all';
+        if ( isset( $_POST['dokan_comment_nonce'] ) && wp_verify_nonce( sanitize_key( wp_unslash( $_POST['dokan_comment_nonce'] ) ), 'dokan_comment_nonce_action' ) ) {
+            $comment_status = isset( $_POST['comment_status'] ) ? sanitize_text_field( wp_unslash( $_POST['comment_status'] ) ) : 'all';
+        }
+
+        dokan_get_template_part(
+            'review/listing', '', [
+                'pro'            => true,
+                'post_type'      => $post_type,
+                'comment_status' => $comment_status,
+                'manage_review'  => dokan_get_option( 'seller_review_manage', 'dokan_selling', 'on' ),
+            ]
+        );
+
+        echo $this->pagination( $post_type );
     }
 
     /**
-     * Show all comments in this form
+     * Show manage reviews form.
      *
-     * @since 2.4
+     * @since 3.7.13
      *
-     * @param string  $post_type
+     * @param string $comment_status
      *
      * @return void
      */
-    public function show_comment_table( $post_type, $counts ) {
-        $comment_status = isset( $_GET['comment_status'] ) ? $_GET['comment_status'] : 'all';
+    public function render_manage_reviews_form( $comment_status = 'all' ) {
 
-        dokan_get_template_part( 'review/listing', '', array(
-            'pro' => true,
-            'post_type' => $post_type,
-            'comment_status' => $comment_status,
-        ) );
-        echo $this->pagination( $post_type );
+        $comment_status = isset( $_GET['comment_status'] ) 
+            ? sanitize_text_field( $_GET['comment_status'] ) 
+            : $comment_status;
+
+        if ( dokan_get_option( 'seller_review_manage', 'dokan_selling', 'on' ) !== 'on' ) {
+            return;
+        }
+
+        if ( ! current_user_can( 'dokan_manage_reviews' ) ) {
+            return;
+        }
+
+        dokan_get_template_part(
+            'review/manage-reviews', '', [
+                'pro'            => true,
+                'comment_status' => $comment_status,
+            ]
+        );
     }
 
     /**
@@ -781,7 +811,7 @@ class Review {
                                 </a>
                                 <p>
                                     <strong itemprop="author"><?php echo $single_comment->comment_author; ?></strong>
-                                    <em class="verified"><?php echo $single_comment->user_id == 0 ? '(Guest)' : ''; ?></em>
+                                    <em class="verified"><?php echo $single_comment->user_id == 0 ? sprintf( '(%s)', __( 'Guest', 'dokan' ) ) : ''; ?></em>
                                     –
                                     <a href="<?php echo $permalink; ?>">
                                         <time datetime="<?php echo date( 'c', strtotime( $comment_date ) ); ?>" itemprop="datePublished"><?php echo $comment_date; ?></time>

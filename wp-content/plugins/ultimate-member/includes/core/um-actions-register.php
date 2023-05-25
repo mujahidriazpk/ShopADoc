@@ -51,13 +51,9 @@ add_action('um_post_registration_pending_hook', 'um_post_registration_pending_ho
  * @param $args
  */
 function um_after_insert_user( $user_id, $args ) {
-
 	if ( empty( $user_id ) || ( is_object( $user_id ) && is_a( $user_id, 'WP_Error' ) ) ) {
 		return;
 	}
-
-	//clear Users cached queue
-	UM()->user()->remove_cached_queue();
 
 	um_fetch_user( $user_id );
 	if ( ! empty( $args['submitted'] ) ) {
@@ -182,8 +178,11 @@ function um_check_user_status( $user_id, $args ) {
 		do_action( "track_{$status}_user_registration" );
 
 		if ( $status == 'approved' ) {
-
-			UM()->user()->auto_login( $user_id );
+			// Check if user is logged in because there can be the customized way when through 'um_registration_for_loggedin_users' hook the registration is enabled for the logged in users (e.g. Administrator).
+			if ( ! is_user_logged_in() ) {
+				// Custom way if 'um_registration_for_loggedin_users' hook after custom callbacks returns true. Then don't make auto-login because user is already logged-in.
+				UM()->user()->auto_login( $user_id );
+			}
 			UM()->user()->generate_profile_slug( $user_id );
 
 			/**
@@ -274,7 +273,7 @@ add_action( 'um_registration_complete', 'um_check_user_status', 100, 2 );
 
 function um_submit_form_errors_hook__registration( $args ) {
 	// Check for "\" in password.
-	if ( false !== strpos( wp_unslash( trim( $args['user_password'] ) ), '\\' ) ) {
+	if ( array_key_exists( 'user_password', $args ) && false !== strpos( wp_unslash( trim( $args['user_password'] ) ), '\\' ) ) {
 		UM()->form()->add_error( 'user_password', __( 'Passwords may not contain the character "\\".', 'ultimate-member' ) );
 	}
 }
@@ -431,17 +430,7 @@ function um_submit_form_register( $args ) {
 	//get user role from field Role dropdown or radio
 	if ( isset( $args['role'] ) ) {
 		global $wp_roles;
-		$um_roles = get_option( 'um_roles', array() );
-
-		if ( ! empty( $um_roles ) ) {
-			$role_keys = array_map( function( $item ) {
-				return 'um_' . $item;
-			}, $um_roles );
-		} else {
-			$role_keys = array();
-		}
-
-		$exclude_roles = array_diff( array_keys( $wp_roles->roles ), array_merge( $role_keys, array( 'subscriber' ) ) );
+		$exclude_roles = array_diff( array_keys( $wp_roles->roles ), UM()->roles()->get_editable_user_roles() );
 
 		//if role is properly set it
 		if ( ! in_array( $args['role'], $exclude_roles ) ) {

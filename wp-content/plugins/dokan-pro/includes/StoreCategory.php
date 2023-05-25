@@ -23,8 +23,9 @@ class StoreCategory {
             add_action( 'dokan_settings_after_store_name', array( $this, 'add_store_category_option' ) );
             add_action( 'dokan_seller_wizard_store_setup_after_address_field', array( $this, 'seller_wizard_add_store_category_option' ) );
             add_action( 'dokan_new_seller_created', array( $this, 'after_dokan_new_seller_created' ) );
+            add_action( 'dokan_new_vendor', array( $this, 'after_dokan_new_seller_created' ), 10, 1 );
+            add_action( 'user_register', array( $this, 'add_store_category_to_new_seller' ), 10, 2 );
             add_action( 'dokan_store_profile_saved', array( $this, 'after_store_profile_saved' ) );
-            add_action( 'dokan_store_profile_saved_via_rest', array( $this, 'after_store_profile_saved' ) );
             add_action( 'dokan_seller_wizard_store_field_save', array( $this, 'after_seller_wizard_store_field_save' ) );
             add_filter( 'dokan_vendor_shop_data', array( $this, 'add_store_categories_in_vendor_shop_data' ), 10, 2 );
             add_action( 'dokan_vendor_to_array', array( $this, 'add_store_categories_vendor_to_array' ), 10, 2 );
@@ -258,18 +259,27 @@ class StoreCategory {
      * @return array
      */
     public function add_store_categories_in_vendor_shop_data( $shop_info, $vendor ) {
+        $user_meta  = get_userdata( $vendor->id );
+        $user_roles = $user_meta->roles;
+
+        if ( ! $vendor->is_vendor() || in_array( 'shop_manager', $user_roles, true ) ) {
+            return $shop_info;
+        }
+
         $store_categories = wp_get_object_terms( $vendor->get_id(), 'store_category' );
 
         if ( empty( $store_categories ) ) {
-            dokan_set_store_categories( $vendor->get_id() );
+            $default_category_id   = dokan_get_default_store_category_id();
+            $default_category_term = get_term( $default_category_id, 'store_category' );
 
-            $store_categories = wp_get_object_terms( $vendor->get_id(), 'store_category' );
+            if ( is_wp_error( $default_category_term ) ) {
+                $store_categories = [];
+            } else {
+                $store_categories = [ $default_category_term ];
 
-            if ( empty( $store_categories ) ) {
-                return $shop_info;
+                // Set default store category to the user.
+                dokan_set_store_categories( $vendor->get_id(), [ $default_category_id ] );
             }
-
-            return $this->add_store_categories_in_vendor_shop_data( $shop_info, $vendor );
         }
 
         $shop_info['categories'] = $store_categories;
@@ -291,6 +301,38 @@ class StoreCategory {
         $data['categories'] = $vendor->get_categories();
 
         return $data;
+    }
+
+    /**
+     * Add store category to new seller.
+     *
+     * @since 3.7.17
+     *
+     * @param int   $user_id  User id
+     * @param array $userdata User data
+     *
+     * @return void
+     */
+    public function add_store_category_to_new_seller( $user_id, $userdata ) {
+        // Check if the user is seller or admin.
+        if ( ! in_array( $userdata['role'], [ 'seller', 'administrator' ], true ) ) {
+            return;
+        }
+
+        // Check if the seller has no assigned category.
+        if ( ! empty( wp_get_object_terms( $user_id, 'store_category' ) ) ) {
+            return;
+        }
+
+        $default_category_id   = dokan_get_default_store_category_id();
+        $default_category_term = get_term( $default_category_id, 'store_category' );
+
+        if ( is_wp_error( $default_category_term ) ) {
+            return;
+        }
+
+        // Set default store category to the user.
+        dokan_set_store_categories( $user_id, [ $default_category_id ] );
     }
 
     /**
@@ -390,11 +432,13 @@ class StoreCategory {
      */
     public function add_store_category_query_arg( $args, $request ) {
         if ( ! empty( $request['store_categories'] ) ) {
-            $args['store_category_query'][] = array(
+            $args['store_category_query'][] = [
                 'taxonomy' => 'store_category',
-                'field'    => 'slug',
-                'terms'    => $request['store_categories'],
-            );
+                'field'     => 'slug',
+                'terms'    => ! is_array( $request['store_categories'] )
+                    ? explode( ',', sanitize_text_field( wp_unslash( $request['store_categories'] ) ) )
+                    : array_map( 'sanitize_text_field', wp_unslash( $request['store_categories'] ) ),
+            ];
         }
 
         return $args;

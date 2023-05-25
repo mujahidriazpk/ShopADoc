@@ -2,6 +2,7 @@
 .wcmp-widget-playlist ul{margin: 0; padding: 0;}
 .wcmp-widget-playlist *{word-break:normal !important;}
 .controls-track .wcmp-widget-playlist-item{display: flex !important; align-items:center; line-height:normal;padding: 5px !important;clear:both;}
+.wcmp-classic-layout .wcmp-widget-playlist-item{padding-top:5px;padding-bottom:5px;}
 .wcmp-widget-playlist-item .mejs-controls{top: 0;}
 .wcmp-odd-product{background-color:#FAFAFA; border-top: 1px solid #DADADA; border-bottom: 1px solid #DADADA;}
 .wcmp-current-product{background-color:#FFFFD7;}

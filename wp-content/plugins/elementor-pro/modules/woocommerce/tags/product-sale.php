@@ -13,19 +13,24 @@ class Product_Sale extends Base_Tag {
 	}
 
 	public function get_title() {
-		return __( 'Product Sale', 'elementor-pro' );
+		return esc_html__( 'Product Sale', 'elementor-pro' );
 	}
 
-	protected function _register_controls() {
+	protected function register_controls() {
 		$this->add_control( 'text', [
-			'label' => __( 'Text', 'elementor-pro' ),
+			'label' => esc_html__( 'Text', 'elementor-pro' ),
 			'type' => Controls_Manager::TEXT,
-			'default' => __( 'Sale!', 'elementor-pro' ),
+			'default' => esc_html__( 'Sale!', 'elementor-pro' ),
 		] );
+
+		$this->add_product_id_control();
 	}
 
 	public function render() {
-		$product = wc_get_product();
+		$settings = $this->get_settings_for_display();
+
+		$product = $this->get_product( $settings['product_id'] );
+
 		if ( ! $product ) {
 			return;
 		}
@@ -33,9 +38,9 @@ class Product_Sale extends Base_Tag {
 		$value = '';
 
 		if ( $product->is_on_sale() ) {
-			$value = $this->get_settings( 'text' );
+			$value = $settings['text'];
 		}
 
-		echo $value;
+		echo wp_kses_post( $value );
 	}
 }

@@ -20,7 +20,7 @@ class Posts extends Posts_Base {
 	}
 
 	public function get_title() {
-		return __( 'Posts', 'elementor-pro' );
+		return esc_html__( 'Posts', 'elementor-pro' );
 	}
 
 	public function get_keywords() {
@@ -28,43 +28,70 @@ class Posts extends Posts_Base {
 	}
 
 	public function on_import( $element ) {
-		if ( ! get_post_type_object( $element['settings']['posts_post_type'] ) ) {
+		if ( isset( $element['settings']['posts_post_type'] ) && ! get_post_type_object( $element['settings']['posts_post_type'] ) ) {
 			$element['settings']['posts_post_type'] = 'post';
 		}
 
 		return $element;
 	}
 
-	protected function _register_skins() {
+	protected function register_skins() {
 		$this->add_skin( new Skins\Skin_Classic( $this ) );
 		$this->add_skin( new Skins\Skin_Cards( $this ) );
 		$this->add_skin( new Skins\Skin_Full_Content( $this ) );
 	}
 
-	protected function _register_controls() {
-		parent::_register_controls();
+	protected function register_controls() {
+		parent::register_controls();
 
 		$this->register_query_section_controls();
 		$this->register_pagination_section_controls();
 	}
 
-	public function query_posts() {
+	/**
+	 * Get Query Name
+	 *
+	 * Returns the query control name used in the widget's main query.
+	 *
+	 * @since 3.8.0
+	 *
+	 * @return string
+	 */
+	public function get_query_name() {
+		return $this->get_name();
+	}
 
+	public function query_posts() {
 		$query_args = [
-			'posts_per_page' => $this->get_current_skin()->get_instance_value( 'posts_per_page' ),
+			'posts_per_page' => $this->get_posts_per_page_value(),
 			'paged' => $this->get_current_page(),
 		];
 
 		/** @var Module_Query $elementor_query */
 		$elementor_query = Module_Query::instance();
-		$this->query = $elementor_query->get_query( $this, 'posts', $query_args, [] );
+		$this->query = $elementor_query->get_query( $this, $this->get_query_name(), $query_args, [] );
+	}
+
+	/**
+	 * Get Posts Per Page Value
+	 *
+	 * Returns the value of the Posts Per Page control of the widget. This method was created because in some cases,
+	 * the control is registered in the widget, and in some cases, it is registered in a widget skin.
+	 *
+	 * @since 3.8.0
+	 * @access protected
+	 *
+	 * @return mixed
+	 */
+	protected function get_posts_per_page_value() {
+		return $this->get_current_skin()->get_instance_value( 'posts_per_page' );
 	}
 
 	protected function register_query_section_controls() {
 		$this->start_controls_section(
 			'section_query',
 			[
-				'label' => __( 'Query', 'elementor-pro' ),
+				'label' => esc_html__( 'Query', 'elementor-pro' ),
 				'tab' => Controls_Manager::TAB_CONTENT,
 			]
 		);
@@ -82,5 +109,4 @@ class Posts extends Posts_Base {
 
 		$this->end_controls_section();
 	}
-
 }

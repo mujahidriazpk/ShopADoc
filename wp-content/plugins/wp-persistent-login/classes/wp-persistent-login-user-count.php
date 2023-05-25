@@ -61,7 +61,7 @@ class WP_Persistent_Login_User_Count extends WP_Persistent_Login_Admin {
         if( !isset($schedules['minutely']) ) {
             $schedules['minutely'] = array(
                 'interval' => 60,
-                'display' => __( 'Once every minute' )
+                'display' => __( 'Once every minute', 'wp-persistent-login' )
             );
         }
 
@@ -147,7 +147,7 @@ class WP_Persistent_Login_User_Count extends WP_Persistent_Login_Admin {
 			$current_role = str_replace('_', ' ', ucfirst($current_role));
 
             return sprintf(
-                __('User count is currently running. Figures below will update once the count has completed. The %s role is being counted now.', WPPL_TEXT_DOMAIN),
+                __('User count is currently running. Figures below will update once the count has completed. The %s role is being counted now.', 'wp-persistent-login' ),
                 $current_role
             );
 		
@@ -233,14 +233,13 @@ class WP_Persistent_Login_User_Count extends WP_Persistent_Login_Admin {
 
 		$user_count = $this->get_user_count(); 
 
-		$plural_user = ($user_count === 1) ? __('user', WPPL_TEXT_DOMAIN) : __('users', WPPL_TEXT_DOMAIN);
-		$is_or_are = ($user_count === 1) ? __('is ', WPPL_TEXT_DOMAIN) : __('are ', WPPL_TEXT_DOMAIN);
+		$plural_user = ($user_count === 1) ? __('user', 'wp-persistent-login' ) : __('users', 'wp-persistent-login' );
+		$is_or_are = ($user_count === 1) ? __('is ', 'wp-persistent-login' ) : __('are ', 'wp-persistent-login' );
 
 		return sprintf( 
 			__(
 				'<strong>%d %s</strong> %s being kept logged into your website.', 
-				WPPL_TEXT_DOMAIN
-			), 
+				 'wp-persistent-login' ), 
 			$user_count,
 			$plural_user,
 			$is_or_are
@@ -265,8 +264,7 @@ class WP_Persistent_Login_User_Count extends WP_Persistent_Login_Admin {
 		return sprintf( 
 			__(
 				'User count is currently running. The previous loggged in user count was %d.', 
-				WPPL_TEXT_DOMAIN
-			), 
+				 'wp-persistent-login' ), 
 			$user_count
 		); 
 
@@ -338,7 +336,7 @@ class WP_Persistent_Login_User_Count extends WP_Persistent_Login_Admin {
 		
 			<p>
 				<em>
-					<?php _e('Logins not counted yet.', WPPL_TEXT_DOMAIN); ?>
+					<?php _e('Logins not counted yet.', 'wp-persistent-login' ); ?>
 				</em>
 			</p>
 		
@@ -382,8 +380,7 @@ class WP_Persistent_Login_User_Count extends WP_Persistent_Login_Admin {
 
             return sprintf( 
                 __(
-                    'The previous logged in user count was: %d', WPPL_TEXT_DOMAIN
-                ), 
+                    'The previous logged in user count was: %d',  'wp-persistent-login' ), 
                 $last_count
             ); 
         
@@ -415,7 +412,7 @@ class WP_Persistent_Login_User_Count extends WP_Persistent_Login_Admin {
 				<p style="color: #9e9e9e;">
 					<?php 
 					printf( 
-						__('Next automated logged in count: Approximately %d hours', WPPL_TEXT_DOMAIN),
+						__('Next automated logged in count: Approximately %d hours', 'wp-persistent-login' ),
 						$next_count
 					); ?>
 				</p>

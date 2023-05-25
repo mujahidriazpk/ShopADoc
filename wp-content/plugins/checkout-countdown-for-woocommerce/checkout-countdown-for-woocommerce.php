@@ -2,13 +2,13 @@
 /**
  * Plugin Name:       Checkout Countdown for WooCommerce
  * Description:       A flexible WooCommerce cart/checkout countdown to help improve cart conversion.
- * Version:           3.1.6
+ * Version:           3.1.7
  * Author:            Puri.io
  * Author URI:        https://puri.io/
  * Text Domain:       checkout-countdown-for-woocommerce
  *
  * WC requires at least: 3.0
- * WC tested up to: 6.2
+ * WC tested up to: 6.6
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -85,7 +85,7 @@ class CCFWOO_Init {
 
 		$this->constants = array(
 			'name'           => 'Checkout Countdown for WooCommerce',
-			'version'        => '3.1.6',
+			'version'        => '3.1.7',
 			'prefix'         => 'ccfwoo',
 			'admin_page'     => 'checkout-countdown',
 			'slug'           => plugin_basename( __FILE__, ' . php' ),

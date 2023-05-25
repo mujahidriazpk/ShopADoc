@@ -31,9 +31,9 @@
 				>
 				  <a
 					href="<?php echo esc_attr( $attrs['pathUrl'] ); ?>"
-					class="web-button"
-					style='line-height: 21px;text-align: center; text-decoration: none; margin: 0px; float: left; width: 100%;
-					<?php echo 'font-family: ' . wp_kses_post( $attrs['family'] ); ?>;
+					class="yaymail-web-button"
+					style='line-height: 21px;text-align: center; text-decoration: none; margin: 0px;
+					<?php echo 'font-family: ' . wp_kses_post( str_replace( '"', '', $attrs['family'] ) ); ?>;
 					<?php echo esc_attr( 'background-color: ' . $attrs['buttonBackgroundColor'] ); ?>;
 					<?php echo esc_attr( 'font-size: ' . $attrs['fontSize'] . 'px' ); ?>;
 					<?php echo esc_attr( 'color: ' . $attrs['textColor'] ); ?>;

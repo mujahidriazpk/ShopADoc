@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly
 }
 
+use WC_Germanized_Meta_Box_Product_Data;
+
 /**
  * Class Helper
  * @package WeDevs\DokanPro\Modules\Germanized
@@ -371,5 +373,90 @@ class Helper {
                 [ $vendor_id, $current_order_id ]
             )
         );
+    }
+
+    /**
+     * This method will save simple product Eu compliance fields data.
+     *
+     * @since 3.7.13
+     *
+     * @param int   $post_id
+     * @param array $data
+     *
+     * @return void
+     */
+    public static function save_simple_product_eu_data( $post_id, $data ) {
+        $product = WC_Germanized_Meta_Box_Product_Data::save( $post_id );
+
+        if ( isset( $data['_ts_gtin'] ) ) {
+            $product = wc_ts_set_crud_data( $product, '_ts_gtin', wc_clean( wp_unslash( $data['_ts_gtin'] ) ) );
+        }
+
+        if ( isset( $data['_ts_mpn'] ) ) {
+            $product = wc_ts_set_crud_data( $product, '_ts_mpn', wc_clean( wp_unslash( $data['_ts_mpn'] ) ) );
+        }
+
+        if ( is_object( $product ) ) {
+            $product->save();
+        }
+    }
+
+    /**
+     * Saves eu-fields for variable products variations.
+     *
+     * Call this after sanitizing and formatting the values.
+     *
+     * @since 3.7.13
+     *
+     * @param integer $variation_id Product variation id.
+     * @param array   $data {
+     *     Eu-fields data for variation products.
+     *
+     *     @type integer $_unit_product             Product Units.
+     *     @type string  $_unit_price_auto          Calculation.
+     *     @type integer $_unit_price_regular       Regular Unit Price.
+     *     @type string  $_sale_price_label         Sale Label.
+     *     @type string  $_sale_price_regular_label Sale Regular Label.
+     *     @type integer $_unit_price_sale          Sale Unit Price.
+     *     @type integer $_parent_unit_product
+     *     @type string  $_parent_unit
+     *     @type integer $_parent_unit_base
+     *     @type string  $_mini_desc                Optional Mini Description.
+     *     @type string  $_service
+     *     @type string  $delivery_time             Delivery Time.
+     *     @type integer $_min_age                  Minimum Age .
+     *     @type string  $_sale_price_dates_from
+     *     @type string  $_sale_price_dates_to
+     *     @type string  $_sale_price
+     * }
+     * @param array   $store_trusted_data {
+     *     Trusted store data.
+     *
+     *     @type string $_ts_gtin GITN
+     *     @type string $_ts_mpn  MPN
+     * }
+     *
+     * @return void
+     */
+    public static function save_variable_products_variations_eu_data( $variation_id, $data, $store_trusted_data ) {
+        // get the product
+        $product = wc_get_product( $variation_id );
+        if ( ! $product ) {
+            return;
+        }
+
+        $product_parent       = wc_get_product( $product->get_parent_id() );
+        $data['product-type'] = $product_parent->get_type();
+
+
+        WC_Germanized_Meta_Box_Product_Data::save_product_data( $product, $data, true );
+
+        foreach ( $store_trusted_data as $key => $value ) {
+            $germanized_product = wc_ts_set_crud_data( $product, $key, $value );
+        }
+
+        if ( is_object( $germanized_product ) ) {
+            $germanized_product->save();
+        }
     }
 }

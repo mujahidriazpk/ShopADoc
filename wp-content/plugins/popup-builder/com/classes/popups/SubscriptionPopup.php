@@ -312,7 +312,7 @@ class SubscriptionPopup extends SGPopup
 			),
 			'style' => array('width' => isset($inputWidth)? $inputWidth :''),
 			'label' => $gdprLabel,
-			'text' => $this->getFieldValue('sgpb-subs-gdpr-text'),
+			'text' => wp_kses($this->getFieldValue('sgpb-subs-gdpr-text'), AdminHelper::allowed_html_tags(false)),
 			'errorMessageBoxStyles' => isset($inputStyles['width'])?$inputStyles['width']:''
 		);
 		/* GDPR checkbox */

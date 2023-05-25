@@ -8,16 +8,18 @@ use WPDesk\FCF\Free\Settings\Option\DisplayOnOption;
 use WPDesk\FCF\Free\Settings\Option\EnabledOption;
 use WPDesk\FCF\Free\Settings\Option\FormattingWcOption;
 use WPDesk\FCF\Free\Settings\Option\LabelOption;
+use WPDesk\FCF\Free\Settings\Option\LogicAdvOption;
 use WPDesk\FCF\Free\Settings\Option\NameOption;
 use WPDesk\FCF\Free\Settings\Option\OptionInterface;
 use WPDesk\FCF\Free\Settings\Option\PriorityOption;
 use WPDesk\FCF\Free\Settings\Option\RequiredWcHiddenOption;
 use WPDesk\FCF\Free\Settings\Option\ValidationInfoOption;
-use WPDesk\FCF\Free\Settings\Option\ValidationWcOption;
+use WPDesk\FCF\Free\Settings\Option\ValidationOption;
 use WPDesk\FCF\Free\Settings\Tab\AdvancedTab;
 use WPDesk\FCF\Free\Settings\Tab\AppearanceTab;
 use WPDesk\FCF\Free\Settings\Tab\DisplayTab;
 use WPDesk\FCF\Free\Settings\Tab\GeneralTab;
+use WPDesk\FCF\Free\Settings\Tab\LogicTab;
 
 /**
  * {@inheritdoc}
@@ -79,7 +81,7 @@ class WcCountryType extends TypeAbstract {
 				NameOption::FIELD_NAME             => new NameOption(),
 			],
 			AdvancedTab::TAB_NAME   => [
-				ValidationWcOption::FIELD_NAME   => new ValidationWcOption(),
+				ValidationOption::FIELD_NAME     => new ValidationOption(),
 				ValidationInfoOption::FIELD_NAME => new ValidationInfoOption(),
 			],
 			AppearanceTab::TAB_NAME => [
@@ -88,6 +90,9 @@ class WcCountryType extends TypeAbstract {
 			DisplayTab::TAB_NAME    => [
 				DisplayOnOption::FIELD_NAME    => new DisplayOnOption(),
 				FormattingWcOption::FIELD_NAME => new FormattingWcOption(),
+			],
+			LogicTab::TAB_NAME      => [
+				LogicAdvOption::FIELD_NAME => new LogicAdvOption(),
 			],
 		];
 	}

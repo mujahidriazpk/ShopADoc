@@ -18,8 +18,8 @@ class ADVERTISER_PAST_RUN_List extends WP_List_Table {
 	public function __construct() {
 
 		parent::__construct( [
-			'singular' => __( 'ADVERTISER PAST RUN', 'sp' ), //singular name of the listed records
-			'plural'   => __( 'ADVERTISERS PAST RUN', 'sp' ), //plural name of the listed records
+			'singular' => __( 'PAST RUNS', 'sp' ), //singular name of the listed records
+			'plural'   => __( 'PAST RUNS', 'sp' ), //plural name of the listed records
 			'ajax'     => false //does this table support ajax?
 		] );
 
@@ -456,8 +456,8 @@ class SP_Plugin_ADVERTISER_PAST_RUN {
 	public function plugin_menu() {
 
 		$hook = add_menu_page(
-			'Past Run',
-			'Past Run',
+			'PAST RUNS',
+			'PAST RUNS',
 			'shopadoc_admin_cap',
 			'ADVERTISER_PAST_RUN',
 			[ $this, 'plugin_settings_page' ]
@@ -476,7 +476,7 @@ class SP_Plugin_ADVERTISER_PAST_RUN {
 		?>
 
 <div class="wrap">
-  <h2 class="not_print">ADVERTISERS<br /><span style="font-weight:normal">Past Runs</span></h2>
+  <h2 class="not_print">PAST RUNS<!--ADVERTISERS<br /><span style="font-weight:normal">Past Runs</span>--></h2>
   <script type="text/javascript" src="<?php echo get_template_directory_uri(); ?>-child/autosuggest/js/bsn.AutoSuggest_2.1.3.js" charset="utf-8"></script>
   <link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>-child/autosuggest/css/autosuggest_inquisitor.css" type="text/css" />
   <!--<link rel="stylesheet" href="<?php echo get_template_directory_uri();?>-child/jQuery-Validation-Engine/css/validationEngine.jquery.css" type="text/css"/>
@@ -513,6 +513,22 @@ function submitUser(){
 }
 </script>
  <style type="text/css">
+	 #toplevel_page_admin-page-ADS a.menu-top{
+			background: #2271b1 !important;
+			color: #fff !important;
+			}
+			#toplevel_page_admin-page-ADS a.menu-top:after {
+			right: 0;
+			border: solid 8px transparent;
+			content: " ";
+			height: 0;
+			width: 0;
+			position: absolute;
+			pointer-events: none;
+			border-right-color: #f0f0f1;
+			top: 50%;
+			margin-top: -8px;
+			}
  .form-table th {
 	padding:4px 0 !important;
 }
@@ -520,7 +536,7 @@ function submitUser(){
 	padding:5px 10px !important;
 }
 .wp-core-ui select {
-	width:75%;
+	width:65%;
 }
 .containerMain {
 	/*border: solid 1px #000;*/
@@ -1342,8 +1358,9 @@ input[type="file"]:focus, input[type="radio"]:focus, input[type="checkbox"]:focu
 	$query = "SELECT * FROM wp_posts where post_author = '".$user->ID."'and (post_status = 'publish' or post_status = 'future') and post_type = 'advanced_ads' and ( post_title like '% ".$_POST['type']."%' or post_excerpt = '".$_POST['type']."' ) ORDER BY ID ASC";
 	
 	$query = "SELECT option_name FROM `wp_options` where option_value = '".$post_id."' ORDER BY option_id desc limit 1";
-	$option_name = $wpdb->get_var($query);
+	$option_name = $wpdb->get_var($query);	
 	if($option_name !=''){
+		$option_name = str_replace('old_','',$option_name);
 		$tmp = explode("_",$option_name);
 		$position = str_replace("position","",$tmp[0]);
 		$col = str_replace("col","",$tmp[1]);

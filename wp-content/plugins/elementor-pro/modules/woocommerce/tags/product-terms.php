@@ -13,7 +13,7 @@ class Product_Terms extends Base_Tag {
 	}
 
 	public function get_title() {
-		return __( 'Product Terms', 'elementor-pro' );
+		return esc_html__( 'Product Terms', 'elementor-pro' );
 	}
 
 	protected function register_advanced_section() {
@@ -22,12 +22,12 @@ class Product_Terms extends Base_Tag {
 		$this->update_control(
 			'before',
 			[
-				'default' => __( 'Categories', 'elementor-pro' ) . ': ',
+				'default' => esc_html__( 'Categories', 'elementor-pro' ) . ': ',
 			]
 		);
 	}
 
-	protected function _register_controls() {
+	protected function register_controls() {
 		$taxonomy_filter_args = [
 			'show_in_nav_menus' => true,
 			'object_type' => [ 'product' ],
@@ -44,7 +44,7 @@ class Product_Terms extends Base_Tag {
 		$this->add_control(
 			'taxonomy',
 			[
-				'label' => __( 'Taxonomy', 'elementor-pro' ),
+				'label' => esc_html__( 'Taxonomy', 'elementor-pro' ),
 				'type' => Controls_Manager::SELECT,
 				'options' => $options,
 				'default' => 'product_cat',
@@ -54,23 +54,26 @@ class Product_Terms extends Base_Tag {
 		$this->add_control(
 			'separator',
 			[
-				'label' => __( 'Separator', 'elementor-pro' ),
+				'label' => esc_html__( 'Separator', 'elementor-pro' ),
 				'type' => Controls_Manager::TEXT,
 				'default' => ', ',
 			]
 		);
+
+		$this->add_product_id_control();
 	}
 
 	public function render() {
-		$product = wc_get_product();
+		$settings = $this->get_settings_for_display();
+
+		$product = $this->get_product( $settings['product_id'] );
+
 		if ( ! $product ) {
 			return;
 		}
 
-		$settings = $this->get_settings();
+		$value = get_the_term_list( $product->get_id(), $settings['taxonomy'], '', $settings['separator'] );
 
-		$value = get_the_term_list( get_the_ID(), $settings['taxonomy'], '', $settings['separator'] );
-
-		echo $value;
+		echo wp_kses_post( $value );
 	}
 }

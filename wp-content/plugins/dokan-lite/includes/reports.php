@@ -60,6 +60,8 @@ if ( ! function_exists( 'dokan_get_order_report_data' ) ) :
 				$get_key = "order_item_meta_{$key}.meta_value";
 			} elseif ( $value['type'] == 'order_item' ) {
 				$get_key = "order_items.{$key}";
+			} elseif ( $value['type'] == 'dokan_orders' ) {
+				$get_key = "do.{$key}";
 			}
 
 			if ( $value['function'] ) {
@@ -85,7 +87,7 @@ if ( ! function_exists( 'dokan_get_order_report_data' ) ) :
 				$joins['order_items'] = "LEFT JOIN {$wpdb->prefix}woocommerce_order_items AS order_items ON posts.ID = order_items.order_id";
 				$joins[ "order_item_meta_{$key}" ] = "LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta AS order_item_meta_{$key} ON order_items.order_item_id = order_item_meta_{$key}.order_item_id";
 			} elseif ( $value['type'] == 'order_item' ) {
-				$joins['order_items'] = "LEFT JOIN {$wpdb->prefix}woocommerce_order_items AS order_items ON posts.ID = order_id";
+				$joins['order_items'] = "LEFT JOIN {$wpdb->prefix}woocommerce_order_items AS order_items ON posts.ID = order_items.order_id";
 			}
 		}
 
@@ -98,7 +100,7 @@ if ( ! function_exists( 'dokan_get_order_report_data' ) ) :
 				$key = is_array( $value['meta_key'] ) ? $value['meta_key'][0] : $value['meta_key'];
 
 				if ( isset( $value['type'] ) && $value['type'] == 'order_item_meta' ) {
-					$joins['order_items'] = "LEFT JOIN {$wpdb->prefix}woocommerce_order_items AS order_items ON posts.ID = order_id";
+					$joins['order_items'] = "LEFT JOIN {$wpdb->prefix}woocommerce_order_items AS order_items ON posts.ID = order_items.order_id";
 					$joins[ "order_item_meta_{$key}" ] = "LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta AS order_item_meta_{$key} ON order_items.order_item_id = order_item_meta_{$key}.order_item_id";
 				} else {
 					// If we have a where clause for meta, join the postmeta table
@@ -113,7 +115,7 @@ if ( ! function_exists( 'dokan_get_order_report_data' ) ) :
         WHERE   posts.post_type     = 'shop_order'
         AND     posts.post_status   != 'trash'
         AND     do.seller_id = {$current_user}
-        AND     do.order_status IN ('" . implode( "','", apply_filters( 'woocommerce_reports_order_statuses', array( 'wc-completed', 'wc-processing', 'wc-on-hold' ) ) ) . "')
+        AND     do.order_status IN ('" . implode( "','", esc_sql( apply_filters( 'woocommerce_reports_order_statuses', array( 'wc-completed', 'wc-processing', 'wc-on-hold' ) ) ) ) . "')
         ";
 
 		if ( $filter_range && ! empty( $start_date ) && ! empty( $end_date ) ) {
@@ -219,7 +221,7 @@ if ( ! function_exists( 'dokan_get_order_report_data' ) ) :
 		$query_hash = md5( $query_type . $query );
 
 		if ( $debug ) {
-			error_log( '<pre>%s</pre>', print_r( $query, true ) );
+			error_log( sprintf( '<pre>%s</pre>', print_r( $query, true ) ) );
 		}
 
         $cache_group = "report_data_seller_{$current_user}";
@@ -257,8 +259,9 @@ if ( ! function_exists( 'dokan_dashboard_sales_overview' ) ) :
 	 * @return void
 	 */
 	function dokan_dashboard_sales_overview() {
-		$start_date = date( 'Y-m-01', current_time( 'timestamp' ) );
-		$end_date   = date( 'Y-m-d', strtotime( 'midnight', current_time( 'timestamp' ) ) );
+        $now        = dokan_current_datetime();
+        $start_date = $now->modify( 'first day of this month' )->modify( 'today' )->format( 'Y-m-d' );
+        $end_date   = $now->modify( 'today' )->format( 'Y-m-d' );
 
 		dokan_sales_overview_chart_data( $start_date, $end_date, 'day' );
 	}
@@ -273,30 +276,25 @@ if ( ! function_exists( 'dokan_sales_overview_chart_data' ) ) :
 	 *
 	 * @since 1.0
 	 *
-	 * @global type $wp_locale
-	 * @param type $start_date
-	 * @param type $end_date
-	 * @param type $group_by
+	 * @param string $start_date
+	 * @param string $end_date
+	 * @param string $group_by
+     *
+     * @return void
 	 */
 	function dokan_sales_overview_chart_data( $start_date, $end_date, $group_by ) {
 		global $wp_locale;
 
-		$start_date_to_time = strtotime( $start_date );
-		$end_date_to_time   = strtotime( $end_date );
+        $now                = dokan_current_datetime();
+		$start_date_to_time = $now->modify( $start_date )->getTimestamp();
+		$end_date_to_time   = $now->modify( $end_date )->getTimestamp();
+        $chart_interval     = dokan_get_interval_between_dates( $start_date_to_time, $end_date_to_time, $group_by );
 
-		if ( $group_by == 'day' ) {
+		if ( $group_by === 'day' ) {
 			$group_by_query       = 'YEAR(post_date), MONTH(post_date), DAY(post_date)';
-			$chart_interval       = ceil( max( 0, ( $end_date_to_time - $start_date_to_time ) / ( 60 * 60 * 24 ) ) );
 			$barwidth             = 60 * 60 * 24 * 1000;
 		} else {
 			$group_by_query = 'YEAR(post_date), MONTH(post_date)';
-			$chart_interval = 0;
-			$min_date             = $start_date_to_time;
-
-			while ( ( $min_date   = strtotime( '+1 MONTH', $min_date ) ) <= $end_date_to_time ) {
-				$chart_interval ++;
-			}
-
 			$barwidth = 60 * 60 * 24 * 7 * 4 * 1000;
 		}
 
@@ -352,7 +350,7 @@ if ( ! function_exists( 'dokan_sales_overview_chart_data' ) ) :
     <script type="text/javascript">
         jQuery(function($) {
 
-            var order_data = jQuery.parseJSON( '<?php echo wp_json_encode( $chart_data ); ?>' );
+            var order_data = JSON.parse( '<?php echo wp_json_encode( $chart_data ); ?>' );
             var isRtl = '<?php echo is_rtl() ? '1' : '0'; ?>';
             var series = [
                 {

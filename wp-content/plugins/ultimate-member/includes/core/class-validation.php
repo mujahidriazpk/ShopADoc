@@ -95,8 +95,10 @@ if ( ! class_exists( 'um\core\Validation' ) ) {
 					isset( $fields[ $key ]['custom_dropdown_options_source'] ) &&
 					! empty( $fields[ $key ]['custom_dropdown_options_source'] ) &&
 					function_exists( $fields[ $key ]['custom_dropdown_options_source'] ) ) {
-					$arr_options = call_user_func( $fields[ $key ]['custom_dropdown_options_source'] );
-					$fields[ $key ]['options'] = array_keys( $arr_options );
+					if ( ! UM()->fields()->is_source_blacklisted( $fields[ $key ]['custom_dropdown_options_source'] ) ) {
+						$arr_options = call_user_func( $fields[ $key ]['custom_dropdown_options_source'] );
+						$fields[ $key ]['options'] = array_keys( $arr_options );
+					}
 				}
 				
 				// Unset changed value that doesn't match the option list

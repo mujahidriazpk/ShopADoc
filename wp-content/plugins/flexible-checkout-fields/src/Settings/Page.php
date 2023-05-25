@@ -217,7 +217,7 @@ class Page implements Hookable, HookablePluginDependant {
 			'select_empty'            => __( 'No options.', 'flexible-checkout-fields' ),
 			'alert_field_unavailable' => sprintf(
 			/* translators: %1$s: break line, %2$s: anchor opening tag, %3$s: anchor closing tag */
-				__( 'This field is available in the PRO version.%1$s %2$sUpgrade to PRO%3$s', 'flexible-checkout-fields' ),
+				__( 'This field is available in the PRO version. %1$s %2$sUpgrade to PRO%3$s', 'flexible-checkout-fields' ),
 				'<br>',
 				'<a href="' . esc_url( apply_filters( 'flexible_checkout_fields/short_url', '#', 'fcf-settings-field-type-upgrade' ) ) . '" target="_blank" class="fcfArrowLink">',
 				'</a>'

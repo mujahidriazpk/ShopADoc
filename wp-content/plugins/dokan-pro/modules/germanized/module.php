@@ -13,6 +13,7 @@ use WeDevs\DokanPro\Modules\Germanized\CustomFields\SingleStore;
 use WeDevs\DokanPro\Modules\Germanized\CustomFields\UserProfile;
 use WeDevs\DokanPro\Modules\Germanized\Dashboard\Product;
 use WeDevs\DokanPro\Modules\Germanized\Dashboard\WCPDF;
+use WeDevs\DokanPro\Modules\Germanized\SettingsApi\Store;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly
@@ -29,7 +30,19 @@ class Module {
      */
     public function __construct() {
         $this->define();
+        $this->initiate();
         $this->hooks();
+    }
+
+    /**
+     * Initiate all classes
+     *
+     * @since 3.7.13
+     *
+     * @return void
+     */
+    public function initiate() {
+        new BlockData();
     }
 
     /**
@@ -115,6 +128,9 @@ class Module {
 
         // load user profile custom fields
         $this->container['cf_user_profile'] = new UserProfile();
+
+        // load settings api store page fields.
+        new Store();
     }
 
     /**

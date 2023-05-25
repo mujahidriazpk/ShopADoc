@@ -71,8 +71,34 @@ class Wp_Terms_Popup_Public
     public function enqueue_scripts()
     {
         if (get_option('termsopt_javascript') == 1) {
-            wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__).'js/wp-terms-popup-ajaxhandler.js', ['jquery'], $this->version, false);
-            wp_localize_script($this->plugin_name, 'wptp_ajax_object', ['ajaxurl' => admin_url('admin-ajax.php'), 'ajax_nonce' => wp_create_nonce('wptp-ajaxhandler-nonce')]);
+            wp_enqueue_script($this->plugin_name.'-ajax', plugin_dir_url(__FILE__).'js/wp-terms-popup-ajaxhandler.js', ['jquery'], $this->version, false);
+            wp_localize_script($this->plugin_name.'-ajax', 'wptp_ajax_object', ['ajaxurl' => admin_url('admin-ajax.php'), 'ajax_nonce' => wp_create_nonce('wptp-ajaxhandler-nonce')]);
+        }
+
+        $enqueue_age_verification = false;
+        $termspageid = '';
+
+        if (get_option('termsopt_sitewide') == 1) {
+            $termspageid = get_option('termsopt_page');
+            $currentpostid = get_the_ID();
+            $disabled = get_post_meta($currentpostid, 'terms_disablepop', true);
+
+            if (!$termspageid || $termspageid == '' || (!is_home() && !is_archive() && $disabled == 1)) {
+                // 
+            } else {
+                $enqueue_age_verification = get_post_meta($termspageid, 'terms_age_on', true);
+            }
+        } elseif (get_option('termsopt_sitewide') <> 1) {
+            $currentpostid = get_the_ID();
+            $enabled = get_post_meta($currentpostid, 'terms_enablepop', true);
+
+            if ($enabled == 1) {
+                $termspageid = get_post_meta($currentpostid, 'terms_selectedterms', true);
+            }
+        }
+
+        if ($termspageid != '' && get_post_meta($termspageid, 'terms_age_on', true)) {
+            wp_enqueue_script($this->plugin_name.'-age-verification', plugin_dir_url(__FILE__).'js/wp-terms-popup-age-verification.js', ['jquery'], $this->version, true);
         }
     }
 
@@ -252,6 +278,7 @@ class Wp_Terms_Popup_Public
         }
 
         echo '<div id="wp-terms-popup-after-content"'.($terms_buttons_always_visible == 1 ? ' class="sticky"' : '').'>';
+        $this->age_verification($termspageid);
         include 'partials/wp-terms-popup-public-popup-buttons.php';
         echo '</div>';
     }
@@ -368,16 +395,17 @@ class Wp_Terms_Popup_Public
         if (function_exists('wptp_collector_check')) {
             $wptp_collector_match_found = wptp_collector_check($termspageid);
         }
-       //Mujahid code
+
+        //Mujahid code
         if (get_option('termsopt_javascript') != 1 && isset($_POST['wptp_agree']) || (isset($_COOKIE[$wptp_cookie]) && $_COOKIE[$wptp_cookie] == 'accepted') || $wptp_collector_match_found == true && 1==2) {
             // DO NOT DISPLAY POPUP, USE THIS FOR FUTURE FEATURES
-        } else {
+        }else{
             include_once ABSPATH.'wp-admin/includes/plugin.php';
 
             if (is_plugin_active('wp-terms-popup-pro/index.php')) {
                 include ABSPATH.'wp-content/plugins/wp-terms-popup-pro/terms-pro.php';
             } else {
-              	//Mujahid code
+                //Mujahid code
                 include ABSPATH.'wp-content/themes/dokan-child/wp-terms-popup/partials/wp-terms-popup-public-popup.php';
             }
         }
@@ -426,5 +454,77 @@ class Wp_Terms_Popup_Public
         }
 
         return $popup_content;
+    }
+
+    /**
+     * Age Verification content.
+     *
+     * @since    2.6.0
+     */
+    private function age_verification($popup_id)
+    {
+        $terms_age_on = get_post_meta($popup_id, 'terms_age_on', true);
+        $terms_age_requirement = get_post_meta($popup_id, 'terms_age_requirement', true);
+        $terms_age_requirement = (metadata_exists('post', $popup_id, 'terms_age_requirement') ? get_post_meta($popup_id, 'terms_age_requirement', true) : 18);
+        $terms_age_date_format = (metadata_exists('post', $popup_id, 'terms_age_date_format') ? get_post_meta($popup_id, 'terms_age_date_format', true) : 'Y-M-D');
+
+        if ($terms_age_on == 1) {
+            $date_format = explode('-', $terms_age_date_format);
+
+            $current_date = new DateTime(current_time('Y-m-d'));
+            $target_date = $current_date->modify('-'.$terms_age_requirement.' year')->format('Y-m-d');
+
+            $targets = [
+                'Y' => date('Y', strtotime($target_date)),
+                'M' => date('m', strtotime($target_date)),
+                'D' => date('d', strtotime($target_date)),
+            ];
+
+            $columns = [];
+
+            foreach ($date_format as $df) {
+                switch ($df) {
+                    case 'D':
+                        $columns[$df]['label'] = __('Day');
+                        $columns[$df]['target'] = $targets[$df];
+                        for ($d = 1; $d <= 31; $d++) {
+                            $columns[$df]['options'][] = [
+                                'label' => $d,
+                                'value' => ($d < 10 ? '0'.$d : $d),
+                            ];
+                        }
+
+                        break;
+
+                    case 'M':
+                        $columns[$df]['label'] = __('Month');
+                        $columns[$df]['target'] = $targets[$df];
+                        for ($m = 1; $m <= 12; $m++) {
+                            $dt = DateTime::createFromFormat('!m', $m);
+
+                            $columns[$df]['options'][] = [
+                                'label' => __($dt->format('F')),
+                                'value' => ($m < 10 ? '0'.$m : $m),
+                            ];
+                        }
+
+                        break;
+
+                    case 'Y':
+                        $columns[$df]['label'] = __('Year');
+                        $columns[$df]['target'] = $targets[$df];
+                        for ($y = date('Y'); $y >= date('Y') - 100; $y--) {
+                            $columns[$df]['options'][] = [
+                                'label' => $y,
+                                'value' => $y,
+                            ];
+                        }
+
+                        break;
+                }
+            }
+
+            include 'partials/wp-terms-popup-public-age-verification.php';
+        }
     }
 }

@@ -10,7 +10,7 @@ require_once ANALYTIFY_LIB_PATH . "Google/Model.php";
 class Analytify_Google_Collection extends Analytify_Google_Model implements Iterator, Countable
 {
   protected $collection_key = 'items';
-
+  #[\ReturnTypeWillChange]
   public function rewind()
   {
     if (isset($this->modelData[$this->collection_key])
@@ -18,7 +18,8 @@ class Analytify_Google_Collection extends Analytify_Google_Model implements Iter
       reset($this->modelData[$this->collection_key]);
     }
   }
-
+  
+  #[\ReturnTypeWillChange]
   public function current()
   {
     $this->coerceType($this->key());
@@ -27,6 +28,7 @@ class Analytify_Google_Collection extends Analytify_Google_Model implements Iter
     }
   }
 
+  #[\ReturnTypeWillChange]
   public function key()
   {
     if (isset($this->modelData[$this->collection_key])
@@ -34,18 +36,21 @@ class Analytify_Google_Collection extends Analytify_Google_Model implements Iter
       return key($this->modelData[$this->collection_key]);
     }
   }
-
+  
+  #[\ReturnTypeWillChange]
   public function next()
   {
     return next($this->modelData[$this->collection_key]);
   }
 
+  #[\ReturnTypeWillChange]
   public function valid()
   {
     $key = $this->key();
     return $key !== null && $key !== false;
   }
 
+  #[\ReturnTypeWillChange]
   public function count()
   {
     return count($this->modelData[$this->collection_key]);

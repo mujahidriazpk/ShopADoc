@@ -112,7 +112,7 @@ if ( ! function_exists( 'dokan_page_navi' ) ) :
             $start_page = 1;
         }
 
-        echo $before . '<div class="dokan-pagination-container"><ul class="dokan-pagination">';
+        echo wp_kses_post( $before ) . '<div class="dokan-pagination-container"><ul class="dokan-pagination">';
         if ( $paged > 1 ) {
             $first_page_text = '&laquo;';
             echo '<li class="prev"><a href="' . esc_url( get_pagenum_link() ) . '" title="First">' . esc_html( $first_page_text ) . '</a></li>';
@@ -138,11 +138,11 @@ if ( ! function_exists( 'dokan_page_navi' ) ) :
         echo '</li>';
 
         if ( $end_page < $max_page ) {
-            $last_page_text = '&rarr;';
+            $last_page_text = '&raquo;';
             echo '<li class="next"><a href="' . esc_url( get_pagenum_link( $max_page ) ) . '" title="Last">' . esc_html( $last_page_text ) . '</a></li>';
         }
 
-        echo '</ul></div>' . $after . ''; //phpcs:ignore WordPress.XSS.EscapeOutput.OutputNotEscaped
+        echo '</ul></div>' . wp_kses_post( $after );
     }
 
 endif;
@@ -176,14 +176,16 @@ function dokan_product_dashboard_errors() {
 }
 
 function dokan_product_listing_status_filter() {
-    $_get_data = wp_unslash( $_GET ); //phpcs:ignore
-
     $permalink         = dokan_get_navigation_url( 'products' );
-    $status_class      = isset( $_get_data['post_status'] ) ? $_get_data['post_status'] : 'all';
+    $status_class      = 'all';
     $post_counts       = dokan_count_posts( 'product', dokan_get_current_user_id() );
     $instock_counts    = dokan_count_stock_posts( 'product', dokan_get_current_user_id(), 'instock' );
     $outofstock_counts = dokan_count_stock_posts( 'product', dokan_get_current_user_id(), 'outofstock' );
     $statuses          = dokan_get_post_status();
+
+    if ( isset( $_GET['_product_listing_filter_nonce'], $_GET['post_status'] ) && wp_verify_nonce( sanitize_key( wp_unslash( $_GET['_product_listing_filter_nonce'] ) ), 'product_listing_filter' ) ) {
+        $status_class = sanitize_text_field( wp_unslash( $_GET['post_status'] ) );
+    }
 
     dokan_get_template_part(
         'products/listing-status-filter', '', array(
@@ -198,13 +200,11 @@ function dokan_product_listing_status_filter() {
 }
 
 function dokan_order_listing_status_filter() {
-    $_get_data = wp_unslash( $_GET ); //phpcs:ignore
-
     $orders_url = dokan_get_navigation_url( 'orders' );
 
-    $status_class         = isset( $_get_data['order_status'] ) ? $_get_data['order_status'] : 'all';
+    $status_class         = 'all';
     $orders_counts        = dokan_count_orders( dokan_get_current_user_id() );
-    $order_date           = ( isset( $_get_data['order_date'] ) ) ? $_get_data['order_date'] : '';
+    $order_date           = '';
     $date_filter          = array();
     $all_order_url        = array();
     $complete_order_url   = array();
@@ -215,6 +215,11 @@ function dokan_order_listing_status_filter() {
     $refund_order_url     = array();
     $failed_order_url     = array();
     $filter_nonce         = wp_create_nonce( 'seller-order-filter-nonce' );
+
+    if ( isset( $_GET['seller_order_filter_nonce'] ) && wp_verify_nonce( sanitize_key( wp_unslash( $_GET['seller_order_filter_nonce'] ) ), 'seller-order-filter-nonce' ) ) {
+        $status_class = isset( $_GET['order_status'] ) ? sanitize_text_field( wp_unslash( $_GET['order_status'] ) ) : $status_class;
+        $order_date   = isset( $_GET['order_date'] ) ? sanitize_text_field( wp_unslash( $_GET['order_date'] ) ) : $order_date;
+    }
     ?>
 
     <ul class="list-inline order-statuses-filter">
@@ -226,13 +231,13 @@ function dokan_order_listing_status_filter() {
                     'dokan_order_filter' => 'Filter',
                 );
             }
-                $all_order_url = array_merge( $date_filter, array( 'order_status' => 'all', 'seller_order_filter_nonce' => $filter_nonce ) );
-                $all_order_url = ( empty( $all_order_url ) ) ? $orders_url : add_query_arg( $complete_order_url, $orders_url );
+            $all_order_url = array_merge( $date_filter, array( 'order_status' => 'all', 'seller_order_filter_nonce' => $filter_nonce ) ); // phpcs:ignore
+            $all_order_url = ( empty( $all_order_url ) ) ? $orders_url : add_query_arg( $complete_order_url, $orders_url );
             ?>
             <a href="<?php echo esc_url( $all_order_url ); ?>">
                 <?php
                 // translators: %d : order count total
-                printf( esc_html__( 'All (%d)', 'dokan-lite' ), esc_attr( $orders_counts->total ) );
+                printf( esc_html__( 'All (%d)', 'dokan-lite' ), number_format_i18n( $orders_counts->total ) );
                 ?>
                 </span>
             </a>
@@ -245,12 +250,12 @@ function dokan_order_listing_status_filter() {
                     'dokan_order_filter' => 'Filter',
                 );
             }
-                $complete_order_url = array_merge( array( 'order_status' => 'wc-completed', 'seller_order_filter_nonce' => $filter_nonce ), $date_filter );
+            $complete_order_url = array_merge( array( 'order_status' => 'wc-completed', 'seller_order_filter_nonce' => $filter_nonce ), $date_filter ); // phpcs:ignore
             ?>
             <a href="<?php echo esc_url( add_query_arg( $complete_order_url, $orders_url ) ); ?>">
                 <?php
                 // translators: %d : order count completed status
-                printf( esc_html__( 'Completed (%d)', 'dokan-lite' ), esc_attr( $orders_counts->{'wc-completed'} ) );
+                printf( esc_html__( 'Completed (%d)', 'dokan-lite' ), number_format_i18n( $orders_counts->{'wc-completed'} ) );
                 ?>
                 </span>
             </a>
@@ -263,12 +268,12 @@ function dokan_order_listing_status_filter() {
                     'dokan_order_filter' => 'Filter',
                 );
             }
-                $processing_order_url = array_merge( $date_filter, array( 'order_status' => 'wc-processing', 'seller_order_filter_nonce' => $filter_nonce ) );
+            $processing_order_url = array_merge( $date_filter, array( 'order_status' => 'wc-processing', 'seller_order_filter_nonce' => $filter_nonce ) ); // phpcs:ignore
             ?>
             <a href="<?php echo esc_url( add_query_arg( $processing_order_url, $orders_url ) ); ?>">
                 <?php
                 // translators: %d : order count processing status
-                printf( esc_html__( 'Processing (%d)', 'dokan-lite' ), esc_attr( $orders_counts->{'wc-processing'} ) );
+                printf( esc_html__( 'Processing (%d)', 'dokan-lite' ), number_format_i18n( $orders_counts->{'wc-processing'} ) );
                 ?>
                 </span>
             </a>
@@ -281,12 +286,12 @@ function dokan_order_listing_status_filter() {
                     'dokan_order_filter' => 'Filter',
                 );
             }
-                $on_hold_order_url = array_merge( $date_filter, array( 'order_status' => 'wc-on-hold', 'seller_order_filter_nonce' => $filter_nonce ) );
+            $on_hold_order_url = array_merge( $date_filter, array( 'order_status' => 'wc-on-hold', 'seller_order_filter_nonce' => $filter_nonce ) ); // phpcs:ignore
             ?>
             <a href="<?php echo esc_url( add_query_arg( $on_hold_order_url, $orders_url ) ); ?>">
                 <?php
                 // translators: %d : order count on hold status
-                printf( esc_html__( 'On-hold (%d)', 'dokan-lite' ), esc_attr( $orders_counts->{'wc-on-hold'} ) );
+                printf( esc_html__( 'On-hold (%d)', 'dokan-lite' ), number_format_i18n( $orders_counts->{'wc-on-hold'} ) );
                 ?>
                 </span>
             </a>
@@ -299,12 +304,12 @@ function dokan_order_listing_status_filter() {
                     'dokan_order_filter' => 'Filter',
                 );
             }
-                $pending_order_url = array_merge( $date_filter, array( 'order_status' => 'wc-pending', 'seller_order_filter_nonce' => $filter_nonce ) );
+            $pending_order_url = array_merge( $date_filter, array( 'order_status' => 'wc-pending', 'seller_order_filter_nonce' => $filter_nonce ) ); // phpcs:ignore
             ?>
             <a href="<?php echo esc_url( add_query_arg( $pending_order_url, $orders_url ) ); ?>">
                 <?php
                 // translators: %d : order count pending status
-                printf( esc_html__( 'Pending (%d)', 'dokan-lite' ), esc_attr( $orders_counts->{'wc-pending'} ) );
+                printf( esc_html__( 'Pending (%d)', 'dokan-lite' ), number_format_i18n( $orders_counts->{'wc-pending'} ) );
                 ?>
                 </span>
             </a>
@@ -317,12 +322,12 @@ function dokan_order_listing_status_filter() {
                     'dokan_order_filter' => 'Filter',
                 );
             }
-                $canceled_order_url = array_merge( $date_filter, array( 'order_status' => 'wc-cancelled', 'seller_order_filter_nonce' => $filter_nonce ) );
+            $canceled_order_url = array_merge( $date_filter, array( 'order_status' => 'wc-cancelled', 'seller_order_filter_nonce' => $filter_nonce ) ); // phpcs:ignore
             ?>
             <a href="<?php echo esc_url( add_query_arg( $canceled_order_url, $orders_url ) ); ?>">
                 <?php
                 // translators: %d : order count cancelled status
-                printf( esc_html__( 'Cancelled (%d)', 'dokan-lite' ), esc_attr( $orders_counts->{'wc-cancelled'} ) );
+                printf( esc_html__( 'Cancelled (%d)', 'dokan-lite' ), number_format_i18n( $orders_counts->{'wc-cancelled'} ) );
                 ?>
                 </span>
             </a>
@@ -335,12 +340,12 @@ function dokan_order_listing_status_filter() {
                     'dokan_order_filter' => 'Filter',
                 );
             }
-                $refund_order_url = array_merge( $date_filter, array( 'order_status' => 'wc-refunded', 'seller_order_filter_nonce' => $filter_nonce ) );
+            $refund_order_url = array_merge( $date_filter, array( 'order_status' => 'wc-refunded', 'seller_order_filter_nonce' => $filter_nonce ) ); // phpcs:ignore
             ?>
             <a href="<?php echo esc_url( add_query_arg( $refund_order_url, $orders_url ) ); ?>">
                 <?php
                 // translators: %d : order count refunded status
-                printf( esc_html__( 'Refunded (%d)', 'dokan-lite' ), esc_attr( $orders_counts->{'wc-refunded'} ) );
+                printf( esc_html__( 'Refunded (%d)', 'dokan-lite' ), number_format_i18n( $orders_counts->{'wc-refunded'} ) );
                 ?>
                 </span>
             </a>
@@ -354,12 +359,12 @@ function dokan_order_listing_status_filter() {
                 );
             }
 
-                $failed_order_url = array_merge( $date_filter, array( 'order_status' => 'wc-failed', 'seller_order_filter_nonce' => $filter_nonce ) );
+            $failed_order_url = array_merge( $date_filter, array( 'order_status' => 'wc-failed', 'seller_order_filter_nonce' => $filter_nonce ) ); // phpcs:ignore
             ?>
             <a href="<?php echo esc_url( add_query_arg( $failed_order_url, $orders_url ) ); ?>">
                 <?php
                 // translators: %d : order count failed status
-                printf( esc_html__( 'Failed (%d)', 'dokan-lite' ), esc_attr( $orders_counts->{'wc-failed'} ) );
+                printf( esc_html__( 'Failed (%d)', 'dokan-lite' ), number_format_i18n( $orders_counts->{'wc-failed'} ) );
                 ?>
                 </span>
             </a>
@@ -384,7 +389,7 @@ function dokan_nav_sort_by_pos( $a, $b ) {
  * @return array
  */
 function dokan_get_dashboard_nav() {
-    $urls = array(
+    $menus = array(
         'dashboard' => array(
             'title'      => __( 'Dashboard', 'dokan-lite' ),
             'icon'       => '<i class="fas fa-tachometer-alt"></i>',
@@ -406,7 +411,6 @@ function dokan_get_dashboard_nav() {
             'pos'        => 50,
             'permission' => 'dokan_view_order_menu',
         ),
-
         'withdraw' => array(
             'title'      => __( 'Withdraw', 'dokan-lite' ),
             'icon'       => '<i class="fas fa-upload"></i>',
@@ -414,22 +418,15 @@ function dokan_get_dashboard_nav() {
             'pos'        => 70,
             'permission' => 'dokan_view_withdraw_menu',
         ),
-    );
-
-    $settings = array(
-        'title' => sprintf( '%s <i class="fas fa-angle-right pull-right"></i>', __( 'Settings', 'dokan-lite' ) ),
-        'icon'  => '<i class="fas fa-cog"></i>',
-        'url'   => dokan_get_navigation_url( 'settings/store' ),
-        'pos'   => 200,
+        'settings' => array(
+            'title' => __( 'Settings', 'dokan-lite' ),
+            'icon'  => '<i class="fas fa-cog"></i>',
+            'url'   => dokan_get_navigation_url( 'settings/store' ),
+            'pos'   => 200,
+        ),
     );
 
     $settings_sub = array(
-        'back' => array(
-            'title' => __( 'Back to Dashboard', 'dokan-lite' ),
-            'icon'  => '<i class="fas fa-long-arrow-alt-left"></i>',
-            'url'   => dokan_get_navigation_url(),
-            'pos'   => 10,
-        ),
         'store' => array(
             'title'      => __( 'Store', 'dokan-lite' ),
             'icon'       => '<i class="fas fa-university"></i>',
@@ -453,43 +450,65 @@ function dokan_get_dashboard_nav() {
      *
      * @param array.
      */
-    $sub_settings = apply_filters( 'dokan_get_dashboard_settings_nav', $settings_sub );
-
-    foreach ( $sub_settings as $key => $sub_setting ) {
-        if ( ! isset( $sub_setting['pos'] ) && empty( $sub_setting['pos'] ) ) {
-            $sub_setting['pos'] = '200';
-        }
-
-        $settings['sub'][ $key ] = $sub_setting;
-    }
-
-    uasort( $settings['sub'], 'dokan_nav_sort_by_pos' );
-
-    // Filter Sub setting menu according to permission
-    $settings['sub'] = array_filter( $settings['sub'], 'dokan_check_menu_permission' );
-
-    // Manage main settings url after re-render permission cheching
-    if ( count( $settings['sub'] ) > 1 ) {
-        $urls['settings'] = $settings;
-        $sub_settings_key = array_keys( $settings['sub'] );
-        $urls['settings']['url'] = $settings['sub'][ $sub_settings_key[1] ]['url'];
-    }
-
-    $nav_urls = apply_filters( 'dokan_get_dashboard_nav', $urls );
-
-    uasort( $nav_urls, 'dokan_nav_sort_by_pos' );
-
-    // Filter main menu according to permission
-    $nav_urls = array_filter( $nav_urls, 'dokan_check_menu_permission' );
+    $menus['settings']['submenu'] = apply_filters( 'dokan_get_dashboard_settings_nav', $settings_sub );
 
     /**
-     * Filter to get the final seller dashboard navigation.
+     * Filters nav menu items.
      *
-     * @since 2.2
-     *
-     * @param array $urls.
+     * @param array<string,array> $menus
      */
-    return $nav_urls;
+    $nav_menus = apply_filters( 'dokan_get_dashboard_nav', $menus );
+
+    foreach ( $nav_menus as $nav_key => $menu ) {
+        if ( ! isset( $menu['pos'] ) ) {
+            $nav_menus[ $nav_key ]['pos'] = 190;
+        }
+
+        $submenu_items = empty( $menu['submenu'] ) ? [] : $menu['submenu'];
+
+        /**
+         * Filters the vendor dashboard submenu item for each menu.
+         *
+         * @since 3.7.7
+         *
+         * @param array<string,array> $submenu_items Associative array of submenu items.
+         * @param string              $menu_key      Key of the corresponding menu.
+         */
+        $submenu_items = apply_filters( 'dokan_dashboard_nav_submenu', $submenu_items, $nav_key );
+
+        if ( empty( $submenu_items ) ) {
+            continue;
+        }
+
+        foreach ( $submenu_items as $key => $submenu ) {
+            if ( ! isset( $submenu['pos'] ) ) {
+                $submenu['pos'] = 200;
+            }
+
+            $submenu_items[ $key ] = $submenu;
+        }
+
+        // Sort items according to positional value
+        uasort( $submenu_items, 'dokan_nav_sort_by_pos' );
+
+        // Filter items according to permissions
+        $submenu_items = array_filter( $submenu_items, 'dokan_check_menu_permission' );
+
+        // Manage menu with submenus after permission check
+        if ( count( $submenu_items ) < 1 ) {
+            unset( $nav_menus[ $nav_key ] );
+        } else {
+            $nav_menus[ $nav_key ]['submenu'] = $submenu_items;
+        }
+    }
+
+    // Sort items according to positional value
+    uasort( $nav_menus, 'dokan_nav_sort_by_pos' );
+
+    // Filter main menu according to permission
+    $nav_menus = array_filter( $nav_menus, 'dokan_check_menu_permission' );
+
+    return $nav_menus;
 }
 
 /**
@@ -522,33 +541,11 @@ function dokan_check_menu_permission( $menu ) {
 function dokan_dashboard_nav( $active_menu = '' ) {
     $nav_menu          = dokan_get_dashboard_nav();
     $active_menu_parts = explode( '/', $active_menu );
+    $active_submenu    = '';
 
     if ( $active_menu && false !== strpos( $active_menu, '/' ) ) {
-        $active_menu = $active_menu_parts[1];
-    }
-
-    /**
-     * Filters the settings' key.
-     *
-     * @param string $settings_key "settings" (default)
-     *
-     * @return string
-     */
-    $settings_key = apply_filters( 'dokan_dashboard_nav_settings_key', 'settings' );
-
-    if ( isset( $active_menu_parts[1] )
-            && ( $active_menu_parts[1] === $settings_key || urldecode( $active_menu_parts[0] ) === $settings_key )
-            && isset( $nav_menu[ $settings_key ]['sub'] )
-            && (
-                array_key_exists( $active_menu_parts[1], $nav_menu[ $settings_key ]['sub'] ) ||
-                ( isset( $active_menu_parts[2] ) && array_key_exists( $active_menu_parts[2], $nav_menu[ $settings_key ]['sub'] ) ) ||
-                ( 0 === stripos( $active_menu_parts[1], 'payment' ) && array_key_exists( 'payment', $nav_menu[ $settings_key ]['sub'] ) ) // special case when submenu is payment
-            )
-    ) {
-        $urls        = $nav_menu[ $settings_key ]['sub'];
-        $active_menu = $active_menu_parts[1] === $settings_key ? $active_menu_parts[2] : $active_menu_parts[1];
-    } else {
-        $urls = $nav_menu;
+        $active_menu    = $active_menu_parts[0];
+        $active_submenu = $active_menu_parts[1];
     }
 
     $menu           = '';
@@ -556,15 +553,77 @@ function dokan_dashboard_nav( $active_menu = '' ) {
 
     if ( $hamburger_menu ) {
         $menu .= '<div id="dokan-navigation" aria-label="Menu">';
-        $menu .= '<label id="mobile-menu-icon" for="toggle-mobile-menu" aria-label="Menu">&#9776;</label>';
-        $menu .= '<input id="toggle-mobile-menu" type="checkbox" />';
+        $hamburger = apply_filters(
+            'dokan_vendor_dashboard_menu_hamburger',
+            '<label id="mobile-menu-icon" for="toggle-mobile-menu" aria-label="Menu">&#9776;</label><input id="toggle-mobile-menu" type="checkbox" />'
+        );
+
+        $menu .= $hamburger;
     }
 
     $menu .= '<ul class="dokan-dashboard-menu">';
 
-    foreach ( $urls as $key => $item ) {
-        $class = ( ( $active_menu === $key ) || 0 === stripos( $active_menu, $key ) ) ? 'active ' . $key : $key; // checking starts with the key
-        $menu .= sprintf( '<li class="%s"><a href="%s">%s %s</a></li>', $class, $item['url'], $item['icon'], $item['title'] );
+    foreach ( $nav_menu as $key => $item ) {
+        /**
+         * Filters menu key according to slug if needed.
+         *
+         * @since DOKAN_PRO_SINCE
+         *
+         * @param string $menu_key
+         */
+        $filtered_key = apply_filters( 'dokan_dashboard_nav_menu_key', $key );
+
+        $class     = $active_menu === $filtered_key || 0 === stripos( $active_menu, $filtered_key ) ? 'active ' . $key : $key;  // checking starts with the key
+        $title     = isset( $item['title'] ) ? $item['title'] : __( 'No title', 'dokan-lite' );
+        $menu_slug = $filtered_key;
+        $submenu   = '';
+
+        if ( ! empty( $item['submenu'] ) ) {
+            $class .= ' has-submenu';
+            $title .= ' <i class="fas fa-caret-right menu-dropdown"></i>';
+            $submenu = sprintf( '<ul class="navigation-submenu %s">', $key );
+            $subkey_slugs = [];
+
+            foreach ( $item['submenu'] as $sub_key => $sub ) {
+                /**
+                 * Filters menu key according to slug if needed.
+                 *
+                 * @since DOKAN_PRO_SINCE
+                 *
+                 * @param string $submenu_key
+                 * @param string $menu_key
+                 */
+                $filtered_subkey = apply_filters( 'dokan_dashboard_nav_submenu_key', $sub_key, $key );
+
+                $submenu_class = $active_submenu === $filtered_subkey || 0 === stripos( $active_submenu, $filtered_subkey ) ? "current $sub_key" : $sub_key;
+
+                $submenu .= sprintf(
+                    '<li class="submenu-item %s"><a href="%s" class="submenu-link">%s %s</a></li>',
+                    $submenu_class,
+                    isset( $sub['url'] ) ? $sub['url'] : dokan_get_navigation_url( "{$filtered_key}/{$filtered_subkey}" ),
+                    isset( $sub['icon'] ) ? $sub['icon'] : '<i class="fab fa-staylinked"></i>',
+                    isset( $sub['title'] ) ? $sub['title'] : __( 'No title', 'dokan-lite' )
+                );
+
+                $subkey_slugs[] = $filtered_subkey;
+            }
+
+            $submenu .= '</ul>';
+
+            // Building parent menu slug pointing to the first submenu item
+            if ( isset( $subkey_slugs[0] ) ) {
+                $menu_slug = trailingslashit( $menu_slug ) . $subkey_slugs[0];
+            }
+        }
+
+        $menu .= sprintf(
+            '<li class="%s"><a href="%s">%s %s</a>%s</li>',
+            $class,
+            isset( $item['url'] ) ? $item['url'] : dokan_get_navigation_url( $menu_slug ),
+            isset( $item['icon'] ) ? $item['icon'] : '<i class="fab fa-staylinked"></i>',
+            $title,
+            $submenu
+        );
     }
 
     $common_links = '<li class="dokan-common-links dokan-clearfix">
@@ -598,7 +657,7 @@ if ( ! function_exists( 'dokan_store_category_menu' ) ) :
      */
     function dokan_store_category_menu( $seller_id, $title = '' ) {
         ?>
-    <div id="cat-drop-stack" class="store-cat-stack-dokan">
+    <div class="store-cat-stack-dokan cat-drop-stack">
         <?php
         $seller_id = empty( $seller_id ) ? get_query_var( 'author' ) : $seller_id;
         $vendor    = dokan()->vendor->get( $seller_id );
@@ -630,7 +689,7 @@ if ( ! function_exists( 'dokan_store_term_menu_list' ) ) :
      */
     function dokan_store_term_menu_list( $seller_id, $taxonomy, $query_type ) {
         ?>
-    <div id="cat-drop-stack" class="store-cat-stack-dokan">
+    <div class="store-cat-stack-dokan cat-drop-stack">
         <?php
         $seller_id = empty( $seller_id ) ? get_query_var( 'author' ) : $seller_id;
         $vendor    = dokan()->vendor->get( $seller_id );
@@ -741,16 +800,16 @@ function dokan_get_chosen_taxonomy_attributes() {
 }
 
 function dokan_seller_reg_form_fields() {
-    $postdata   = wc_clean( $_POST ); //phpcs:ignore
-    $role       = isset( $postdata['role'] ) ? $postdata['role'] : 'customer';
+    $data       = dokan_get_seller_registration_form_data();
+    $role       = isset( $data['role'] ) ? $data['role'] : 'customer';
     $role_style = ( $role === 'customer' ) ? 'display:none' : '';
 
     dokan_get_template_part(
-        'global/seller-registration-form', '', array(
-            'postdata' => $postdata,
-            'role' => $role,
+        'global/seller-registration-form', '', [
+            'data'       => $data,
+            'role'       => $role,
             'role_style' => $role_style,
-        )
+        ]
     );
 }
 
@@ -881,4 +940,40 @@ function dokan_store_contact_widget() {
     if ( dokan()->widgets->is_exists( 'store_contact_form' ) && 'on' === dokan_get_option( 'contact_seller', 'dokan_general', 'on' ) ) {
         the_widget( dokan()->widgets->store_contact_form, [ 'title' => __( 'Contact Vendor', 'dokan-lite' ) ], $args );
     }
+}
+
+/**
+ * Get Dokan seller registration form data
+ *
+ * @since 3.7.0
+ *
+ * @return string[]
+ */
+function dokan_get_seller_registration_form_data() {
+    // prepare form data
+    $data = [
+        'fname'    => '',
+        'lname'    => '',
+        'username' => '',
+        'email'    => '',
+        'phone'    => '',
+        'password' => '',
+        'shopname' => '',
+        'shopurl'  => '',
+    ];
+    // check if user submitted data
+    if ( isset( $_POST['woocommerce-register-nonce'] ) && wp_verify_nonce( sanitize_key( wp_unslash( $_POST['woocommerce-register-nonce'] ) ), 'woocommerce-register' ) ) {
+        $data = [
+            'fname'    => isset( $_POST['fname'] ) ? sanitize_text_field( wp_unslash( $_POST['fname'] ) ) : '',
+            'lname'    => isset( $_POST['lname'] ) ? sanitize_text_field( wp_unslash( $_POST['lname'] ) ) : '',
+            'username' => isset( $_POST['username'] ) ? sanitize_user( wp_unslash( $_POST['username'] ) ) : '',
+            'email'    => isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '',
+            'phone'    => isset( $_POST['phone'] ) ? sanitize_text_field( wp_unslash( $_POST['phone'] ) ) : '',
+            'password' => isset( $_POST['password'] ) ? wp_unslash( $_POST['password'] ) : '', // phpcs:ignore
+            'shopname' => isset( $_POST['shopname'] ) ? sanitize_text_field( wp_unslash( $_POST['shopname'] ) ) : '',
+            'shopurl'  => isset( $_POST['shopurl'] ) ? sanitize_title( wp_unslash( $_POST['shopurl'] ) ) : '',
+        ];
+    }
+
+    return $data;
 }

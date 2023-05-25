@@ -136,4 +136,13 @@ function persistent_login_update_db( $persistent_login_db_version )
     }
     
     // 2.0.0 update
+    
+    if ( $persistent_login_db_version === '2.0.0' ) {
+        // update db version option
+        update_option( 'persistent_login_db_version', '2.0.9' );
+        $persistent_login_db_version = '2.0.9';
+        return true;
+    }
+    
+    // 2.0.9 update
 }

@@ -720,7 +720,7 @@ class SP_Plugin_Pricing {
                     <label><strong>D Subscription</strong></label>
                     <span class="currencyinput"><span class="symbol">$</span>
                     <input type="text" id="D_Subscription" class="validate[required]" name="948" value="<?php echo number_format($price_subscription, 2, '.', '');?>" onkeypress="return isNumberKey(this, event);" />
-                    </span><!--<input type="button" class="button" name="D_Subscription" value="$<?php echo number_format($price_subscription, 2, '.', '');?>" onclick="feePopup('D_Subscription',948);"/>--> <input type="submit" value="Save" class="btn btn-primary" style="margin-left:45px;"/></p>
+                    </span><!--<input type="button" class="button" name="D_Subscription" value="$<?php echo number_format($price_subscription, 2, '.', '');?>" onclick="feePopup('D_Subscription',948);"/>--> <input type="submit" value="Save" class="btn btn-primary" style="margin-left:45px;padding: 8px 6.3% !important"/></p>
                   
                   <input type="hidden" name="action" value="submitFee" />
                   <p >

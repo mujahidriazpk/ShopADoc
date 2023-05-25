@@ -2,13 +2,18 @@
  * External dependencies
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import type { ReactElement } from 'react';
 import { formatPrice } from '@woocommerce/price-format';
-import { CartCheckoutCompatibilityNotice } from '@woocommerce/editor-components/compatibility-notices';
-import { PanelBody, ExternalLink, SelectControl } from '@wordpress/components';
+import {
+	PanelBody,
+	ExternalLink,
+	ToggleControl,
+	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
+	__experimentalToggleGroupControl as ToggleGroupControl,
+} from '@wordpress/components';
 import { getSetting } from '@woocommerce/settings';
 import { __ } from '@wordpress/i18n';
 import Noninteractive from '@woocommerce/base-components/noninteractive';
+import type { ReactElement } from 'react';
 
 /**
  * Internal dependencies
@@ -17,6 +22,7 @@ import QuantityBadge from './quantity-badge';
 
 interface Attributes {
 	addToCartBehaviour: string;
+	hasHiddenPrice: boolean;
 }
 
 interface Props {
@@ -25,7 +31,7 @@ interface Props {
 }
 
 const Edit = ( { attributes, setAttributes }: Props ): ReactElement => {
-	const { addToCartBehaviour } = attributes;
+	const { addToCartBehaviour, hasHiddenPrice } = attributes;
 	const blockProps = useBlockProps( {
 		className: `wc-block-mini-cart`,
 	} );
@@ -47,7 +53,7 @@ const Edit = ( { attributes, setAttributes }: Props ): ReactElement => {
 						'woo-gutenberg-products-block'
 					) }
 				>
-					<SelectControl
+					<ToggleGroupControl
 						label={ __(
 							'Add-to-Cart behaviour',
 							'woo-gutenberg-products-block'
@@ -60,22 +66,37 @@ const Edit = ( { attributes, setAttributes }: Props ): ReactElement => {
 							'Select what happens when a customer adds a product to the cart.',
 							'woo-gutenberg-products-block'
 						) }
-						options={ [
-							{
-								value: 'none',
-								label: __(
-									'Do nothing',
-									'woo-gutenberg-products-block'
-								),
-							},
-							{
-								value: 'open_drawer',
-								label: __(
-									'Open cart drawer',
-									'woo-gutenberg-products-block'
-								),
-							},
-						] }
+					>
+						<ToggleGroupControlOption
+							value="none"
+							label={ __(
+								'Do nothing',
+								'woo-gutenberg-products-block'
+							) }
+						/>
+						<ToggleGroupControlOption
+							value="open_drawer"
+							label={ __(
+								'Open cart drawer',
+								'woo-gutenberg-products-block'
+							) }
+						/>
+					</ToggleGroupControl>
+					<ToggleControl
+						label={ __(
+							'Hide Cart Price',
+							'woo-gutenberg-products-block'
+						) }
+						help={ __(
+							'Toggles the visibility of the Mini Cart price.',
+							'woo-gutenberg-products-block'
+						) }
+						checked={ hasHiddenPrice }
+						onChange={ () =>
+							setAttributes( {
+								hasHiddenPrice: ! hasHiddenPrice,
+							} )
+						}
 					/>
 				</PanelBody>
 				{ templatePartEditUri && (
@@ -87,7 +108,7 @@ const Edit = ( { attributes, setAttributes }: Props ): ReactElement => {
 					>
 						<p>
 							{ __(
-								'Edit the appearance of your empty and filled mini cart contents.',
+								'Edit the appearance of the Mini Cart.',
 								'woo-gutenberg-products-block'
 							) }
 						</p>
@@ -102,13 +123,14 @@ const Edit = ( { attributes, setAttributes }: Props ): ReactElement => {
 			</InspectorControls>
 			<Noninteractive>
 				<button className="wc-block-mini-cart__button">
-					<span className="wc-block-mini-cart__amount">
-						{ formatPrice( productTotal ) }
-					</span>
+					{ ! hasHiddenPrice && (
+						<span className="wc-block-mini-cart__amount">
+							{ formatPrice( productTotal ) }
+						</span>
+					) }
 					<QuantityBadge count={ productCount } />
 				</button>
 			</Noninteractive>
-			<CartCheckoutCompatibilityNotice blockName="mini-cart" />
 		</div>
 	);
 };

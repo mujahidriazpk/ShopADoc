@@ -13,29 +13,34 @@ class Product_Price extends Base_Tag {
 	}
 
 	public function get_title() {
-		return __( 'Product Price', 'elementor-pro' );
+		return esc_html__( 'Product Price', 'elementor-pro' );
 	}
 
-	protected function _register_controls() {
+	protected function register_controls() {
 		$this->add_control( 'format', [
-			'label' => __( 'Format', 'elementor-pro' ),
+			'label' => esc_html__( 'Format', 'elementor-pro' ),
 			'type' => Controls_Manager::SELECT,
 			'options' => [
-				'both' => __( 'Both', 'elementor-pro' ),
-				'original' => __( 'Original', 'elementor-pro' ),
-				'sale' => __( 'Sale', 'elementor-pro' ),
+				'both' => esc_html__( 'Both', 'elementor-pro' ),
+				'original' => esc_html__( 'Original', 'elementor-pro' ),
+				'sale' => esc_html__( 'Sale', 'elementor-pro' ),
 			],
 			'default' => 'both',
 		] );
+
+		$this->add_product_id_control();
 	}
 
 	public function render() {
-		$product = wc_get_product();
+		$settings = $this->get_settings();
+
+		$product = $this->get_product( $settings['product_id'] );
+
 		if ( ! $product ) {
 			return '';
 		}
 
-		$format = $this->get_settings( 'format' );
+		$format = $settings['format'];
 		$value = '';
 		switch ( $format ) {
 			case 'both':
@@ -49,6 +54,7 @@ class Product_Price extends Base_Tag {
 				break;
 		}
 
-		echo $value;
+		// PHPCS - Just passing WC price as is
+		echo $value; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 }

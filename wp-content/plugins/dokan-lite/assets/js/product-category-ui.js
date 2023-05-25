@@ -1,15 +1,15 @@
 dokanWebpack([6],{
 
-/***/ 289:
+/***/ 287:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_runtime_helpers_asyncToGenerator__ = __webpack_require__(22);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_runtime_helpers_asyncToGenerator__ = __webpack_require__(10);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_runtime_helpers_asyncToGenerator___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__babel_runtime_helpers_asyncToGenerator__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__babel_runtime_helpers_toConsumableArray__ = __webpack_require__(290);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__babel_runtime_helpers_toConsumableArray__ = __webpack_require__(288);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__babel_runtime_helpers_toConsumableArray___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__babel_runtime_helpers_toConsumableArray__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__babel_runtime_regenerator__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__babel_runtime_regenerator__ = __webpack_require__(11);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__babel_runtime_regenerator___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__babel_runtime_regenerator__);
 
 
@@ -32,7 +32,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       $('body').on('click', '.dokan-product-category-li', this.categoryLiClick);
       $('body').on('click', '.dokan-cat-search-res-li', this.clickSearchResLi);
       $('body').on('keyup', '#dokan-single-cat-search-input', ProductCategory.debounce(this.typeToSearch, 500));
-      $('#dokan-single-categories').scroll(this.categoryScroll);
+      $('body').on('scroll', '#dokan-single-categories', this.categoryScroll);
       $('body').on('click', '.dokan-single-categories-right-box', ProductCategory.indicatorScrollTo);
       $('body').on('click', '.dokan-single-categories-left-box', function () {
         ProductCategory.indicatorScrollTo(false);
@@ -106,11 +106,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
       ProductCategory.setCatName(ProductCategory.getSelectedLabel(), $(category_box));
       ProductCategory.setCatId(selectedCatId, $(category_box));
-      ProductCategory.hideCategoryModal();
+      ProductCategory.hideCategoryModal(); // Any one can use this hook and do anything after any category is selected.
+
+      wp.hooks.doAction('dokan_selected_multistep_category', selectedCatId);
       $(category_box).attr('data-activate', 'no');
     },
     setCatUiBasedOnOneCat: function setCatUiBasedOnOneCat(catId, category) {
-      ProductCategory.disableDoneBtn(category.children.length > 0);
+      var disable = undefined !== category.children.length && category.children.length > 0;
+      ProductCategory.disableDoneBtn(disable);
 
       var allUl = __WEBPACK_IMPORTED_MODULE_1__babel_runtime_helpers_toConsumableArray___default()(category.parents);
 
@@ -198,8 +201,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
           currentCategory.uiActivaion = Number(currentCategory.term_id) === selectedId ? 'dokan-product-category-li-active' : false;
           returnableCategories.push(currentCategory);
         }
-      }
+      } // sort categories by name
 
+
+      returnableCategories.sort(function (a, b) {
+        return a.name.toLowerCase() > b.name.toLowerCase() ? 1 : b.name.toLowerCase() > a.name.toLowerCase() ? -1 : 0;
+      });
       return {
         categories: returnableCategories,
         level: level,
@@ -207,16 +214,24 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       };
     },
     loadChildCategories: function loadChildCategories(catlevel, termId, name, haschild) {
-      if (!haschild) {
-        ProductCategory.disableDoneBtn(false);
-        return;
-      }
+      /**
+       * If enabled any one middle category in dokan product multi-step category selection.
+       */
+      var middleCategorySelection = dokan_product_category_data.any_category_selection; // If selected category has no child OR middle category selection is true then enable the category select done button else disable.
 
-      ProductCategory.disableDoneBtn();
-      var categories = ProductCategory.getCategoriesWithParentId(termId, catlevel + 1);
-      categoriesState.push(categories);
-      ProductCategory.updateCategoryUi();
-      ProductCategory.scrollTo(catlevel);
+      if (!haschild || true === Boolean(middleCategorySelection)) {
+        ProductCategory.disableDoneBtn(false);
+      } else {
+        ProductCategory.disableDoneBtn();
+      } // If the selected category has more children category then show them.
+
+
+      if (haschild) {
+        var categories = ProductCategory.getCategoriesWithParentId(termId, catlevel + 1);
+        categoriesState.push(categories);
+        ProductCategory.updateCategoryUi();
+        ProductCategory.scrollTo(catlevel);
+      }
     },
     updateSearchResultUi: function updateSearchResultUi() {
       var html = '';
@@ -380,4 +395,4 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 /***/ })
 
-},[289]);
+},[287]);

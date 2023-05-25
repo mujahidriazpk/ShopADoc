@@ -1,15 +1,14 @@
 <?php
 class Analytify_Update_Routine {
 
-	private $current_verison = '';
+	private $current_version = '';
 
 	/**
 	 * Private constructor for singleton class.
 	 * 
 	 */
-	function __construct( $current_verison ) {
-		
-		$this->current_verison = $current_verison;
+	public function __construct( $current_version ) {
+		$this->current_version = $current_version;
 		$this->run_routines();
 	}
 
@@ -19,9 +18,9 @@ class Analytify_Update_Routine {
 	 *
 	 * @return void
 	 */
-	function run_routines() {
+	private function run_routines() {
 
-		if ( version_compare( $this->current_verison, '4.1.1', '<' ) ) {
+		if ( version_compare( $this->current_version, '4.1.1', '<' ) ) {
 			$this->update_routine_411();
 		}
 
@@ -34,7 +33,7 @@ class Analytify_Update_Routine {
 	 *
 	 * @return void
 	 */
-	function update_routine_411() {
+	private function update_routine_411() {
 		update_option( 'analytify_gtag_move_to_notice', 'visible' );
 	}
 }

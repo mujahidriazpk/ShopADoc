@@ -23,6 +23,7 @@ function persistent_login_activate()
             'duplicateSessions' => '0',
             'limitActiveLogins' => '0',
             'limitActiveLogins' => '0',
+            'activeLoginLogic'  => 'automatic',
         );
         update_option( 'persistent_login_options', $defaultOptions );
     }

@@ -39,7 +39,7 @@ function debugModeInit()
 					}
 				}
 				if (i == 'options') {
-					// all other options here
+					/*all other options here*/
 					for (var option in paramName[x]) {
 						console.log('%c '+option+ ' - ' + paramName[x][option], 'background: #eeeeee; color: #000000');
 					}

@@ -24,7 +24,7 @@ function ccfwoo_checkout_notice() {
 
 	$locations = is_array( ccfwoo_get_option( 'countdown_locations' ) ) ? ccfwoo_get_option( 'countdown_locations' ) :
 	array();
-
+	
 	//Mujahid Code
 	$product_id = 1642;
 	$in_cart = false;

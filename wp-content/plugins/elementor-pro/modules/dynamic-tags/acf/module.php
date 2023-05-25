@@ -2,8 +2,10 @@
 namespace ElementorPro\Modules\DynamicTags\ACF;
 
 use Elementor\Controls_Manager;
+use Elementor\Core\Base\Document;
 use Elementor\Core\DynamicTags\Base_Tag;
 use Elementor\Modules\DynamicTags;
+use ElementorPro\Plugin;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
@@ -12,6 +14,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Module extends DynamicTags\Module {
 
 	const ACF_GROUP = 'acf';
+
+	// TODO: Remove when Core 3.10.0 is released.
+	const DATETIME_CATEGORY = 'datetime';
+
+	/**
+	 * @var Dynamic_Value_Provider
+	 */
+	private static $dynamic_value_provider;
 
 	/**
 	 * @param array $types
@@ -72,7 +82,7 @@ class Module extends DynamicTags\Module {
 				// Use group ID for unique keys
 				if ( $has_option_page_location ) {
 					$key = 'options:' . $field['name'];
-					$options[ $key ] = __( 'Options', 'elementor-pro' ) . ':' . $field['label'];
+					$options[ $key ] = esc_html__( 'Options', 'elementor-pro' ) . ':' . $field['label'];
 					if ( $is_only_options_page ) {
 						continue;
 					}
@@ -103,7 +113,7 @@ class Module extends DynamicTags\Module {
 		$tag->add_control(
 			'key',
 			[
-				'label' => __( 'Key', 'elementor-pro' ),
+				'label' => esc_html__( 'Key', 'elementor-pro' ),
 				'type' => Controls_Manager::SELECT,
 				'groups' => self::get_control_options( $tag->get_supported_fields() ),
 			]
@@ -119,6 +129,7 @@ class Module extends DynamicTags\Module {
 			'ACF_File',
 			'ACF_Number',
 			'ACF_Color',
+			'ACF_Date_Time',
 		];
 	}
 
@@ -126,25 +137,20 @@ class Module extends DynamicTags\Module {
 	public static function get_tag_value_field( Base_Tag $tag ) {
 		$key = $tag->get_settings( 'key' );
 
-		if ( ! empty( $key ) ) {
-			list( $field_key, $meta_key ) = explode( ':', $key );
+		// TODO: The tags should use the `Dynamic_Value_Provider::get_value()` method, but it involves
+		//  heavily refactoring them, so currently this method is just a proxy and also kept for BC.
 
-			if ( 'options' === $field_key ) {
-				$field = get_field_object( $meta_key, $field_key );
-			} else {
-				$field = get_field_object( $field_key, get_queried_object() );
-			}
-
-			return [ $field, $meta_key ];
+		if ( ! static::$dynamic_value_provider ) {
+			static::$dynamic_value_provider = new Dynamic_Value_Provider();
 		}
 
-		return [];
+		return static::$dynamic_value_provider->get_value( $key );
 	}
 
 	public function get_groups() {
 		return [
 			self::ACF_GROUP => [
-				'title' => __( 'ACF', 'elementor-pro' ),
+				'title' => esc_html__( 'ACF', 'elementor-pro' ),
 			],
 		];
 	}

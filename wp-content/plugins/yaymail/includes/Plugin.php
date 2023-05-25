@@ -14,6 +14,11 @@ class Plugin {
 	public static function getInstance() {
 		if ( null == self::$instance ) {
 			self::$instance = new self();
+			$versionCurrent = YAYMAIL_VERSION;
+			$versionOld     = get_option( 'yaymail_version' );
+			if ( $versionCurrent != $versionOld ) {
+				self::activate();
+			}
 		}
 
 		return self::$instance;

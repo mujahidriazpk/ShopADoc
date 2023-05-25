@@ -84,19 +84,19 @@ if ( ! class_exists( 'um\admin\core\Admin_Users' ) ) {
 		 */
 		function map_caps_by_role( $allcaps, $cap, $args, $user ) {
 			if ( isset( $cap[0] ) && $cap[0] == 'edit_users' ) {
-				if ( ! user_can( $args[1], 'administrator' ) && $args[0] == 'edit_user' ) {
-					if ( ! UM()->roles()->um_current_user_can( 'edit', $args[2] ) ) {
+				if ( isset( $args[0] ) && isset( $args[1] ) && ! user_can( $args[1], 'administrator' ) && $args[0] == 'edit_user' ) {
+					if ( isset( $args[2] ) && ! UM()->roles()->um_current_user_can( 'edit', $args[2] ) ) {
 						$allcaps[ $cap[0] ] = false;
 					}
 				}
 			} elseif ( isset( $cap[0] ) && $cap[0] == 'delete_users' ) {
-				if ( ! user_can( $args[1], 'administrator' ) && $args[0] == 'delete_user' ) {
-					if ( ! UM()->roles()->um_current_user_can( 'delete', $args[2] ) ) {
+				if ( isset( $args[0] ) && isset( $args[1] ) && ! user_can( $args[1], 'administrator' ) && $args[0] == 'delete_user' ) {
+					if ( isset( $args[2] ) && ! UM()->roles()->um_current_user_can( 'delete', $args[2] ) ) {
 						$allcaps[ $cap[0] ] = false;
 					}
 				}
 			} elseif ( isset( $cap[0] ) && $cap[0] == 'list_users' ) {
-				if ( ! user_can( $args[1], 'administrator' ) && $args[0] == 'list_users' ) {
+				if ( isset( $args[0] ) && isset( $args[1] ) && ! user_can( $args[1], 'administrator' ) && $args[0] == 'list_users' ) {
 					if ( ! um_user( 'can_view_all' ) ) {
 						$allcaps[ $cap[0] ] = false;
 					}
@@ -411,7 +411,8 @@ if ( ! class_exists( 'um\admin\core\Admin_Users' ) ) {
 				'rejected'                    => __( 'Rejected', 'ultimate-member' ),
 			);
 
-			UM()->query()->count_users_by_status( 'unassigned' );
+			// set default statuses if not already done
+			UM()->setup()->set_default_user_status();
 
 			foreach ( $status as $k => $v ) {
 				if ( isset( $_REQUEST['um_status'] ) && sanitize_key( $_REQUEST['um_status'] ) === $k ) {

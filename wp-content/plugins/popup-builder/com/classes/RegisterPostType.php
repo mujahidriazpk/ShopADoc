@@ -223,9 +223,10 @@ class RegisterPostType
 			//add_action('add_meta_boxes', array($this, 'popupTypeOptions'));
 			add_filter('sgpbAdditionalMetaboxes', array($this, 'sgpbPopupTypeOptionsViewMetaboxes'), 1, 1);
 		}
-		if ($popupType == 'subscription') {
+		// TODO remove all content about this section!
+	/*	if ($popupType == 'subscription') {
 			add_action('add_meta_boxes', array($this, 'rightBannerMetabox'));
-		}
+		}*/
 	}
 
 	public function rightBannerMetabox()
@@ -473,6 +474,6 @@ class RegisterPostType
 	public function popupTypeRightBannerView()
 	{
 		$banner = AdminHelper::getRightMetaboxBannerText();
-		echo esc_html($banner);
+		echo wp_kses($banner, AdminHelper::allowed_html_tags());
 	}
 }

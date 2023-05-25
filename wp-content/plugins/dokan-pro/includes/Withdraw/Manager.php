@@ -39,6 +39,7 @@ class Manager {
         add_action( 'dokan_withdraw_weekly_scheduler', [ $this, 'process_weekly_schedule' ] );
         add_action( 'dokan_withdraw_individual_scheduler', [ $this, 'process_individual_schedule' ] );
         add_action( 'dokan_withdraw_disbursement_announcement_scheduler', [ $this, 'process_announcement_schedule' ] );
+        add_action( 'dokan_withdraw_disbursement_schedule_announcement_scheduler', [ $this, 'process_schedule_change_announcement_schedule' ] );
 
         add_action( 'update_option_timezone_string', [ $this, 'handle_timezone_change' ], 10, 3 );
         add_action( 'update_option_gmt_offset', [ $this, 'handle_timezone_change' ], 10, 3 );
@@ -51,6 +52,7 @@ class Manager {
 
         if ( wp_doing_ajax() ) {
             add_action( 'wp_ajax_dokan_handle_withdraw_schedule_change_request', [ $this, 'handle_withdraw_schedule_change_request' ], 10 );
+            add_action( 'wp_ajax_dokan_handle_withdraw_schedule_remove', [ $this, 'handle_withdraw_schedule_remove_request' ], 10 );
         }
 
         add_filter( 'dokan_withdraw_method_settings_title', [ $this, 'get_heading' ], 10, 2 );
@@ -106,7 +108,7 @@ class Manager {
             <div class="dokan-form-group">
                 <div class="dokan-w8">
                     <input name="dokan_update_payment_settings" type="hidden">
-                    <button class="ajax_prev disconnect dokan-btn dokan-btn-danger <?php echo empty( $email ) ? 'dokan-hide' : ''; ?>" type="submit" name="settings[skrill][disconnect]">
+                    <button class="ajax_prev disconnect dokan_payment_disconnect_btn dokan-btn dokan-btn-danger <?php echo empty( $email ) ? 'dokan-hide' : ''; ?>" type="button" name="settings[skrill][disconnect]">
                         <?php esc_attr_e( 'Disconnect', 'dokan' ); ?>
                     </button>
                 </div>
@@ -275,6 +277,7 @@ class Manager {
             [
                 'schedule_information'  => $schedule_information,
                 'threshold_information' => $threshold_information,
+                'is_schedule_selected'  => $is_schedule_selected,
             ]
         );
     }
@@ -485,7 +488,28 @@ class Manager {
         update_user_meta( dokan_get_current_user_id(), 'dokan_withdraw_selected_reserve_balance', absint( $reserve_amount ) );
         update_user_meta( dokan_get_current_user_id(), 'dokan_withdraw_default_method', $method );
 
-        wp_send_json_success( __( 'Withdraw schedule change successful.', 'dokan' ) );
+        wp_send_json_success( __( 'Withdraw schedule changed successfully.', 'dokan' ) );
+    }
+
+    /**
+     * Handle Withdraw schedule remove request.
+     *
+     * @since 3.7.16
+     *
+     * @return void
+     */
+    public function handle_withdraw_schedule_remove_request() {
+        if ( ! isset( $_POST['security'] ) || ! wp_verify_nonce( sanitize_key( wp_unslash( $_POST['security'] ) ), 'remove-withdraw-schedule' ) ) {
+            wp_send_json_error( esc_html__( 'Security validation failed!', 'dokan' ) );
+        }
+
+        if ( ! current_user_can( 'dokan_manage_withdraw' ) ) {
+            wp_send_json_error( esc_html__( 'You have no permission to do this action.', 'dokan' ) );
+        }
+
+        update_user_meta( dokan_get_current_user_id(), 'dokan_withdraw_selected_schedule', '' );
+
+        wp_send_json_success( __( 'Withdraw schedule removed successfully.', 'dokan' ) );
     }
 
     /**
@@ -917,6 +941,50 @@ class Manager {
     }
 
     /**
+     * Process disbursement schedule change announcement schedule.
+     *
+     * @since 3.7.16
+     *
+     * @param array $options
+     *
+     * @return void
+     */
+    public function process_schedule_change_announcement_schedule( $options ) {
+        list( $methods, $admin_id ) = $options;
+
+        // @codingStandardsIgnoreStart
+        $args = [
+            'role__in'      => [
+                'administrator',
+                'seller',
+            ],
+            'meta_key'      => 'dokan_withdraw_selected_schedule',
+            'meta_value'    => array_keys( $methods ),
+            'meta_compare'  => 'IN',
+            'post_per_page' => -1,
+            'fields'        => 'ID',
+        ];
+        // @codingStandardsIgnoreEnd
+
+        $user_query = new \WP_User_Query( $args );
+
+        if ( empty( $user_query->get_results() ) ) {
+            return;
+        }
+
+        $args = [
+            'title'       => __( 'Your preferred withdrawal schedule is disabled.', 'dokan' ),
+            'status'      => 'publish',
+            'author'      => $admin_id,
+            'sender_type' => 'selected_seller',
+            'sender_ids'  => $user_query->get_results(),
+            'content'     => __( "The admin has disabled the withdrawal schedule that you had set as your preferred payment schedule. Please reschedule it from the vendor dashboard's withdrawal page.", 'dokan' ),
+        ];
+
+        dokan_pro()->announcement->create_announcement( $args );
+    }
+
+    /**
      * Handle timezone change.
      *
      * @since 3.5.0
@@ -935,6 +1003,7 @@ class Manager {
      * Handle Schedule change.
      *
      * @since 3.5.0
+     * @since 3.7.16 Handle admin withdrawal schedule change.
      *
      * @param array $old_value
      * @param array $value
@@ -947,6 +1016,7 @@ class Manager {
             return;
         }
         $this->reschedule();
+        $this->handle_admin_withdraw_schedule_change( $old_value, $value, $option );
     }
 
     /**
@@ -1034,6 +1104,39 @@ class Manager {
             'dokan_withdraw_disbursement_announcement'
         );
     }
+
+
+    /**
+     * Handle withdraw disbursement schedule enable disable.
+     *
+     * @since 3.7.16
+     *
+     * @param array $old_value
+     * @param array $value
+     * @param string $option
+     *
+     * @return void
+     */
+    public function handle_admin_withdraw_schedule_change( $old_value, $value, $option ) {
+        if (
+            empty( $value['send_announcement_for_disbursement_schedule_change'] )
+            || ! is_array( $value['send_announcement_for_disbursement_schedule_change'] )
+        ) {
+            return;
+        }
+
+        as_enqueue_async_action(
+            'dokan_withdraw_disbursement_schedule_announcement_scheduler',
+            [
+                [
+                    $value['send_announcement_for_disbursement_schedule_change'],
+                    dokan_get_current_user_id(),
+                ],
+            ],
+            'dokan_withdraw_disbursement_announcement'
+        );
+    }
+
 
     /**
      * Unset Seller dashboard withdraw page.

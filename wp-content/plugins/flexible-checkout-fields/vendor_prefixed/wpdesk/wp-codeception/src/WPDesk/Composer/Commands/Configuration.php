@@ -19,7 +19,6 @@ class Configuration
     const APACHE_DOCUMENT_ROOT = 'APACHE_DOCUMENT_ROOT';
     const WOOTESTS_IP = 'WOOTESTS_IP';
     const DEPENDENT_PLUGINS_DIR = 'DEPENDENT_PLUGINS_DIR';
-    const TEST_SITE_WP_URL = 'TEST_SITE_WP_URL';
     /**
      * @var string
      */
@@ -28,10 +27,6 @@ class Configuration
      * @var string
      */
     private $wptests_ip;
-    /**
-     * @var string
-     */
-    private $wptests_url;
     /**
      * @var string
      */
@@ -97,7 +92,6 @@ class Configuration
      *
      * @param $apache_document_root
      * @param $wptests_ip
-     * @param $wptests_url
      * @param $dbhost
      * @param $dbname
      * @param $dbuser
@@ -114,11 +108,10 @@ class Configuration
      * @param $prepare_database
      * @param $theme_files
      */
-    public function __construct($apache_document_root, $wptests_ip, $wptests_url, $dbhost, $dbname, $dbuser, $dbpassword, $dependent_plugins_dir, $plugin_slug, $plugin_dir, $plugin_file, $plugin_title, $plugin_product_id, $repository_plugins, $local_plugins, $activate_plugins, $prepare_database, $theme_files)
+    public function __construct($apache_document_root, $wptests_ip, $dbhost, $dbname, $dbuser, $dbpassword, $dependent_plugins_dir, $plugin_slug, $plugin_dir, $plugin_file, $plugin_title, $plugin_product_id, $repository_plugins, $local_plugins, $activate_plugins, $prepare_database, $theme_files)
     {
         $this->apache_document_root = $apache_document_root;
         $this->wptests_ip = $wptests_ip;
-        $this->wptests_url = $wptests_url;
         $this->dbhost = $dbhost;
         $this->dbname = $dbname;
         $this->dbuser = $dbuser;
@@ -148,13 +141,6 @@ class Configuration
     public function getWptestsIp()
     {
         return $this->wptests_ip;
-    }
-    /**
-     * @return string
-     */
-    public function getWptestsUrl()
-    {
-        return $this->wptests_url;
     }
     /**
      * @return string
@@ -296,7 +282,6 @@ class Configuration
         $dbname = self::prepareFromEnv(self::MYSQL_DBNAME, 'wptest');
         $dbuser = self::prepareFromEnv(self::MYSQL_DBUSER, 'mysql');
         $dbpassword = self::prepareFromEnv(self::MYSQL_DBPASSWORD, 'mysql');
-        $wptest_url = self::prepareFromEnv(self::TEST_SITE_WP_URL, 'http://wptests.lh');
         $dependent_plugins_dir = self::prepareFromEnv(self::DEPENDENT_PLUGINS_DIR, '../');
         if (isset($configuration['plugin-slug'])) {
             $plugin_slug = $configuration['plugin-slug'];
@@ -331,7 +316,7 @@ class Configuration
         $repository_plugins = self::getPluginsSettings($configuration, 'repository');
         $local_plugins = self::getPluginsSettings($configuration, 'local');
         $activate_plugins = self::getPluginsSettings($configuration, 'activate');
-        return new self($apache_document_root, $wptests_ip, $wptest_url, $dbhost, $dbname, $dbuser, $dbpassword, $dependent_plugins_dir, $plugin_slug, $plugin_dir, $plugin_file, $plugin_title, $plugin_product_id, $repository_plugins, $local_plugins, $activate_plugins, $prepare_database, $theme_files);
+        return new self($apache_document_root, $wptests_ip, $dbhost, $dbname, $dbuser, $dbpassword, $dependent_plugins_dir, $plugin_slug, $plugin_dir, $plugin_file, $plugin_title, $plugin_product_id, $repository_plugins, $local_plugins, $activate_plugins, $prepare_database, $theme_files);
     }
     /**
      * @param string $env_variable .

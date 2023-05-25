@@ -73,10 +73,9 @@ class PopupLoader
 
 			$popupFromUrl = SGPopup::find($getterId, $args);
 			if (!empty($popupFromUrl)) {
-				global $SGPB_DATA_CONFIG_ARRAY;
 				$defaultEvent = array();
 				$customDelay = $popupFromUrl->getOptionValue('sgpb-popup-delay');
-				$defaultEvent[] = $SGPB_DATA_CONFIG_ARRAY['events']['initialData'][0];
+				$defaultEvent[] = \SgpbDataConfig::websiteDefaultConfigs()['events'][0];
 				$defaultEvent[0]['value'] = 0;
 				if ($customDelay) {
 					$defaultEvent[0]['value'] = $customDelay;
@@ -101,10 +100,9 @@ class PopupLoader
 			$foundPopup = $post;
 		}
 		if (!empty($foundPopup)) {
-			global $SGPB_DATA_CONFIG_ARRAY;
-			if (@$foundPopup->post_type == SG_POPUP_POST_TYPE) {
-				$events = $SGPB_DATA_CONFIG_ARRAY['events']['initialData'][0];
-				$targets = array($SGPB_DATA_CONFIG_ARRAY['target']['initialData']);
+			if (isset($foundPopup->post_type) && $foundPopup->post_type == SG_POPUP_POST_TYPE) {
+				$events = \SgpbDataConfig::websiteDefaultConfigs()['events'][0];
+				$targets = array(\SgpbDataConfig::websiteDefaultConfigs()['target']);
 				// for any targets preview popup should open
 				if (!empty($targets[0][0])) {
 					$targets[0][0]['param'] = 'post_all';

@@ -9,9 +9,9 @@
 	Author URI: https://plugin-planet.com/
 	Donate link: https://monzillamedia.com/donate.html
 	Requires at least: 4.6
-	Tested up to: 6.0
-	Stable tag: 3.1
-	Version: 3.1
+	Tested up to: 6.2
+	Stable tag: 3.3.1
+	Version: 3.3.1
 	Requires PHP: 5.6.20
 	Text Domain: dashboard-widgets-suite
 	Domain Path: /languages
@@ -32,7 +32,7 @@
 	You should have received a copy of the GNU General Public License
 	with this program. If not, visit: https://www.gnu.org/licenses/
 	
-	Copyright 2022 Monzilla Media. All rights reserved.
+	Copyright 2023 Monzilla Media. All rights reserved.
 */
 
 if (!defined('ABSPATH')) die();
@@ -55,6 +55,7 @@ if (!class_exists('Dashboard_Widgets_Suite')) {
 				add_action('init',                array(self::$instance, 'load_i18n'));
 				add_filter('plugin_action_links', array(self::$instance, 'action_links'), 10, 2);
 				add_filter('plugin_row_meta',     array(self::$instance, 'plugin_links'), 10, 2);
+				add_filter('admin_footer_text',   array(self::$instance, 'footer_text'), 10, 1);
 				
 				add_filter('get_user_option_screen_layout_dashboard', 'dashboard_widgets_suite_dashboard_columns');
 				add_filter('screen_layout_columns',                   'dashboard_widgets_suite_dashboard_columns_max');
@@ -91,7 +92,7 @@ if (!class_exists('Dashboard_Widgets_Suite')) {
 				'widget_feed_box_limit'    => 3, 
 				'widget_feed_box_length'   => 133, 
 				'widget_feed_box_feed'     => 'https://perishablepress.com/feed/', 
-				'widget_feed_box_view'     => 'all', 
+				'widget_feed_box_view'     => 'administrator', 
 				
 			);
 			
@@ -114,7 +115,7 @@ if (!class_exists('Dashboard_Widgets_Suite')) {
 			$options = array(
 				
 				'widget_list_box'          => false, 
-				'widget_list_box_view'     => 'all', 
+				'widget_list_box_view'     => 'administrator', 
 				'widget_list_box_menu'     => '',
 				
 			);
@@ -179,7 +180,7 @@ if (!class_exists('Dashboard_Widgets_Suite')) {
 				'widget_social_box_font'   => 24, 
 				'widget_social_box_radius' => 0, 
 				'widget_social_box_space'  => 10, 
-				'widget_social_box_view'   => 'all', 
+				'widget_social_box_view'   => 'administrator', 
 				'widget_social_box_twit1'  => '#', 
 				'widget_social_box_face1'  => '#', 
 				'widget_social_box_pint1'  => '#', 
@@ -216,7 +217,7 @@ if (!class_exists('Dashboard_Widgets_Suite')) {
 			$options = array(
 				
 				'widget_widget_box'         => false, 
-				'widget_widget_box_view'    => 'all', 
+				'widget_widget_box_view'    => 'administrator', 
 				'widget_widget_box_sidebar' => 'dws-widget-box',
 				
 			);
@@ -230,7 +231,7 @@ if (!class_exists('Dashboard_Widgets_Suite')) {
 		}
 		
 		private function constants() {
-			if (!defined('DWS_VERSION')) define('DWS_VERSION', '3.1');
+			if (!defined('DWS_VERSION')) define('DWS_VERSION', '3.3.1');
 			if (!defined('DWS_REQUIRE')) define('DWS_REQUIRE', '4.6');
 			if (!defined('DWS_NAME'))    define('DWS_NAME',    'Dashboard Widgets Suite');
 			if (!defined('DWS_AUTHOR'))  define('DWS_AUTHOR',  'Jeff Starr');
@@ -289,6 +290,26 @@ if (!class_exists('Dashboard_Widgets_Suite')) {
 				
 			}
 			return $links;
+		}
+		
+		function footer_text($text) {
+			
+			$screen_id = dashboard_widgets_suite_get_current_screen_id();
+			
+			$ids = array('settings_page_dashboard_widgets_suite');
+			
+			if ($screen_id && apply_filters('dashboard_widgets_suite_admin_footer_text', in_array($screen_id, $ids))) {
+				
+				$text = __('Like this plugin? Give it a', 'dashboard-widgets-suite');
+				
+				$text .= ' <a target="_blank" rel="noopener noreferrer" href="https://wordpress.org/support/plugin/dashboard-widgets-suite/reviews/?rate=5#new-post">';
+				
+				$text .= __('★★★★★ rating&nbsp;&raquo;', 'dashboard-widgets-suite') .'</a>';
+				
+			}
+			
+			return $text;
+			
 		}
 		
 		public function check_suite() {

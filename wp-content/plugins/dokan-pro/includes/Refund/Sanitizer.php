@@ -14,7 +14,7 @@ class Sanitizer {
      * @return string
      */
     protected static function sanitize_amount( $amount ) {
-        return wc_format_decimal( sanitize_text_field( $amount ), wc_get_price_decimals() );
+        return wc_format_decimal( sanitize_text_field( $amount ), wc_get_rounding_precision() );
     }
 
     /**

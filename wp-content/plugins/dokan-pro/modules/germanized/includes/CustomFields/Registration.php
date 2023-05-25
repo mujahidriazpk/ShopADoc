@@ -1,4 +1,5 @@
 <?php
+
 namespace WeDevs\DokanPro\Modules\Germanized\CustomFields;
 
 use WeDevs\DokanPro\Modules\Germanized\Helper;
@@ -9,8 +10,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Class Registration
+ *
+ * @since   3.3.1
+ *
  * @package WeDevs\DokanPro\Modules\Germanized\CustomFields
- * @since 3.3.1
  */
 class Registration {
 
@@ -36,7 +39,7 @@ class Registration {
      * @return void
      */
     public function registration_form_custom_fields() {
-        $postdata       = wp_unslash( $_POST ); // phpcs:ignore
+        $data           = $this->get_eu_complaiance_field_data();
         $fields_enabled = Helper::is_fields_enabled_for_seller();
         // check if fields are enabled
         ?>
@@ -44,10 +47,10 @@ class Registration {
             <p class="form-row form-group">
                 <label for="dokan-company-name"><?php echo Helper::get_company_name_label(); ?></label>
                 <input type="text" class="input-text form-control" name="dokan_company_name" id="dokan-company-name" value="<?php //phpcs:ignore
-                if ( ! empty( $postdata['dokan_company_name'] ) ) {
-                    echo esc_attr( $postdata['dokan_company_name'] );
+                if ( ! empty( $data['dokan_company_name'] ) ) {
+                    echo esc_attr( $data['dokan_company_name'] );
                 }
-                //phpcs:ignore ?>" />
+                //phpcs:ignore ?>"/>
             </p>
         <?php endif; ?>
 
@@ -55,9 +58,10 @@ class Registration {
             <p class="form-row form-group">
                 <label for="dokan-company-id-number"><?php echo Helper::get_company_id_label(); ?></label>
                 <input type="text" class="input-text form-control" name="dokan_company_id_number" id="dokan-company-id-number" value="<?php //phpcs:ignore
-                if ( ! empty( $postdata['dokan_company_id_number'] ) ) {
-                    echo esc_attr( $postdata['dokan_company_id_number'] );}
-                //phpcs:ignore ?>" />
+                if ( ! empty( $data['dokan_company_id_number'] ) ) {
+                    echo esc_attr( $data['dokan_company_id_number'] );
+                }
+                //phpcs:ignore ?>"/>
             </p>
         <?php endif; ?>
 
@@ -65,10 +69,10 @@ class Registration {
             <p class="form-row form-group form-row-wide">
                 <label for="dokan-vat-number"><?php echo Helper::get_vat_number_label(); ?></label>
                 <input type="text" class="input-text form-control" name="dokan_vat_number" id="dokan-vat-number" value="<?php //phpcs:ignore
-                if ( ! empty( $postdata['dokan_vat_number'] ) ) {
-                    esc_attr( $postdata['dokan_vat_number'] );
+                if ( ! empty( $data['dokan_vat_number'] ) ) {
+                    esc_attr( $data['dokan_vat_number'] );
                 }
-                //phpcs:ignore ?>" />
+                //phpcs:ignore ?>"/>
             </p>
         <?php endif; ?>
 
@@ -77,36 +81,38 @@ class Registration {
                 <p class="form-row form-group">
                     <label for="dokan-bank-name"><?php echo Helper::get_bank_name_label(); ?></label>
                     <input type="text" class="input-text form-control" name="dokan_bank_name" id="dokan-bank-name" value="<?php //phpcs:ignore
-                    if ( ! empty( $postdata['dokan_bank_name'] ) ) {
-                        echo esc_attr( $postdata['dokan_bank_name'] );
+                    if ( ! empty( $data['dokan_bank_name'] ) ) {
+                        echo esc_attr( $data['dokan_bank_name'] );
                     }
-                    //phpcs:ignore ?>" />
+                    //phpcs:ignore ?>"/>
                 </p>
 
                 <p class="form-row form-group">
                     <label for="dokan-bank-iban"><?php echo Helper::get_bank_iban_label(); ?></label>
                     <input type="text" class="input-text form-control" name="dokan_bank_iban" id="dokan-bank-iban" value="<?php //phpcs:ignore
-                    if ( ! empty( $postdata['dokan_bank_iban'] ) ) {
-                        echo esc_attr( $postdata['dokan_bank_iban'] );}
-                    //phpcs:ignore ?>" />
+                    if ( ! empty( $data['dokan_bank_iban'] ) ) {
+                        echo esc_attr( $data['dokan_bank_iban'] );
+                    }
+                    //phpcs:ignore ?>"/>
                 </p>
             </div>
         <?php elseif ( $fields_enabled['dokan_bank_name'] ) : ?>
             <p class="form-row form-group">
                 <label for="dokan-bank-name"><?php echo Helper::get_bank_name_label(); ?></label>
                 <input type="text" class="input-text form-control" name="dokan_bank_name" id="dokan-bank-name" value="<?php //phpcs:ignore
-                if ( ! empty( $postdata['dokan_bank_name'] ) ) {
-                    echo esc_attr( $postdata['dokan_bank_name'] );
+                if ( ! empty( $data['dokan_bank_name'] ) ) {
+                    echo esc_attr( $data['dokan_bank_name'] );
                 }
-                //phpcs:ignore ?>" />
+                //phpcs:ignore ?>"/>
             </p>
         <?php elseif ( $fields_enabled['dokan_bank_iban'] ) : ?>
             <p class="form-row form-group">
                 <label for="dokan-bank-iban"><?php echo Helper::get_bank_iban_label(); ?></label>
                 <input type="text" class="input-text form-control" name="dokan_bank_iban" id="dokan-bank-iban" value="<?php //phpcs:ignore
-                if ( ! empty( $postdata['dokan_bank_iban'] ) ) {
-                    echo esc_attr( $postdata['dokan_bank_iban'] );}
-                //phpcs:ignore ?>" />
+                if ( ! empty( $data['dokan_bank_iban'] ) ) {
+                    echo esc_attr( $data['dokan_bank_iban'] );
+                }
+                //phpcs:ignore ?>"/>
             </p>
         <?php endif; ?>
         <?php
@@ -115,37 +121,35 @@ class Registration {
     /**
      * Inject custom fields to WooCommerce for new vendor registraion
      *
+     * @since 3.3.1
+     *
      * @param array $data
      *
-     * @since 3.3.1
      * @return array
      */
     public function set_new_vendor_reg_data( $data ) {
-        $post_data = wp_unslash( $_POST ); // phpcs:ignore WordPress.Security.NonceVerification
+        $user_data = $this->get_eu_complaiance_field_data();
 
-        $allowed_roles = apply_filters( 'dokan_register_user_role', array( 'customer', 'seller' ) );
-        $role          = ( isset( $post_data['role'] ) && in_array( $post_data['role'], $allowed_roles, true ) ) ? $post_data['role'] : 'customer';
+        $data['role'] = $user_data['role'];
 
-        $data['role'] = $role;
-
-        if ( $role !== 'seller' ) {
+        if ( $user_data['role'] !== 'seller' ) {
             return $data;
         }
 
-        if ( isset( $post_data['dokan_company_name'] ) ) {
-            $data['dokan_company_name'] = sanitize_text_field( $post_data['dokan_company_name'] );
+        if ( isset( $user_data['dokan_company_name'] ) ) {
+            $data['dokan_company_name'] = $user_data['dokan_company_name'];
         }
-        if ( isset( $post_data['dokan_company_id_number'] ) ) {
-            $data['dokan_company_id_number'] = sanitize_text_field( $post_data['dokan_company_id_number'] );
+        if ( isset( $user_data['dokan_company_id_number'] ) ) {
+            $data['dokan_company_id_number'] = $user_data['dokan_company_id_number'];
         }
-        if ( isset( $post_data['dokan_vat_number'] ) ) {
-            $data['dokan_vat_number'] = sanitize_text_field( $post_data['dokan_vat_number'] );
+        if ( isset( $user_data['dokan_vat_number'] ) ) {
+            $data['dokan_vat_number'] = $user_data['dokan_vat_number'];
         }
-        if ( isset( $post_data['dokan_bank_name'] ) ) {
-            $data['dokan_bank_name'] = sanitize_text_field( $post_data['dokan_bank_name'] );
+        if ( isset( $user_data['dokan_bank_name'] ) ) {
+            $data['dokan_bank_name'] = $user_data['dokan_bank_name'];
         }
-        if ( isset( $post_data['dokan_bank_iban'] ) ) {
-            $data['dokan_bank_iban'] = sanitize_text_field( $post_data['dokan_bank_iban'] );
+        if ( isset( $user_data['dokan_bank_iban'] ) ) {
+            $data['dokan_bank_iban'] = $user_data['dokan_bank_iban'];
         }
 
         return $data;
@@ -154,7 +158,7 @@ class Registration {
     /**
      * Adds default dokan store settings when a new vendor registers
      *
-     * @param int $user_id
+     * @param int   $user_id
      * @param array $data
      *
      * @return void
@@ -184,5 +188,43 @@ class Registration {
         if ( isset( $data['dokan_bank_iban'] ) ) {
             update_user_meta( $user_id, 'dokan_bank_iban', $data['dokan_bank_iban'] );
         }
+    }
+
+    /**
+     * Get user posted data
+     *
+     * @since 3.7.6
+     *
+     * @return string[]
+     */
+    private function get_eu_complaiance_field_data() {
+        $data = [
+            'dokan_company_name'      => '',
+            'dokan_company_id_number' => '',
+            'dokan_vat_number'        => '',
+            'dokan_bank_name'         => '',
+            'dokan_bank_iban'         => '',
+            'role'                    => '',
+        ];
+
+        // check if user submitted data
+        $nonce_value = isset( $_POST['_wpnonce'] ) ? sanitize_key( wp_unslash( $_POST['_wpnonce'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+        $nonce_value = isset( $_POST['woocommerce-register-nonce'] ) ? sanitize_key( wp_unslash( $_POST['woocommerce-register-nonce'] ) ) : $nonce_value; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+
+        if ( wp_verify_nonce( $nonce_value, 'woocommerce-register' ) ) {
+            $allowed_roles = apply_filters( 'dokan_register_user_role', [ 'customer', 'seller' ] );
+            $role          = ( isset( $_POST['role'] ) && in_array( $_POST['role'], $allowed_roles, true ) ) ? sanitize_text_field( wp_unslash( $_POST['role'] ) ) : 'customer';
+
+            $data = [
+                'dokan_company_name'      => isset( $_POST['dokan_company_name'] ) ? sanitize_text_field( wp_unslash( $_POST['dokan_company_name'] ) ) : '',
+                'dokan_company_id_number' => isset( $_POST['dokan_company_id_number'] ) ? sanitize_text_field( wp_unslash( $_POST['dokan_company_id_number'] ) ) : '',
+                'dokan_vat_number'        => isset( $_POST['dokan_vat_number'] ) ? sanitize_text_field( wp_unslash( $_POST['dokan_vat_number'] ) ) : '',
+                'dokan_bank_name'         => isset( $_POST['dokan_bank_name'] ) ? sanitize_text_field( wp_unslash( $_POST['dokan_bank_name'] ) ) : '',
+                'dokan_bank_iban'         => isset( $_POST['dokan_bank_iban'] ) ? sanitize_text_field( wp_unslash( $_POST['dokan_bank_iban'] ) ) : '',
+                'role'                    => $role,
+            ];
+        }
+
+        return $data;
     }
 }

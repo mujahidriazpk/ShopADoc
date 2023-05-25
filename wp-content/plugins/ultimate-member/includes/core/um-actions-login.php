@@ -59,18 +59,29 @@ function um_submit_form_errors_hook_login( $args ) {
 		UM()->form()->add_error( 'user_password', __( 'Password is incorrect. Please try again.', 'ultimate-member' ) );
 	}
 
+	// Integration with 3rd-party login handlers e.g. 3rd-party reCAPTCHA etc.
+	$third_party_codes = apply_filters( 'um_custom_authenticate_error_codes', array() );
+
 	// @since 4.18 replacement for 'wp_login_failed' action hook
 	// see WP function wp_authenticate()
 	$ignore_codes = array( 'empty_username', 'empty_password' );
 
 	$user = apply_filters( 'authenticate', null, $authenticate, $args['user_password'] );
 	if ( is_wp_error( $user ) && ! in_array( $user->get_error_code(), $ignore_codes ) ) {
-		UM()->form()->add_error( $user->get_error_code(), __( 'Password is incorrect. Please try again.', 'ultimate-member' ) );
+		if ( ! empty( $third_party_codes ) && in_array( $user->get_error_code(), $third_party_codes ) ) {
+			UM()->form()->add_error( $user->get_error_code(), $user->get_error_message() );
+		} else {
+			UM()->form()->add_error( $user->get_error_code(), __( 'Password is incorrect. Please try again.', 'ultimate-member' ) );
+		}
 	}
 
 	$user = apply_filters( 'wp_authenticate_user', $user, $args['user_password'] );
 	if ( is_wp_error( $user ) && ! in_array( $user->get_error_code(), $ignore_codes ) ) {
-		UM()->form()->add_error( $user->get_error_code(), __( 'Password is incorrect. Please try again.', 'ultimate-member' ) );
+		if ( ! empty( $third_party_codes ) && in_array( $user->get_error_code(), $third_party_codes ) ) {
+			UM()->form()->add_error( $user->get_error_code(), $user->get_error_message() );
+		} else {
+			UM()->form()->add_error( $user->get_error_code(), __( 'Password is incorrect. Please try again.', 'ultimate-member' ) );
+		}
 	}
 
 	// if there is an error notify wp
@@ -155,6 +166,8 @@ add_action( 'um_submit_form_errors_hook_logincheck', 'um_submit_form_errors_hook
  */
 function um_store_lastlogin_timestamp( $user_id ) {
 	update_user_meta( $user_id, '_um_last_login', current_time( 'timestamp' ) );
+	// Flush user cache after updating last_login timestamp.
+	UM()->user()->remove_cache( $user_id );
 }
 add_action( 'um_on_login_before_redirect', 'um_store_lastlogin_timestamp', 10, 1 );
 

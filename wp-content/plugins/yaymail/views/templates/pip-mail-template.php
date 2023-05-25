@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use YayMail\Page\Source\UpdateElement;
-$custom_shortcode = new YayMail\MailBuilder\Shortcodes( $template );
+$custom_shortcode = new YayMail\MailBuilder\Shortcodes( $template, '', false );
 $arrData          = array( $custom_shortcode, $args, $template );
 do_action_ref_array( 'yaymail_addon_defined_shorcode', array( &$arrData ) );
 
@@ -83,7 +83,32 @@ $general_attrs        = array( 'tableWidth' => str_replace( 'px', '', $yaymail_s
 								$element['settingRow']['content'] = $content;
 							}
 						}
-						do_action( 'Yaymail' . $element['type'], $args, $element['settingRow'], $general_attrs, $element['id'], $postID, $isInColumns = false );
+						if ( has_filter( 'yaymail_addon_for_conditional_logic' ) && isset( $element['settingRow']['arrConditionLogic'] ) ) {
+							if ( ! empty( $element['settingRow']['arrConditionLogic'] ) ) {
+								$conditional_Logic = apply_filters( 'yaymail_addon_for_conditional_logic', false, $args, $element['settingRow'] );
+								if ( $conditional_Logic ) {
+									do_action( 'Yaymail' . $element['type'], $args, $element['settingRow'], $general_attrs, $element['id'], $postID, $isInColumns = false );
+								}
+							} else {
+								if ( 'OneColumn' === $element['type'] || 'TwoColumns' === $element['type'] || 'ThreeColumns' === $element['type'] || 'FourColumns' === $element['type'] ) {
+									for ( $column = 1; $column <= 4; $column++ ) {
+										if ( isset( $element['settingRow'][ 'column' . $column ] ) ) {
+											foreach ( $element['settingRow'][ 'column' . $column ] as $column_key => $column_element ) {
+												if ( isset( $column_element['settingRow']['arrConditionLogic'] ) && ! empty( $column_element['settingRow']['arrConditionLogic'] ) ) {
+													$conditional_Logic = apply_filters( 'yaymail_addon_for_conditional_logic', false, $args, $column_element['settingRow'] );
+													if ( ! $conditional_Logic ) {
+														unset( $element['settingRow'][ 'column' . $column ][ $column_key ] );
+													}
+												}
+											}
+										}
+									}
+								}
+								do_action( 'Yaymail' . $element['type'], $args, $element['settingRow'], $general_attrs, $element['id'], $postID, $isInColumns = false );
+							}
+						} else {
+							do_action( 'Yaymail' . $element['type'], $args, $element['settingRow'], $general_attrs, $element['id'], $postID, $isInColumns = false );
+						}
 						?>
 					 </td></tr> 
 					 <?php

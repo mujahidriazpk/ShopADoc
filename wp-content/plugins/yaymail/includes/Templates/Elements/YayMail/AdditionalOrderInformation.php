@@ -15,13 +15,13 @@
 		  class="web-tracking-item"
 		  align="left"
 		  style='font-size: 13px; line-height: 22px; word-break: break-word;
-				font-family: <?php echo wp_kses_post( $attrs['family'] ); ?>;
+				font-family: <?php echo wp_kses_post( str_replace( '"', '', $attrs['family'] ) ); ?>;
 				<?php echo esc_attr( 'padding: ' . $attrs['paddingTop'] . 'px ' . $attrs['paddingRight'] . 'px ' . $attrs['paddingBottom'] . 'px ' . $attrs['paddingLeft'] . 'px;' ); ?>
 		  '
 		>
 		  <div class="yaymail_items_border_custom" style="<?php echo esc_attr( 'color: ' . $attrs['titleColor'] ); ?>">
-			<h2 style='margin: 13px 0px;<?php echo esc_attr( 'color: ' . $attrs['titleColor'] ); ?>;font-family: <?php echo wp_kses_post( $attrs['family'] ); ?>;' >
-			 <?php echo esc_html( $attrs['titleContent'] ) ?>
+			<h2 style='margin: 13px 0px;<?php echo esc_attr( 'color: ' . $attrs['titleColor'] ); ?>;font-family: <?php echo wp_kses_post( str_replace( '"', '', $attrs['family'] ) ); ?>;' >
+			 <?php echo esc_html( $attrs['titleContent'] ); ?>
 			</h2>
 		  </div>
 		  <div

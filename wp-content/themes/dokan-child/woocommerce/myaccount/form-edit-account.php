@@ -16,8 +16,17 @@
  */
 
 defined( 'ABSPATH' ) || exit;
-
+global $current_user;
+/*echo date_default_timezone_get();
+echo "==";
+echo date('Y-m-d g:i A');
+echo "==";
+date_default_timezone_set('America/Los_Angeles');
+echo $today_date_time = date('Y-m-d g:i A');*/
 do_action( 'woocommerce_before_edit_account_form' ); ?>
+<?php if((isset($_GET['redirect'])&&$_GET['redirect']=='checkout')){?>
+<a href="<?php echo home_url('/checkout/')?>" style="font-size:17px !important;" class="dokan-btn dokan-btn-theme btn-primary" title="back">Back to Checkout</a>
+<?php }?>
  <?php 
   $btn_text = 'Save changes';
  if($user->roles[0] =='advanced_ads_user'){
@@ -32,12 +41,30 @@ do_action( 'woocommerce_before_edit_account_form' ); ?>
  <?php }?>
 <?php if(isset($_GET['mode']) && $_GET['mode']=='update'){?>
 <div class="woocommerce-notices-wrapper">
-	<div class="woocommerce-message" role="alert">
-		Account details changed successfully.	</div>
+	<?php if($user->roles[0] =='customer'){
+		$plan_status = get_plan_status();
+		if($plan_status == 'inactive' || $plan_status == ''){
+		?>
+			<div class="woocommerce-message" role="alert">You’ve successfully edited your contact information.</div>
+		<?php }else{?>
+			<div class="woocommerce-message" role="alert">You’ve successfully edited your contact information. Changes reflected in the following auction cycle.</div>
+		<?php }?>
+	<?php }else{?>
+		<?php 
+			date_default_timezone_set('America/Los_Angeles');
+			$monday_next_week = date("Y-m-d",strtotime( "monday next week" ))." 08:30";
+			$flash_cycle_end = date('Y-m-d', strtotime( 'friday this week' ) )." 10:30";
+			$today_date_time = date('Y-m-d H:i');
+			if ($today_date_time > $flash_cycle_end && $today_date_time < $monday_next_week) {?>
+				<div class="woocommerce-message" role="alert">You’ve successfully edited your contact information.</div>
+			<?php }else{?>
+				<div class="woocommerce-message" role="alert">You’ve successfully edited your contact information. Changes reflected in the following auction cycle.</div>
+			<?php }?>
+		<?php }?>
 </div>
 <?php }?>
 
-<form class="woocommerce-EditAccountForm edit-account" action="" method="post" <?php do_action( 'woocommerce_edit_account_form_tag' ); ?> >
+<form class="woocommerce-EditAccountForm edit-account" action="" method="post" <?php do_action( 'woocommerce_edit_account_form_tag' ); ?> autocomplete="off">
 
 	<?php do_action( 'woocommerce_edit_account_form_start' ); ?>
     <?php /*?>
@@ -67,7 +94,11 @@ do_action( 'woocommerce_before_edit_account_form' ); ?>
 	<div class="clear"></div>
 
 	<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide<?php echo $display_class;?>">
-		<label for="account_email"><?php esc_html_e( 'Email address', 'woocommerce' ); ?>&nbsp;<span class="required">*</span></label>
+		<?php if($current_user->roles[0]=='customer'){?>
+			<label for="account_email"><?php esc_html_e( 'Personal email', 'woocommerce' ); ?>&nbsp;<span class="required">*</span></label>
+		<?php }else{?>
+			<label for="account_email"><?php esc_html_e( 'Email address', 'woocommerce' ); ?>&nbsp;<span class="required">*</span></label>
+		<?php }?>
 		<input type="email" class="woocommerce-Input woocommerce-Input--email input-text" name="account_email" id="account_email" autocomplete="email" value="<?php echo esc_attr( $user->user_email ); ?>" />
 	</p>
 	<fieldset>
@@ -76,7 +107,7 @@ do_action( 'woocommerce_before_edit_account_form' ); ?>
 	<?php }?>
 		<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row form-row-first">
 			<label for="password_current"><?php esc_html_e( 'Current password (leave blank to leave unchanged)', 'woocommerce' ); ?></label>
-			<input type="password" class="woocommerce-Input woocommerce-Input--password input-text" name="password_current" id="password_current" autocomplete="off" />
+			<input type="password" class="woocommerce-Input woocommerce-Input--password input-text" name="password_current" id="password_current12" autocomplete="new-password"/>
             <span toggle="#password_current" class="myacount fa fa-fw fa-eye field-icon toggle-password"></span>
 		</p>
 		<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row form-row-first clear">
@@ -114,4 +145,5 @@ jQuery(document).ready(function() {
 		window.history.pushState(null, "", window.location.href);
 	};
 });
+jQuery('#post-46 h1.entry-title').append('&nbsp;<span class="tooltips" style="display:inline-block;float:none !important;" title="Any changes to your information will become effective the following auction cycle.">i</span>');
 </script>

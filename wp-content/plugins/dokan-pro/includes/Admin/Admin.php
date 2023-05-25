@@ -42,7 +42,7 @@ class Admin {
 
         add_action( 'wp_ajax_check_all_dokan_pages_exists', [ $this, 'check_all_dokan_pages_exists' ], 10, 2 );
         add_action( 'dokan_admin_setup_wizard_after_admin_commission', [ $this, 'add_additional_fee_admin_setup_wizard' ] );
-        add_action( 'dokan_admin_setup_wizard_save_step_setup_selling', [ $this, 'setup_wizard_save_step_setup_selling' ], 35, 2 );
+        add_action( 'dokan_admin_setup_wizard_save_step_setup_selling', [ $this, 'setup_wizard_save_step_setup_selling' ], 35, 1 );
 
         add_action( 'dokan_seller_meta_fields', array( $this, 'add_admin_user_withdraw_threshold_options' ), 9 );
         add_action( 'dokan_process_seller_meta_fields', array( $this, 'save_admin_user_withdraw_threshold_option' ) );
@@ -93,14 +93,13 @@ class Admin {
      * Save selling options setup wizard
      *
      * @param array $options
-     * @param array $post_data
      *
      * @return void
      */
-    public function setup_wizard_save_step_setup_selling( $options, $post_data ) {
+    public function setup_wizard_save_step_setup_selling( $options ) {
         check_admin_referer( 'dokan-setup' );
 
-        $options['additional_fee'] = isset( $post_data['dokan_admin_additional_fee'] ) && $post_data['dokan_admin_additional_fee'] !== '' ? wc_format_decimal( $post_data['dokan_admin_additional_fee'] ) : '';
+        $options['additional_fee'] = isset( $_POST['dokan_admin_additional_fee'] ) && $_POST['dokan_admin_additional_fee'] !== '' ? wc_format_decimal( sanitize_text_field( wp_unslash( $_POST['dokan_admin_additional_fee'] ) ) ) : '';
 
         update_option( 'dokan_selling', $options );
     }
@@ -251,6 +250,14 @@ class Admin {
             'default' => 'off',
         );
 
+        $settings_fields['add_new_attribute'] = array(
+            'name'    => 'add_new_attribute',
+            'label'   => __( 'Add New Attribute Values', 'dokan' ),
+            'desc'    => __( 'Allow vendors to add new values to predefined attribute', 'dokan' ),
+            'type'    => 'switcher',
+            'default' => 'off',
+        );
+
         $settings_fields['discount_edit'] = array(
             'name'    => 'discount_edit',
             'label'   => __( 'Discount Editing', 'dokan' ),
@@ -277,7 +284,7 @@ class Admin {
 
         $settings_fields['seller_review_manage'] = array(
             'name'    => 'seller_review_manage',
-            'label'   => __( 'Vendor Product Review', 'dokan' ),
+            'label'   => __( 'Vendor Product Review Status Change', 'dokan' ),
             'desc'    => __( 'Vendor can change product review status from vendor dashboard', 'dokan' ),
             'type'    => 'switcher',
             'default' => 'on',

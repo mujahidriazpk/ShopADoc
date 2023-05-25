@@ -195,24 +195,25 @@ class ProductBulkEdit {
         }
 
         $request_data       = wp_unslash( $_POST );
-        $bulk_products      = isset( $request_data['products_id'] ) ? array_map( 'sanitize_text_field', $request_data['products_id'] ) : [];
+        $bulk_products      = isset( $request_data['products_id'] ) ? array_map( 'sanitize_text_field', (array) $request_data['products_id'] ) : [];
         $is_single_category = 'single' === dokan_get_option( 'product_category_style', 'dokan_selling', 'single' );
 
-        if ( ! empty( $request_data['chosen_product_cat_bulk'] ) ) {
-            $chosen_cat = $is_single_category ? [ reset( $request_data['chosen_product_cat_bulk'] ) ] : $request_data['chosen_product_cat_bulk'];
-        } else {
-            $chosen_cat = [ absint( get_option( 'default_product_cat' ) ) ];
-        }
 
-        foreach ( $request_data['products_id'] as $key => $id ) {
-            Helper::set_object_terms_from_chosen_categories( $id, $chosen_cat );
+        // $request_data['status'] is product bulk action status ( edit/publish... ), when user publishes products we have to skip updating chosen cats.
+        if ( isset( $request_data['status'] ) && 'publish' !== $request_data['status'] && isset( $request_data['chosen_product_cat_bulk'] ) ) {
+            $chosen_product_cat = $request_data['chosen_product_cat_bulk'];
+            $chosen_cat = $is_single_category ? reset( $chosen_product_cat ) : $chosen_product_cat;
+
+            foreach ( $bulk_products as $id ) {
+                Helper::set_object_terms_from_chosen_categories( $id, (array) $chosen_cat );
+            }
         }
 
         if ( ! empty( $request_data['product_tags'] ) ) {
             $product_tags    = [];
             $can_create_tags = 'on' === dokan_get_option( 'product_vendors_can_create_tags', 'dokan_selling', 'off' );
 
-            foreach ( $request_data['product_tags'] as $tag ) {
+            foreach ( (array) $request_data['product_tags'] as $tag ) {
                 // include existing tags
                 if ( is_numeric( $tag ) ) {
                     $product_tags[] = intval( $tag );

@@ -20,7 +20,7 @@
 			'padding': emailContent.settingRow.paddingTop + 'px ' + emailContent.settingRow.paddingRight + 'px ' + emailContent.settingRow.paddingBottom + 'px ' + emailContent.settingRow.paddingLeft + 'px'
 		  }"
 		  style='word-break: break-word;
-		  font-family: <?php echo wp_kses_post( $attrs['family'] ); ?>;
+		  font-family: <?php echo wp_kses_post( str_replace( '"', '', $attrs['family'] ) ); ?>;
 		  <?php echo esc_attr( 'font-size: ' . $attrs['fontSize'] . 'px' ); ?>;
 		  <?php echo esc_attr( 'padding: ' . $attrs['paddingTop'] . 'px ' . $attrs['paddingRight'] . 'px ' . $attrs['paddingBottom'] . 'px ' . $attrs['paddingLeft'] . 'px;' ); ?>
 		  '

@@ -176,6 +176,11 @@ class Assets {
                 'version'   => $this->script_version,
                 'in_footer' => true,
             ],
+
+            'dokan-magnific-popup' => [
+                'src'       => DOKAN_PRO_PLUGIN_ASSEST . '/vendor/magnific/jquery.magnific-popup.min.js',
+                'deps'      => [ 'jquery' ],
+            ],
         ];
 
         /**
@@ -211,6 +216,9 @@ class Assets {
                 'src'     => DOKAN_PRO_PLUGIN_ASSEST . '/css/wp-version-before-5-3.css',
                 'version' => $this->script_version,
             ],
+            'dokan-magnific-popup' => [
+                'src'     => DOKAN_PRO_PLUGIN_ASSEST . '/vendor/magnific/magnific-popup.css',
+            ],
         ];
 
         return $styles;
@@ -228,7 +236,7 @@ class Assets {
     public function add_i18_localized_data( $default_script ) {
         $localize_script = [
             'i18n_location_name'             => __( 'Please provide a location name!', 'dokan' ),
-            'i18n_location_state'            => __( 'Please provide a state!', 'dokan' ),
+            'i18n_location_state'            => __( 'Please provide', 'dokan' ),
             'i18n_country_name'              => __( 'Please provide a country!', 'dokan' ),
             'i18n_invalid'                   => __( 'Failed! Somthing went wrong', 'dokan' ),
             'i18n_chat_message'              => __( 'Facebook SDK is not found, or blocked by the browser. Can not initialize the chat.', 'dokan' ),

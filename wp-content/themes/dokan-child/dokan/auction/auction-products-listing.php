@@ -604,6 +604,6 @@ function checkAuctionStatus(){
 						});
 }
 <?php if(!empty($auctionids)){?>
-//var auctionStatus = setInterval(checkAuctionStatus,5000);
+var auctionStatus = setInterval(checkAuctionStatus,2000);
 <?php }?>
 </script>

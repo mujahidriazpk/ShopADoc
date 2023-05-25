@@ -62,3 +62,5 @@
 
 .wcmp-purchased-times{display:inline-block;margin-left:10px;margin-right:10px;font-size:0.8em;}
 .mini_cart_item .wcmp-player{display:none !important;}
+.wcmp-classic-layout .wcmp-download-links{padding:0 5px;display:block;border-top: 1px dashed #D0D0D0;margin-top:5px;}
+.wcmp-new-layout .wcmp-download-links{padding-left:10px;}

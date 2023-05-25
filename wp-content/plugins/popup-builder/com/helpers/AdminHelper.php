@@ -171,8 +171,7 @@ class AdminHelper
 	{
 		$attrString = '';
 		$savedData = $data;
-
-		if (isset($selectedValue)) {
+		if (isset($selectedValue) && $selectedValue !== '') {
 			$savedData = $selectedValue;
 		}
 		if (empty($savedData)) {
@@ -576,13 +575,15 @@ class AdminHelper
 		$role = array('administrator');
 
 		if (is_multisite()) {
-
-			$getUsersObj = get_users(
-				array(
-					'blog_id' => get_current_blog_id(),
-					'search' => get_current_user_id()
-				)
-			);
+			$getUsersObj = array();
+			if (get_current_user_id() !== 0){
+				$getUsersObj = get_users(
+					array(
+						'blog_id' => get_current_blog_id(),
+						'search' => get_current_user_id()
+					)
+				);
+			}
 
 			if (!empty($getUsersObj[0])) {
 				$roles = $getUsersObj[0]->roles;
@@ -964,7 +965,7 @@ class AdminHelper
 		$content = '<div class="sgpb-support-notification-wrapper sgpb-wrapper"><h4 class="sgpb-support-notification-title">'.__('Need some help?', SG_POPUP_TEXT_DOMAIN).'</h4>';
 		$content .= '<h4 class="sgpb-support-notification-title">'.__('Let us know what you think.', SG_POPUP_TEXT_DOMAIN).'</h4>';
 		$content .= '<a class="btn btn-info" target="_blank" href="'.SG_POPUP_RATE_US_URL.'"><span class="dashicons sgpb-dashicons-heart sgpb-info-text-white"></span><span class="sg-info-text">'.__('Rate Us', SG_POPUP_TEXT_DOMAIN).'</span></a>';
-		$content .= '<a class="btn btn-info" target="_blank" href="'.SG_POPUP_TICKET_URL.'"><span class="dashicons sgpb-dashicons-megaphone sgpb-info-text-white"></span>'.__('Support Potal', SG_POPUP_TEXT_DOMAIN).'</a>';
+		$content .= '<a class="btn btn-info" target="_blank" href="'.SG_POPUP_TICKET_URL.'"><span class="dashicons sgpb-dashicons-megaphone sgpb-info-text-white"></span>'.__('Support Portal', SG_POPUP_TEXT_DOMAIN).'</a>';
 		$content .= '<a class="btn btn-info" target="_blank" href="https://wordpress.org/support/plugin/popup-builder"><span class="dashicons sgpb-dashicons-admin-plugins sgpb-info-text-white"></span>'.__('Support Forum', SG_POPUP_TEXT_DOMAIN).'</a>';
 		$content .= '<a class="btn btn-info" target="_blank" href="'.SG_POPUP_STORE_URL.'"><span class="dashicons sgpb-dashicons-editor-help sgpb-info-text-white"></span>'.__('LIVE chat', SG_POPUP_TEXT_DOMAIN).'</a>';
 		$content .= '<a class="btn btn-info" target="_blank" href="mailto:support@popup-builder.com?subject=Hello"><span class="dashicons sgpb-dashicons-email-alt sgpb-info-text-white"></span>'.__('Email', SG_POPUP_TEXT_DOMAIN).'</a></div>';
@@ -1196,7 +1197,7 @@ class AdminHelper
 	{
 		$contentType = 'text/html';
 		$charset = 'UTF-8';
-		$blogInfo = get_bloginfo();
+		$blogInfo = wp_specialchars_decode( get_bloginfo() );
 
 		if (!empty($args['contentType'])) {
 			$contentType = $args['contentType'];
@@ -1245,6 +1246,7 @@ class AdminHelper
 	{
 		$allPopups = SGPopup::getAllPopups();
 		$popupIdTitles = array();
+		$excludesPopups = apply_filters('sgpb_exclude_from_popups_list', $excludesPopups);
 
 		if (empty($allPopups)) {
 			return $popupIdTitles;
@@ -1329,8 +1331,9 @@ class AdminHelper
 		}
 
 		$dateObj = self::getDateObjFromDate('now', $timezone);
-		$timeNow = @strtotime($dateObj);
-		$seconds = @strtotime($dueDate)-$timeNow;
+		$timeNow = gettype($dateObj) == 'string' ? strtotime($dateObj) : 0;
+		$dueDateTime = gettype($dueDate) == 'string' ? strtotime($dueDate) : 0;
+		$seconds = $dueDateTime-$timeNow;
 		if ($seconds < 0) {
 			$seconds = 0;
 		}
@@ -1444,7 +1447,7 @@ class AdminHelper
 	{
 		$hasInactiveExtensions = false;
 		$allRegiseredPBPlugins = AdminHelper::getOption(SGPB_POPUP_BUILDER_REGISTERED_PLUGINS);
-		$allRegiseredPBPlugins = @json_decode($allRegiseredPBPlugins, true);
+		$allRegiseredPBPlugins = !empty($allRegiseredPBPlugins) ? json_decode($allRegiseredPBPlugins, true) : array();
 		if (empty($allRegiseredPBPlugins)) {
 			return $hasInactiveExtensions;
 		}
@@ -1545,7 +1548,7 @@ class AdminHelper
 				if ((!isset($jsPostMeta['sgpb-'.$key]) || empty($jsPostMeta['sgpb-'.$key])) || $key == 'ShouldOpen' || $key == 'ShouldClose') {
 					continue;
 				}
-				$content = @$jsPostMeta['sgpb-'.$key];
+				$content = isset($jsPostMeta['sgpb-'.$key]) ? $jsPostMeta['sgpb-'.$key] : '';
 				$content = str_replace('popupId', $popupId, $content);
 				$content = str_replace("<", "&lt;", $content);
 				$content = str_replace(">", "&gt;", $content);
@@ -2053,7 +2056,7 @@ class AdminHelper
 		$mailSubject = $newsletterData['newsletterSubject'];
 		$fromEmail = $newsletterData['fromEmail'];
 		$emailMessage = $newsletterData['messageBody'];
-		$blogInfo = get_bloginfo();
+		$blogInfo = wp_specialchars_decode( get_option( 'blogname' ) );
 		$headers = array(
 			'From: "'.$blogInfo.'" <'.$fromEmail.'>' ,
 			'MIME-Version: 1.0' ,
@@ -2075,7 +2078,33 @@ class AdminHelper
 			$emails = $receiverEmailsArray;
 		}
 
-		$mailStatus = wp_mail($emails, $mailSubject, $emailMessage, $headers);
+		$newsletterOptions = get_option('SGPB_NEWSLETTER_DATA');
+		$allAvailableShortcodes = array();
+		$allAvailableShortcodes['patternBlogName'] = '/\[Blog name]/';
+		$allAvailableShortcodes['patternUserName'] = '/\[User name]/';
+		$allAvailableShortcodes['patternUnsubscribe'] = '';
+
+		$pattern = "/\[(\[?)(Unsubscribe)(?![\w-])([^\]\/]*(?:\/(?!\])[^\]\/]*)*?)(?:(\/)\]|\](?:([^\[]\*+(?:\[(?!\/\2\])[^\[]\*+)\*+)\[\/\2\])?)(\]?)/";
+		preg_match($pattern, $emailMessage, $matches);
+		$title = __('Unsubscribe', SG_POPUP_TEXT_DOMAIN);
+		if ($matches) {
+			$patternUnsubscribe = $matches[0];
+			// If user didn't change anything inside the [unsubscribe] shortcode $matches[2] will be equal to 'Unsubscribe'
+			if ($matches[2] == 'Unsubscribe') {
+				$pattern = '/\s(\w+?)="(.+?)"]/';
+				preg_match($pattern, $matches[0], $matchesTitle);
+				if (!empty($matchesTitle[2])) {
+					$title = AdminHelper::removeAllNonPrintableCharacters($matchesTitle[2], 'Unsubscribe');
+				}
+			}
+			$allAvailableShortcodes['patternUnsubscribe'] = $patternUnsubscribe;
+		}
+
+		$emailMessageCustom = preg_replace($allAvailableShortcodes['patternBlogName'], $newsletterOptions['blogname'], $emailMessage);
+		$emailMessageCustom = preg_replace($allAvailableShortcodes['patternUserName'], $newsletterOptions['username'], $emailMessageCustom);
+		$emailMessageCustom = str_replace($allAvailableShortcodes['patternUnsubscribe'], '', $emailMessageCustom);
+
+		$mailStatus = wp_mail($emails, $mailSubject, $emailMessageCustom, $headers);
 
 		wp_die(esc_html($newsletterData['testSendingStatus']));
 	}
@@ -2155,9 +2184,9 @@ class AdminHelper
 		$licenses = (new License())->getLicenses();
 
 		foreach ($licenses as $license) {
-			$key = @$license['key'];
-			$itemId = @$license['itemId'];
-			$filePath = @$license['file'];
+			$key = isset($license['key']) ?$license['key'] : '';
+			$itemId = isset($license['itemId']) ? $license['itemId'] : '';
+			$filePath = isset($license['file']) ? $license['file'] : '';
 			$pluginMainFilePath = strpos($filePath, SG_POPUP_PLUGIN_PATH) !== 0 ? SG_POPUP_PLUGIN_PATH.$filePath : $filePath;
 
 			$licenseKey = trim(get_option('sgpb-license-key-'.$key));
@@ -2207,13 +2236,12 @@ class AdminHelper
 		}
 	}
 
-	public static function allowed_html_tags()
+	public static function allowed_html_tags($allowScript = true)
 	{
 		$allowedPostTags = array();
 		$allowedPostTags = wp_kses_allowed_html('post');
 		$allowed_atts = array(
 			'role'             => array(),
-			'onclick'          => array(),
 			'checked'          => array(),
 			'align'            => array(),
 			'preload'          => array(),
@@ -2273,6 +2301,10 @@ class AdminHelper
 			'selected'         => array(),
 			'multiple'         => array()
 		);
+		if ($allowScript){
+			$allowedPostTags['script'] = $allowed_atts;
+			$allowed_atts['onclick'] = array();
+		}
 		$allowedPostTags['select'] = $allowed_atts;
 		$allowedPostTags['optgroup'] = $allowed_atts;
 		$allowedPostTags['option'] = $allowed_atts;
@@ -2285,7 +2317,7 @@ class AdminHelper
 		$allowedPostTags['source'] = $allowed_atts;
 		$allowedPostTags['textarea'] = $allowed_atts;
 		$allowedPostTags['iframe'] = $allowed_atts;
-		$allowedPostTags['script'] = $allowed_atts;
+
 		$allowedPostTags['style'] = $allowed_atts;
 		$allowedPostTags['strong'] = $allowed_atts;
 		$allowedPostTags['small'] = $allowed_atts;

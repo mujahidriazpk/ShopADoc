@@ -6,9 +6,9 @@ Plugin URI: https://popup-builder.com
 Donate link: https://popup-builder.com
 Tags: popup, pop up, wordpress popup, popup maker, exit popup, popup builder, wordpress popup plugin
 Requires at least: 4.2
-Tested up to: 5.9
+Tested up to: 6.1
 Requires PHP: 5.3.3
-Stable tag: 4.1.2
+Stable tag: 4.1.14
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -22,7 +22,7 @@ Popup Builder is a Perfect solution for any WordPress website. With a wide range
 Moreover, our team created a custom JS/CSS coding opportunity for all our WordPress pop up types making any popup unique and fully customizable.
 Use the best WordPress popup plugin and enjoy the popup creation process.
 
-https://www.youtube.com/watch?v=-wFDJDjczeY
+https://www.youtube.com/watch?v=CONvwuTdGYI
 
 **SUPER EASY AND SIMPLE TO USE**
 
@@ -130,20 +130,80 @@ Go to the Popup Builder settings and set your desired options.
 == Screenshots ==
 
 1.  List of popups screen
-2.  Add new popup screen
-3.  Edit popup screen - Visual Composer
-4.  Edit popup screen - DIVI Builder
-5.  Subscribers list
-6.  Newsletter
-7.  Video popup
-8.  Social popup
-9.  Content restriction popup
-10. Subscription popup
-11. Image popup
-12. Countdown popup
-13. Facebook popup
+2.  Image popup settings
+3.  Design settings
+4.  Dimensions
+5.	Advanced targeting
+6.  Floating button
+7.  Facebook settings
+8.  Subscription settings
+9.  Subscribers list
+10. Newsletter
+11. Subscription popup
+12. Facebook popup
+13. Content restriction popup
+14. Registration popup
 
 == Changelog ==
+
+= Version 4.1.14 =
+* Bug fixed related to popup order's tooltip
+* Bug fixed related to popup's closing animation's preview
+* Improvement of design in image popup's "Image settings". Size of image frame was decreased
+* Improvement of "Statistics" page. "Reset" button's size was decreased for better UI
+* Improvement of "Live preview" in subscription popup
+
+= Version 4.1.13 =
+* Bug fixed related to tags in Display rules
+* Bug fixed related to PHP warnings that were visible in the plugin
+
+= Version 4.1.12 =
+* Improvement of code: Cross-site request forgery issues have been solved : Credits: @yeraisci_
+
+= Version 4.1.11 =
+* Improvement of code: touch event has been added for mobile devices
+* Bug fixed related to symbols in text area
+* Some minor code improvements
+
+= Version 4.1.10 =
+* Code improvements and bug fixes
+
+= Version 4.1.9 =
+* Bug fixed related to popups that are set to appear with shortcodes and conditions
+
+= Version 4.1.8 =
+* Bug fixed related to popups that are set to appear with shortcodes and conditions
+* Bug fixed related to JS error that blocks popup triggering
+* Bug fixed related to layout on RTL sites
+* Bug fixed related to compatibility error control operator in PHP 8
+* Bug fixed related to conflict with Elementor
+* Bug fixed related to errors that appear after installing the plugin
+
+= Version 4.1.7 =
+* Improvement of Popup Builder button: the button has been added in Gutenberg editor
+* Bug fixed related to typo related to translating menu items
+* Bug fixed related to 502 error when popup is inserted with its shortcode in the same popup
+* Bug fixed related to conflict with UberMenu plugin
+* Bug fixed related to PHP errors in "All Subscribers" page
+
+= Version 4.1.6 =
+* Bug fixed related to draft popups that were not visible in trash
+* Bug fixed related to Popup Builder's button that was visible in Newsletter
+* Improvement of popup's background settings
+
+= Version 4.1.5 =
+* Improvement of code, some queries are optimized
+* Bug fixed related to popup opening issues on iOS devices
+* Bug fixed related to Newsletter text formatting in testing mode
+* Bug fixed related to popups that are set to appear on post categories
+
+= Version 4.1.4 =
+* Bug fixed related to filenames that contain non ascii characters
+* Bug fixed related to UI issues on multisite
+* Bug fixed related to draft popups, that were not saved properly
+
+= Version 4.1.3 =
+* Improvement of shortcodes when user sends newsletters in test mode
 
 = Version 4.1.2 =
 * Bug fixed related to the debug mode that was not working properly
@@ -510,4 +570,4 @@ Leave us a good review :)
 
 == Upgrade Notice ==
 
-Current Version of Popup Builder is 4.1.2
+Current Version of Popup Builder is 4.1.14

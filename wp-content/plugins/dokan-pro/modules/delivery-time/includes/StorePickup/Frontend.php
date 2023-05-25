@@ -1,6 +1,5 @@
 <?php
 
-
 namespace WeDevs\DokanPro\Modules\DeliveryTime\StorePickup;
 
 /**
@@ -39,14 +38,19 @@ class Frontend {
      * @return void
      */
     public function render_store_pickup_location_type_selector_section( $vendor_id, $vendor_info ) {
-        $location_count = count( Helper::get_vendor_store_pickup_locations( $vendor_id ) );
+        // Getting count of locations & admin delivery settings.
+        $location_count               = count( Helper::get_vendor_store_pickup_locations( $vendor_id ) );
+        $admin_support_settings       = dokan_get_option( 'delivery_support', 'dokan_delivery_time', '' );
+        $vendor_can_override_settings = dokan_get_option( 'allow_vendor_override_settings', 'dokan_delivery_time', 'off' );
 
         dokan_get_template_part(
             'store-pickup/store-pickup-selector', '', [
-                'is_delivery_time' => true,
-                'vendor_id'        => $vendor_id,
-                'vendor_info'      => $vendor_info,
-                'location_count'   => $location_count,
+                'is_delivery_time'             => true,
+                'vendor_id'                    => $vendor_id,
+                'vendor_info'                  => $vendor_info,
+                'location_count'               => $location_count,
+                'admin_support_settings'       => $admin_support_settings,
+                'vendor_can_override_settings' => $vendor_can_override_settings === 'on',
             ]
         );
     }
@@ -62,7 +66,7 @@ class Frontend {
      * @return void
      */
     public function render_store_pickup_location_select_option_section( $vendor_id, $vendor_info ) {
-        if ( ! Helper::is_store_pickup_location_active_for_vendor( $vendor_id ) ) {
+        if ( ! Helper::is_store_pickup_location_active( $vendor_id ) ) {
             return;
         }
 
@@ -161,6 +165,7 @@ class Frontend {
             'store-pickup/store-location-order-details', '', [
                 'is_delivery_time' => true,
                 'location'         => $store_location,
+                'order'            => $order,
                 'date'             => $vendor_delivery_date,
                 'slot'             => $delivery_time_slot,
             ]

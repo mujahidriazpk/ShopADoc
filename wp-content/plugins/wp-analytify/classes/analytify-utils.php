@@ -14,6 +14,26 @@ class WPANALYTIFY_Utils {
 	}
 
 	/**
+	 * Check if tracking script is allowed on current page. 
+	 *
+	 * @return boolean
+	 */
+	public static function skip_page_tracking() {
+
+		if ( ! is_singular() ) {
+			return false;
+		}
+	
+		global $post;
+
+		if ( ! is_object( $post ) ) {
+			return false;
+		}
+	
+		return (bool) get_post_meta( $post->ID, '_analytify_skip_tracking', true );
+	}
+
+	/**
 	 * Returns the timezone string for a site, even if it's set to a UTC offset.
 	 *
 	 * @return string
@@ -166,6 +186,30 @@ class WPANALYTIFY_Utils {
 
 	}
 
+	/**
+	 * Convert fraction to percentage.
+	 * 
+	 * @param int $number
+	 * 
+	 * @since 5.0.0
+	 */
+	public static function fraction_to_percentage( $number ){
+		return WPANALYTIFY_Utils::pretty_numbers( $number * 100 );
+	}
+
+	/**
+	 * Check the current permalink structure
+	 * and returns the correct delimeter to be
+	 * used in url.
+	 * 
+	 * @since 5.0.0
+	 */
+	public static function get_delimiter(){
+		$rest_url  = esc_url_raw( get_rest_url() );
+		$delimiter = strpos( $rest_url, '/wp-json/' ) !== false ? '?' : '&';
+		return $delimiter;
+	}
+
 
 	/**
 	 * show coupon message to Free users Only.
@@ -201,25 +245,61 @@ class WPANALYTIFY_Utils {
 	 */
 	public static function handle_exceptions( $_exception_errors ) {
 
-		if ( $_exception_errors[0]['reason'] == 'dailyLimitExceeded' ) {
-			add_action( 'admin_notices', array( 'WPANALYTIFY_Utils','daily_limit_exceed_error' ), 9 );
-		} else if ( $_exception_errors[0]['reason'] == 'insufficientPermissions' && $_exception_errors[0]['domain'] == 'global') {
-			add_action( 'admin_notices', array( 'WPANALYTIFY_Utils','no_profile_error' ), 9 );
-		} else if ( $_exception_errors[0]['reason'] == 'insufficientPermissions' ) {
-			add_action( 'admin_notices', array( 'WPANALYTIFY_Utils','insufficent_permissions_error' ), 9 );
-		} else if ( $_exception_errors[0]['reason'] == 'usageLimits.userRateLimitExceededUnreg' ) {
-			add_action( 'admin_notices', array( 'WPANALYTIFY_Utils','user_rate_limit_unreg_error' ), 9 );
-		} else if ( $_exception_errors[0]['reason'] == 'userRateLimitExceeded' ) {
-			add_action( 'admin_notices', array( 'WPANALYTIFY_Utils','user_rate_limit_error' ), 9 );
-		} else if ( $_exception_errors[0]['reason'] == 'rateLimitExceeded' ) {
-			add_action( 'admin_notices', array( 'WPANALYTIFY_Utils','rate_limit_exceeded_error' ), 9 );
-		} else if ( $_exception_errors[0]['reason'] == 'quotaExceeded' ) {
-			add_action( 'admin_notices', array( 'WPANALYTIFY_Utils','quota_exceeded_error' ), 9 );
-		} else if ( $_exception_errors[0]['reason'] == 'accessNotConfigured' ) {
-			add_action( 'admin_notices', array( 'WPANALYTIFY_Utils','accessNotConfigured' ), 9 );
-		} else if ( $_exception_errors[0]['reason'] == 'unexpected_profile_error' ){
-			add_action( 'admin_notices', array( 'WPANALYTIFY_Utils','unexpected_profile_error' ), 9 );
+
+		if ( isset( $_exception_errors[0]['reason'] ) && $_exception_errors[0]['reason'] == 'dailyLimitExceeded' ) {
+			add_action( 'admin_notices', array( 'WPANALYTIFY_Utils', 'daily_limit_exceed_error' ), 9 );
+		} elseif ( isset( $_exception_errors[0]['reason'] ) && $_exception_errors[0]['reason'] == 'insufficientPermissions' && $_exception_errors[0]['domain'] == 'global') {
+			add_action( 'admin_notices', array( 'WPANALYTIFY_Utils', 'no_profile_error' ), 9 );
+		} elseif ( isset( $_exception_errors[0]['reason'] ) && $_exception_errors[0]['reason'] == 'insufficientPermissions' ) {
+			add_action( 'admin_notices', array( 'WPANALYTIFY_Utils', 'insufficent_permissions_error' ), 9 );
+		} elseif ( isset( $_exception_errors[0]['reason'] ) && $_exception_errors[0]['reason'] == 'usageLimits.userRateLimitExceededUnreg' ) {
+			add_action( 'admin_notices', array( 'WPANALYTIFY_Utils', 'user_rate_limit_unreg_error' ), 9 );
+		} elseif ( isset( $_exception_errors[0]['reason'] ) && $_exception_errors[0]['reason'] == 'userRateLimitExceeded' ) {
+			add_action( 'admin_notices', array( 'WPANALYTIFY_Utils', 'user_rate_limit_error' ), 9 );
+		} elseif ( isset( $_exception_errors[0]['reason'] ) && $_exception_errors[0]['reason'] == 'rateLimitExceeded' ) {
+			add_action( 'admin_notices', array( 'WPANALYTIFY_Utils', 'rate_limit_exceeded_error' ), 9 );
+		} elseif ( isset( $_exception_errors[0]['reason'] ) && $_exception_errors[0]['reason'] == 'quotaExceeded' ) {
+			add_action( 'admin_notices', array( 'WPANALYTIFY_Utils', 'quota_exceeded_error' ), 9 );
+		} elseif ( isset( $_exception_errors[0]['reason'] ) && $_exception_errors[0]['reason'] == 'accessNotConfigured' ) {
+			add_action( 'admin_notices', array( 'WPANALYTIFY_Utils', 'accessNotConfigured' ), 9 );
+		} elseif ( isset( $_exception_errors[0]['reason'] ) && $_exception_errors[0]['reason'] == 'unexpected_profile_error' ){
+			add_action( 'admin_notices', array( 'WPANALYTIFY_Utils', 'unexpected_profile_error' ), 9 );
+		} elseif ( isset( $_exception_errors[0]['reason'] ) && $_exception_errors[0]['reason'] == 'ACCESS_TOKEN_SCOPE_INSUFFICIENT' ) {
+			add_action( 'admin_notices', array( 'WPANALYTIFY_Utils', 'insufficient_token_scope' ), 9 );
 		}
+	}
+
+	public static function handle_ga4_exceptions(){
+		$analytify_ga4_exceptions = get_option('analytify_ga4_exceptions');
+		// Handle measurement protocol secret errors.
+		if ( ! empty( $analytify_ga4_exceptions['mp_secret_exception']['reason'] ) && ( $analytify_ga4_exceptions['mp_secret_exception']['reason'] == 'ACCESS_TOKEN_SCOPE_INSUFFICIENT' || $analytify_ga4_exceptions['mp_secret_exception']['reason'] == 'Request had insufficient authentication scopes.' ) ) {
+			add_action( 'admin_notices', array( 'WPANALYTIFY_Utils', 'insufficient_token_scope' ), 9 );
+		} elseif ( ! empty( $analytify_ga4_exceptions['mp_secret_exception'] ) ) {
+			echo "<div style='margin-left: 12rem;'>{$analytify_ga4_exceptions['mp_secret_exception']['message']}</div>";
+		}
+		// Handle ga4 stream errors.
+		if ( ! empty( $analytify_ga4_exceptions['create_stream_exception']['reason'] ) && ( $analytify_ga4_exceptions['create_stream_exception']['reason'] == 'ACCESS_TOKEN_SCOPE_INSUFFICIENT' || $analytify_ga4_exceptions['create_stream_exception']['reason'] == 'Request had insufficient authentication scopes.' ) ) {
+			add_action( 'admin_notices', array( 'WPANALYTIFY_Utils', 'insufficient_token_scope' ), 9 );
+		} elseif ( ! empty( $analytify_ga4_exceptions['create_stream_exception'] ) ) {
+			echo "<div style='margin-left: 12rem;'>{$analytify_ga4_exceptions['create_stream_exception']['message']}</div>";
+		}
+	
+		// handle ga4 fetch profile errors.
+		if( ! empty( $analytify_ga4_exceptions['fetch_ga4_profiles_exception'] ) ) {
+			echo "<div style='margin-left: 12rem;'>{$analytify_ga4_exceptions['fetch_ga4_profiles_exception']['message']}</div>";
+		}
+	}
+
+	/**
+	 * Indicates that user has not selected all the scopes on auth screen.
+	 *
+	 * @since 5.0.0
+	 */
+	public static function insufficient_token_scope() {
+
+		$class   = 'wp-analytify-danger';
+		$message = sprintf( __( '%1$sInsufficient Authentication Scopes:%2$s Please reauthenticate Analytify with your Google Analytics account and select all permission scopes at the Auth screen to ensure data from your website is properly tracked in Google Analytics.', 'wp-analytify'), '<b>', '</b>' );
+		analytify_notice( $message, $class );
 	}
 
 	/**
@@ -411,27 +491,56 @@ class WPANALYTIFY_Utils {
 	}
 
 	/**
+	 * Calculates compare start and end date, also returns the difference in days.
+	 *
+	 * @param string $start_date Start date.
+	 * @param string $end_date   End date.
+	 *
+	 * @return array
+	 */
+	public static function calculate_date_diff( $start_date, $end_date ) {
+
+		if ( $start_date === $end_date ) {
+			return false;
+		}
+
+		$diff               = date_diff( date_create( $end_date ), date_create( $start_date ) );
+		$compare_start_date = date( 'Y-m-d', strtotime( $start_date . $diff->format( ' %R%a days' ) ) );
+		$compare_end_date   = $start_date;
+		$diff_days          = $diff->format( '%a' );
+
+		return array(
+			'start_date' => $compare_start_date,
+			'end_date'   => $compare_end_date,
+			'diff_days'  => (string) $diff_days,
+		);
+	}
+
+	/**
 	 * Renders date form.
 	 * This form is used in the dashboard pages.
 	 *
 	 * @param string $start_date Start date value.
 	 * @param string $end_date End date value.
 	 */
-	public static function date_form( $start_date, $end_date, $args = array() ) { 
+	public static function date_form( $start_date, $end_date, $args = array() ) {
 
 		$_analytify_profile	= get_option( 'wp-analytify-profile' );
-		$dashboard_profile	= isset ( $_analytify_profile['profile_for_dashboard'] ) ? $_analytify_profile['profile_for_dashboard'] : '';
-		
+		$dashboard_profile	= isset( $_analytify_profile['profile_for_dashboard'] ) ? $_analytify_profile['profile_for_dashboard'] : '';
+
 		if ( empty( $dashboard_profile ) ) {
 			return;
-		} ?>
-		
-		<form class="analytify_form_date" action="" method="post">
+		}
+		?>
 
-			<?php if( isset($args['input_before_field_set']) and !empty($args['input_before_field_set']) ){
+		<form class="analytify_form_date analytify_form_date_pro" action="" method="post">
+
+			<?php
+			if ( isset( $args['input_before_field_set'] ) && ! empty( $args['input_before_field_set'] ) ) {
 				echo $args['input_before_field_set'];
-			} ?>
-			
+			}
+			?>
+
 			<div class="analytify_select_date_fields">
 				<input type="hidden" name="st_date" id="analytify_start_val">
 				<input type="hidden" name="ed_date" id="analytify_end_val">
@@ -554,23 +663,512 @@ class WPANALYTIFY_Utils {
 	}
 
 	/**
-	 * Check if tracking script is allowed on current page. 
+	 * Check if addons needs update to work
+	 * smoothly with new Analytify 5.0.0
 	 *
-	 * @return boolean
+	 * @return array
+	 * 
+	 * @since 5.0.0
 	 */
-	public static function skip_page_tracking() {
+	public static function get_addons_to_update() {
 
-		if ( ! is_singular() ) {
-			return false;
-		}
-	
-		global $post;
+		$addons_to_update = array();
 
-		if ( ! is_object( $post ) ) {
-			return false;
+		if ( defined( 'ANALYTIFY_PRO_VERSION' ) && -1 === version_compare( ANALYTIFY_PRO_VERSION, '5.0.0' ) ) {
+			$addons_to_update[] = 'Analytify Pro';
 		}
-	
-		return (bool) get_post_meta( $post->ID, '_analytify_skip_tracking', true );
+		if ( defined( 'ANALTYIFY_WOOCOMMERCE_VERSION' ) && -1 === version_compare( ANALTYIFY_WOOCOMMERCE_VERSION, '5.0.0' ) ) {
+			$addons_to_update[] = 'Analytify - WooCommerce Tracking';
+		}
+		if ( defined( 'ANALTYIFY_AUTHORS_DASHBORD_VERSION' ) && -1 === version_compare( ANALTYIFY_AUTHORS_DASHBORD_VERSION, '3.0.0' ) ) {
+			$addons_to_update[] = 'Analytify - Authors Tracking';
+		}
+		if ( defined( 'ANALYTIFY_FORMS_VERSION' ) && -1 === version_compare( ANALYTIFY_FORMS_VERSION, '3.0.0' ) ) {
+			$addons_to_update[] = 'Analytify - Forms Tracking';
+		}
+		if ( defined( 'ANALTYIFY_CAMPAIGNS_VERSION' ) && -1 === version_compare( ANALTYIFY_CAMPAIGNS_VERSION, '3.0.0' ) ) {
+			$addons_to_update[] = 'Analytify - UTM Campaigns Tracking';
+		}
+		if ( defined( 'ANALTYIFY_EMAIL_VERSION' ) && -1 === version_compare( ANALTYIFY_EMAIL_VERSION, '3.0.0' ) ) {
+			$addons_to_update[] = 'Analytify - Email Notifications';
+		}
+		if ( defined( 'ANALYTIFY_DASHBOARD_VERSION' ) && -1 === version_compare( ANALYTIFY_DASHBOARD_VERSION, '3.0.0' ) ) {
+			$addons_to_update[] = 'Plugin Name: Analytify - Google Analytics Dashboard Widget';
+		}
+		if ( class_exists( 'WP_Analytify_Edd' ) ) {
+			$all_plugins = get_plugins();
+
+			if ( isset( $all_plugins['wp-analytify-edd/wp-analytify-edd.php']['Version'] ) && -1 === version_compare( $all_plugins['wp-analytify-edd/wp-analytify-edd.php']['Version'], '3.0.0' ) ) {
+				$addons_to_update[] = 'Analytify - Easy Digital Downloads Tracking';
+			}
+		}
+
+		return $addons_to_update;
+	}
+
+
+	/**
+	 * Take the ga4 social stats raw array
+	 * map it to predefined array of social network
+	 * sort the array in desc order by number of sessions
+	 * 
+	 * @param array $social_stats_raw original raw array of ga4 social stats.
+	 * @return array $social_network new array with UA social stats raw array like structure.
+	 * 
+	 * @since 5.0.0
+	 */
+	public static function ga4_social_stats( $social_stats_raw ) {
+		$social_network = array(
+			array( 'sessionSource' => 'facebook'  , 'sessions' => 0 ),
+			array( 'sessionSource' => 'instagram' , 'sessions' => 0 ),
+			array( 'sessionSource' => 'wordpress' , 'sessions' => 0 ),
+			array( 'sessionSource' => 'linkedin'  , 'sessions' => 0 ),
+			array( 'sessionSource' => 'youtube'   , 'sessions' => 0 ),
+			array( 'sessionSource' => 'twitter'   , 'sessions' => 0 ),
+			array( 'sessionSource' => 'pinterest' , 'sessions' => 0 ),
+			array( 'sessionSource' => 'yelp'      , 'sessions' => 0 ),
+			array( 'sessionSource' => 'tumblr'    , 'sessions' => 0 ),
+			array( 'sessionSource' => 'quora'     , 'sessions' => 0 ),
+			array( 'sessionSource' => 'reddit'    , 'sessions' => 0 ),
+		);
+		foreach ($social_stats_raw as $stat) {
+			foreach ( $social_network as &$item ) {
+				if ( strpos( $stat['sessionSource'], $item['sessionSource'] ) !== false ) {
+					$item['sessions'] += $stat['sessions'];
+					break;
+				}
+			}
+        }
+		$social_network = array_filter( $social_network, function ($item) {
+			return $item['sessions'] > 0;
+		} );
+		usort( $social_network, function($a, $b) {
+			return $b['sessions'] - $a['sessions'];
+		} );
+		return $social_network;
+	}
+	/**
+	 * Get the value of a settings field
+	 * While this addon is present in WP_Analytify_Settings
+	 * we are creating the same method in this class also
+	 * to avoid the need of passing WP_Analytify_Settings 
+	 * instance here.
+	 *
+	 * @param string $option  settings field name
+	 * @param string $section the section name this field belongs to
+	 * @param string $default default text if it's not found
+	 * @return string
+	 * 
+	 * @since 5.0.0
+	 */
+	public static function get_option( $option, $section, $default = '' ) {
+
+		$options = get_option( $section );
+
+		if ( isset( $options[ $option ] ) ) {
+			return $options[ $option ];
+		}
+
+		return $default;
+	}
+
+	/**
+	 * Take the name of the section and the option value
+	 * and save the value in section 
+	 * 
+	 * @param string $option settings field name
+	 * @param string $section the section this field belong to
+	 * @param string $value the option value to be inserted in options table
+	 * 
+	 * @since 5.0.0
+	 */
+	public static function update_option( $option, $section, $value ) {
+		$options = (array)get_option( $section );
+		$options[$option] = $value;
+		update_option( $section , $options );
+
+	}
+
+	/**
+	 * Add ga4 exception.
+	 * 
+	 * @param string $type which api method triggered it.
+	 * @param string $reason status or reason depends.
+	 * @param string $message actual error message.
+	 * 
+	 * @since 5.0.0
+	 */
+	public static function add_ga4_exception( $type , $reason, $message ){
+		$analytify_ga4_exceptions = (array)get_option('analytify_ga4_exceptions');
+		$analytify_ga4_exceptions[$type]['reason'] = $reason;
+		$analytify_ga4_exceptions[$type]['message'] = $message;
+		update_option('analytify_ga4_exceptions', $analytify_ga4_exceptions);
+	}
+	/**
+	 * remove ga4 exception.
+	 * 
+	 * @param string $type which api method triggered it.
+	 * 
+	 * @since 5.0.0
+	 */
+	public static function remove_ga4_exception( $type ){
+		$analytify_ga4_exceptions = (array)get_option('analytify_ga4_exceptions');
+		unset( $analytify_ga4_exceptions[$type] );
+		update_option('analytify_ga4_exceptions', $analytify_ga4_exceptions);
+	}
+
+	/**
+	 * Return the ga4 streams for currently selected property.
+	 */
+	public static function fetch_ga4_streams(){
+		
+		$_analytify_profile	= get_option( 'wp-analytify-profile' );
+		$post_profile	    = isset( $_analytify_profile['profile_for_posts'] ) ? $_analytify_profile['profile_for_posts'] : '';
+		$post_profile       = explode( ':', $post_profile )[1] ?? false;
+		
+		// store all the streams
+		$streams            = array();
+		if( $post_profile ) {
+			$properties   = get_option('analytify-ga4-streams');
+            $streams_data = $properties[$post_profile] ?? array();
+
+			// adding support for old implementation
+            $using_old_structure = false;
+
+			foreach( $streams_data as $stream ) {
+				if( ! is_array($stream) ){
+					$using_old_structure = true;
+					break;
+				}
+				$streams[$stream['measurement_id']] = $stream['stream_name'];
+			}
+
+			// below code is added for old compatibility that we build for ga4 beta testers.
+			if( $using_old_structure && isset( $streams_data['measurement_id'] ) ) {
+				$streams[$streams_data['measurement_id']] = $streams_data['stream_name'];
+			}
+		}
+
+		return $streams;
+
+	}
+	/**
+	 * Get current ga mode based on option selected in settings.
+	 *
+	 * @return string
+	 */
+	public static function get_ga_mode( $property_for = 'profile_for_dashboard' ) {
+
+		$ga_mode     = WPANALYTIFY_Utils::get_option( 'google_analytics_version', 'wp-analytify-advanced' );
+		$old_version = get_option('WP_ANALYTIFY_PLUGIN_VERSION_OLD');
+
+		if( ! empty( $ga_mode ) ) {
+			return $ga_mode;
+		}
+
+		if( empty( $old_version ) || version_compare( $old_version , '5.0.0' ) >= 0 ){
+			$ga_mode = 'ga4';
+		} else {
+			$ga_mode = 'ga3';
+		}
+		
+
+		return $ga_mode;
+	}
+
+	/**
+	 * Get ga reporting property selected based on ga mode.
+	 *
+	 * @return string
+	 */
+	public static function get_reporting_property() {
+
+		$property_id = $GLOBALS['WP_ANALYTIFY']->settings->get_option( 'profile_for_dashboard', 'wp-analytify-profile' );
+
+		if ( false !== strpos( $property_id, 'ga4:' ) ) {
+			$property_id = explode( ':', $property_id )[1];
+		}
+
+		return $property_id;
+	}
+
+	/**
+	 * Create markup for dashboard subtitle section.
+	 *
+	 * @return void
+	 */
+	public static function dashboard_subtitle_section() {
+
+		$dashboard_profile_ID = self::get_reporting_property();
+
+		if ( 'ga4' === self::get_ga_mode() ) {
+			$name = WP_ANALYTIFY_FUNCTIONS::ga_reporting_property_info( 'stream_name' );
+			$url  = WP_ANALYTIFY_FUNCTIONS::ga_reporting_property_info( 'url' );
+		} else {
+			$name = WP_ANALYTIFY_FUNCTIONS::search_profile_info( $dashboard_profile_ID, 'name' );
+			$url = WP_ANALYTIFY_FUNCTIONS::search_profile_info( $dashboard_profile_ID, 'websiteUrl' );
+		}
+
+		if ( $name && $url ) {
+		?>
+			<span class="analytify_stats_of"><a href="<?php echo $url; ?>" target="_blank"><?php echo $url; ?></a> (<?php echo $name; ?>)</span>
+		<?php
+		}
+	}
+
+	/**
+	 * Returns the property URL for the currently selected property.
+	 *
+	 * @return string
+	 */
+	public static function get_property_url() {
+		return 'ga4' === self::get_ga_mode() ? WP_ANALYTIFY_FUNCTIONS::ga_reporting_property_info( 'url' ) : WP_ANALYTIFY_FUNCTIONS::search_profile_info( self::get_reporting_property(), 'websiteUrl' );
+	}
+
+	/**
+	 * Create markup for error message box.
+	 *
+	 * @param string $status
+	 * @param string $message
+	 * @param string $heading
+	 * 
+	 * @return void
+	 */
+	public static function create_error_box( $status, $message, $heading = 'Unable To Fetch Reports' ) {
+		?>
+
+		<div class="analytify-email-promo-contianer">
+			<div class="analytify-email-premium-overlay">
+				<div class="analytify-email-premium-popup">
+					<h3 class="analytify-promo-popup-heading" style="text-align: left;"><?php _e( $heading, 'wp-analytify' ); ?></h3>
+					<p class="analytify-promo-popup-paragraph analytify-error-popup-paragraph"><strong><?php _e( 'Status:', 'wp-analytify' ); ?> </strong> <?php echo $status; ?></p>
+					<p class="analytify-promo-popup-paragraph analytify-error-popup-paragraph"><strong><?php _e( 'Message:', 'wp-analytify' ); ?> </strong> <?php echo $message; ?></p>
+				</div>
+			</div>
+		</div>
+
+		<?php
+	}
+
+	/**
+	 * Analytify required dimensions for reporting
+	 *
+	 * @return return
+	 */
+	public static function required_dimensions() {
+
+		return array(
+			array(
+				'parameter_name' => 'wpa_author',
+				'display_name'   => 'WPA Author',
+				'scope'          => 1,
+			),
+			array(
+				'parameter_name' => 'wpa_post_type',
+				'display_name'   => 'WPA Post Type',
+				'scope'          => 1,
+			),
+			array(
+				'parameter_name' => 'wpa_published_at',
+				'display_name'   => 'WPA Published At',
+				'scope'          => 1,
+			),
+			array(
+				'parameter_name' => 'wpa_category',
+				'display_name'   => 'WPA Category',
+				'scope'          => 1,
+			),
+			array(
+				'parameter_name' => 'wpa_tags',
+				'display_name'   => 'WPA Tags',
+				'scope'          => 1,
+			),
+			array(
+				'parameter_name' => 'wpa_user_id',
+				'display_name'   => 'WPA WP User ID',
+				'scope'          => 1,
+			),
+			array(
+				'parameter_name' => 'wpa_logged_in',
+				'display_name'   => 'WPA Logged In',
+				'scope'          => 1,
+			),
+			array(
+				'parameter_name' => 'wpa_seo_score',
+				'display_name'   => 'WPA SEO Score',
+				'scope'          => 1,
+			),
+			array(
+				'parameter_name' => 'wpa_focus_keyword',
+				'display_name'   => 'WPA Focus Keyword',
+				'scope'          => 1,
+			),
+			array(
+				'parameter_name' => 'wpa_link_action',
+				'display_name'   => 'WPA Link Action',
+				'scope'          => 1,
+			),
+			array(
+				'parameter_name' => 'wpa_label',
+				'display_name'   => 'WPA Label',
+				'scope'          => 1,
+			),
+			array(
+				'parameter_name' => 'wpa_category',
+				'display_name'   => 'WPA Category',
+				'scope'          => 1,
+			),
+			array(
+				'parameter_name' => 'wpa_affiliate_label',
+				'display_name'   => 'WPA Affiliate Label',
+				'scope'          => 1,
+			),
+			array(
+				'parameter_name' => 'wpa_email_address',
+				'display_name'   => 'WPA Email Address',
+				'scope'          => 1,
+			),
+			array(
+				'parameter_name' => 'wpa_form_id',
+				'display_name'   => 'WPA Form Id',
+				'scope'          => 1,
+			),
+			array(
+				'parameter_name' => 'wpa_is_affiliate_link',
+				'display_name'   => 'WPA Is Affiliate Link',
+				'scope'          => 1,
+			),
+			array(
+				'parameter_name' => 'wpa_link_label',
+				'display_name'   => 'WPA Link Label',
+				'scope'          => 1,
+			),
+			array(
+				'parameter_name' => 'wpa_link_text',
+				'display_name'   => 'WPA Link Text',
+				'scope'          => 1,
+			),
+			array(
+				'parameter_name' => 'wpa_outbound',
+				'display_name'   => 'WPA Outbound',
+				'scope'          => 1,
+			),
+			array(
+				'parameter_name' => 'wpa_tel_number',
+				'display_name'   => 'WPA Tel Number',
+				'scope'          => 1,
+			),
+			array(
+				'parameter_name' => 'wpa_scroll_depth',
+				'display_name'   => 'WPA Scroll Depth',
+				'scope'          => 1,
+			),
+			array(
+				'parameter_name' => 'wpa_seo_score',
+				'display_name'   => 'WPA Seo Score',
+				'scope'          => 1,
+			),
+			array(
+				'parameter_name' => 'wpa_percentage',
+				'display_name'   => 'WPA Percentage',
+				'scope'          => 1,
+			),
+			array(
+				'parameter_name' => 'wpa_post_category',
+				'display_name'   => 'WPA Post Category',
+				'scope'          => 1,
+			),
+			// array(
+			// 	'parameter_name' => 'wpa_video_provider',
+			// 	'display_name'   => 'WPA Video Provider',
+			// 	'scope'          => 1,
+			// ),
+			// array(
+			// 	'parameter_name' => 'wpa_video_title',
+			// 	'display_name'   => 'WPA Video Title',
+			// 	'scope'          => 1,
+			// ),
+			// array(
+			// 	'parameter_name' => 'wpa_video_url',
+			// 	'display_name'   => 'WPA Video Url',
+			// 	'scope'          => 1,
+			// ),
+		);
+	}
+
+	/**
+	 * Create all stats external link takes to Google Analytics.
+	 *
+	 * @param string $report_url
+	 * @param string $report
+	 * @param string $date_range
+	 * 
+	 * @return string
+	 */
+	public static function get_all_stats_link( $report_url, $report, $date_range = false ) {
+
+		if ( 'ga4' === self::get_ga_mode() ) {
+			$link = "https://analytics.google.com/analytics/web/#/$report_url/reports/explorer/";
+
+			switch ( $report ) {
+				case 'top_pages':
+					$link .= 'r=all-pages-and-screens&ruid=all-pages-and-screens,life-cycle,engagement&params=_u..nav%3Dmaui';
+					break;
+				case 'top_countries':
+					$link .= 'r=user-demographics-detail&ruid=user-demographics-detail,user,demographics&collectionId=user&params=_u..nav%3Dmaui%26_r.explorerCard..selmet%3D%5B%22activeUsers%22%5D%26_r.explorerCard..seldim%3D%5B%22country%22%5D';
+					break;
+				case 'top_cities':
+					$link .= 'r=user-demographics-detail&ruid=user-demographics-detail,user,demographics&collectionId=user&params=_r.explorerCard..selmet%3D%5B%22activeUsers%22%5D%26_r.explorerCard..seldim%3D%5B%22city%22%5D%26_u..nav%3Dmaui';
+					break;
+				case 'referer':
+					$link .= 'r=lifecycle-traffic-acquisition-v2&ruid=lifecycle-traffic-acquisition-v2,life-cycle,acquisition&collectionId=life-cycle&params=_u..nav%3Dmaui';
+					break;
+				case 'top_products':
+					$link .= '?params=_u..nav%3Dmaui%26_r.explorerCard..selmet%3D%5B%22ecommercePurchases%22%5D%26_r.explorerCard..seldim%3D%5B%22itemInfoName%22%5D&r=ecomm-product&collectionId=life-cycle';
+					break;
+				case 'source_medium':
+					$link .= '?params=_u..nav%3Dmaui&r=lifecycle-traffic-acquisition-v2&ruid=lifecycle-traffic-acquisition-v2,3078873331,acquisition';
+					break;
+				case 'top_countries_sales':
+					$link .= '?params=_u..nav%3Dmaui%26_r.explorerCard..selmet%3D%5B%22activeUsers%22%5D%26_r.explorerCard..seldim%3D%5B%22country%22%5D&r=user-demographics-detail&ruid=user-demographics-detail,user,demographics&collectionId=user';
+					break;
+				default:
+					$link = '';
+					break;
+			}
+		} else {
+			switch ( $report ) {
+				case 'top_pages':
+					$link = 'https://analytics.google.com/analytics/web/#report/content-pages/' . $report_url . $date_range;
+					break;
+				case 'top_countries':
+					$link = 'https://analytics.google.com/analytics/web/#report/visitors-geo/' . $report_url . $date_range;
+					break;
+				case 'top_cities':
+					$link = 'https://analytics.google.com/analytics/web/#report/visitors-geo/' . $report_url . $date_range;
+					break;
+				case 'top_products':
+					$link = 'https://analytics.google.com/analytics/web/#/report/conversions-ecommerce-product-performance/' . $report_url . $date_range;
+					break;
+				case 'source_medium':
+					$link = 'https://analytics.google.com/analytics/web/#/report/trafficsources-all-traffic/' . $report_url . $date_range . '&explorer-table-dataTable.sortColumnName=analytics.transactionRevenue&explorer-table-dataTable.sortDescending=true&explorer-table.plotKeys=%5B%5D/';
+					break;
+				case 'top_countries_sales':
+					$link = 'https://analytics.google.com/analytics/web/#/report/visitors-geo/' . $report_url . $date_range . '&geo-table-dataTable.sortColumnName=analytics.transactions&geo-table-dataTable.sortDescending=true&geo-table.plotKeys=%5B%5D/';
+					break;
+				case 'social_media':
+					$link = 'https://analytics.google.com/analytics/web/#report/social-overview/' . $report_url . $date_range;
+					break;
+				case 'referer':
+					$link = 'https://analytics.google.com/analytics/web/#/report/trafficsources-all-traffic/' . $report_url . $date_range . '&explorer-table-dataTable.sortColumnName=analytics.visits&explorer-table-dataTable.sortDescending=true&explorer-table.plotKeys=%5B%5D&explorer-table.secSegmentId=analytics.sourceMedium';
+					break;
+				default:
+					$link = '';
+					break;
+			}
+		}
+
+		return esc_url( $link );
 	}
 
 }
@@ -588,8 +1186,6 @@ function analytify_remove_conflicting_asset_files( $page ) {
 
 	wp_dequeue_script( 'default' ); // Bridge theme.
 	wp_dequeue_script( 'bridge-admin-default' ); // Bridge theme.
-	// wp_dequeue_script( 'jquery-ui-datepicker' );
-	// wp_deregister_script( 'jquery-ui-datepicker' );
 	wp_dequeue_script( 'gdlr-tax-meta' ); // MusicClub theme.
 	wp_dequeue_script( 'woosb-backend' ); // WooCommerce Product Bundle.
 	wp_deregister_script( 'bf-admin-plugins' ); // Better Ads Manager plugin.
@@ -599,7 +1195,7 @@ function analytify_remove_conflicting_asset_files( $page ) {
 	wp_deregister_script( 'elementor-common' ); // Elementor plugin.
 	wp_dequeue_script( 'jquery-widgetopts-option-tabs' ); // Widget Options plugin.
 	wp_dequeue_script( 'rml-default-folder' ); // WP Real Media Library plugin.
-  wp_dequeue_script( 'resume_manager_admin_js' ); // WP Job Manager - Resume Manager plugin.
+	wp_dequeue_script( 'resume_manager_admin_js' ); // WP Job Manager - Resume Manager plugin.
 
 	if ( class_exists( 'Woocommerce_Pre_Order' ) ) {
 		wp_dequeue_script( 'plugin-js' ); // Woocommerce Pre Order.
@@ -607,9 +1203,9 @@ function analytify_remove_conflicting_asset_files( $page ) {
 
 	if ( class_exists( 'GhostPool_Setup' ) ) {
 		wp_dequeue_script( 'theme-setup' ); // Huber theme.
-  }
+	}
   
-  if ( class_exists( 'WPcleverWoobt' ) ) {
+	if ( class_exists( 'WPcleverWoobt' ) ) {
 		wp_dequeue_script( 'woobt-backend' ); // WPC Frequently Bought Together.
 	}
 }

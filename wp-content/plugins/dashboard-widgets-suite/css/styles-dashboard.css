@@ -37,3 +37,5 @@
 .dws-dashboard-widget input[type=checkbox] { margin: 0; }
 .dws-dashboard-widget input[type=checkbox] + label { margin: 0 0 0 3px; }
 .dws-dashboard-widget ul, .dws-dashboard-widget ol { margin-left: 5px; }
+
+.dws-dashboard-widget .dws-system-info li { overflow-wrap: break-word; }

@@ -5,13 +5,14 @@ Plugin URI: https://webheadcoder.com/clear-cache-for-me/
 Description: Purges all cache on WPEngine, W3 Total Cache, WP Super Cache, WP Fastest Cache when updating widgets, menus, settings.  Forces a browser to reload a theme's CSS and JS files.
 Author: Webhead LLC
 Author URI: https://webheadcoder.com 
-Version: 1.8
+Version: 2.0
 */
 
 
-define( 'CCFM_VERSION', '1.8' );
+define( 'CCFM_VERSION', '2.0' );
 define( 'CCFM_PLUGIN', __FILE__ );
 
+require_once( 'caching-plugins.php' );
 require_once( 'clear-cache-for-action.php' );
 require_once( 'options-page.php' );
 
@@ -61,7 +62,9 @@ function ccfm_admin_init() {
     //add styles for dashboard
     add_action( 'admin_head', 'ccfm_admin_head' );
 
-    if ( ccfm_supported_caching_exists() ) {
+    $plugin_slugs = ccfm_clear_addtional_cache( false );
+
+    if ( ccfm_supported_caching_exists() || !empty( $plugin_slugs ) ) {
 
         if ( defined( 'QODE_ROOT' ) ) {
             if ( 'options.php' == $pagenow ) {
@@ -92,6 +95,11 @@ function ccfm_admin_init() {
         if ( class_exists( 'ACF' ) ) {
             add_action( 'save_post', 'ccfm_acf_update_fields', 10, 2 );
         }
+        
+        //detect TablePress changes
+        if ( class_exists( 'TablePress' ) ) {
+            add_action( 'save_post', 'ccfm_tablepress_update_fields', 10, 2 );
+        }
 
         //try detect NextGen Gallery changes
         add_action( 'ngg_update_gallery', 'ccfm_clear_cache_for_ngg' );
@@ -110,6 +118,9 @@ function ccfm_admin_init() {
         add_action( 'update_option_ihaf_insert_header', 'ccfm_insert_headers_and_footers' );
         add_action( 'update_option_ihaf_insert_footer', 'ccfm_insert_headers_and_footers' );
         add_action( 'update_option_ihaf_insert_body', 'ccfm_insert_headers_and_footers' );
+        
+        //trigger functions in supported plugins when Clear Cache button is clicked.
+        add_action( 'ccfm_clear_cache_for_me', 'ccfm_clear_addtional_cache', 1 );
 
         do_action( 'ccfm_admin_init' );
     }
@@ -156,100 +167,6 @@ function ccfm_enqueue_admin_bar_scripts() {
 add_action( 'wp_enqueue_scripts', 'ccfm_enqueue_admin_bar_scripts' );
 add_action( 'admin_enqueue_scripts', 'ccfm_enqueue_admin_bar_scripts' );
 
-/**
- * Return the first caching system found.
- */
-function ccfm_get_caching_system_used() {
-    $cache_system_key = '';
-    if ( function_exists( 'w3tc_pgcache_flush' ) ) {
-        $cache_system_key = 'w3tc';
-    }
-    else if ( function_exists( 'wp_cache_clean_cache' ) ) {
-        $cache_system_key = 'wp_cache';
-    }
-    else if ( class_exists( 'WpeCommon' ) ) {
-        $cache_system_key = 'wpengine';
-    }
-    else if ( method_exists( 'WpFastestCache', 'deleteCache' ) ) {
-        $cache_system_key = 'wp_fastest_cache';
-    }
-    else if ( class_exists( '\WPaaS\Cache' ) ) {
-        $cache_system_key = 'godaddy';
-    }
-    else if ( class_exists( 'WP_Optimize' ) && defined( 'WPO_PLUGIN_MAIN_PATH' ) ) {
-        $cache_system_key = 'wp_optimize';
-    }
-    else if ( class_exists( '\Kinsta\Cache' ) ) {
-        $cache_system_key = 'kinsta';
-    }
-    else if ( class_exists( 'Breeze_Admin' ) ) {
-        $cache_system_key = 'breeze';
-    }
-    else if ( defined( 'LSCWP_V' )) {
-       $cache_system_key = 'litespeed';
-    }
-    else if ( function_exists( 'sg_cachepress_purge_cache' ) ) {
-        $cache_system_key = 'siteground';
-    }
-    else if ( class_exists( 'autoptimizeCache' ) ) {
-        $cache_system_key = 'autooptimize';
-    }
-    else if ( class_exists( 'Cache_Enabler' ) ) {
-        $cache_system_key = 'cacheenabler';
-    }
-    return $cache_system_key;
-}
-
-/**
- * Return the caching system name for the key.
- */
-function ccfm_get_cache_system_name( $cache_system_key = '' ) {
-    if ( empty( $cache_system_key ) ) {
-        $cache_system_key = ccfm_get_caching_system_used();
-    }
-    $cache_name = '';
-    switch( $cache_system_key ) {
-        case 'w3tc':
-            $cache_name = 'W3 Total Cache';
-            break;
-        case 'wp_cache':
-            $cache_name = 'WP Super Cache';
-            break;
-        case 'wpengine':
-            $cache_name = 'WPEngine Cache';
-            break;
-        case 'wp_fastest_cache':
-            $cache_name = 'WP Fastest Cache';
-            break;
-        case 'godaddy':
-            $cache_name = 'GoDaddy Cache';
-            break;
-        case 'wp_optimize':
-            $cache_name = 'WP Optimize';
-            break;
-        case 'kinsta':
-            $cache_name = 'Kinsta Cache';
-            break;
-        case 'breeze':
-            $cache_name = 'Breeze';
-            break;
-        case 'litespeed':
-            $cache_name = 'LiteSpeed Cache';
-            break;
-        case 'siteground':
-            $cache_name = 'SiteGround SuperCacher';
-            break;
-        case 'autooptimize':
-            $cache_name = 'Autoptimize';
-            break;
-        case 'cacheenabler':
-            $cache_name = 'Cache Enabler';
-            break;
-        default:
-            break;
-    }
-    return $cache_name;
-}
 
 /**
  * Return true if known caching systems exists.
@@ -346,6 +263,12 @@ function ccfm_clear_cache_for_all() {
     }
     else if ( class_exists( 'Cache_Enabler' ) ) {
         Cache_Enabler::clear_total_cache();
+    }
+    else if ( class_exists( 'rocket_clean_domain' ) ) {
+        rocket_clean_domain();
+        if ( function_exists( 'rocket_clean_minify' ) ) {
+            rocket_clean_minify();
+        }
     }
     do_action( 'ccfm_clear_cache_for_me', $ccfm_source );
 
@@ -606,5 +529,4 @@ function ccfm_ajax_ccfm() {
     wp_send_json( ['success' => $is_success ] );
 }
 add_action( 'wp_ajax_ccfm-ajax-ccfm', 'ccfm_ajax_ccfm' );
-
 

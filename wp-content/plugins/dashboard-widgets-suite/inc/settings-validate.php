@@ -43,7 +43,7 @@ function dashboard_widgets_suite_validate_notes_user($input) {
 	if (!isset($input['widget_notes_view'])) $input['widget_notes_view'] = null;
 	if (!array_key_exists($input['widget_notes_view'], $user_roles)) $input['widget_notes_view'] = null;
 	
-	if (isset($input['widget_notes_message'])) $input['widget_notes_message'] = sanitize_text_field($input['widget_notes_message']);
+	if (isset($input['widget_notes_message'])) $input['widget_notes_message'] = htmlentities($input['widget_notes_message'], ENT_QUOTES, 'UTF-8');
 	
 	return $input;
 	

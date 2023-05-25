@@ -198,6 +198,10 @@ class LogsController extends DokanRESTAdminController {
             $order                   = wc_get_order( $result->order_id );
             $is_subscription_product = false;
 
+            if ( ! $order ) {
+                continue;
+            }
+
             foreach ( $order->get_items() as $item ) {
                 $product = $item->get_product();
 
@@ -243,7 +247,10 @@ class LogsController extends DokanRESTAdminController {
             $gateway_fee_paid_by = $order->get_meta( 'dokan_gateway_fee_paid_by', true );
 
             if ( ! empty( $processing_fee ) && empty( $gateway_fee_paid_by ) ) {
-                $gateway_fee_paid_by = 'seller';
+                /**
+                 * @since 3.7.15 dokan_gateway_fee_paid_by meta key returns empty value if gateway fee is paid admin
+                 */
+                $gateway_fee_paid_by = $order->get_payment_method() === 'dokan-stripe-connect' ? 'admin' : 'seller';
             }
 
             $logs[] = [

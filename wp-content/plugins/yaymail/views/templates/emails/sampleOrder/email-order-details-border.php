@@ -6,8 +6,9 @@ use YayMail\Page\Source\CustomPostType;
 $postID          = CustomPostType::postIDByTemplate( $this->template );
 $text_link_color = get_post_meta( $postID, '_yaymail_email_textLinkColor_settings', true ) ? get_post_meta( $postID, '_yaymail_email_textLinkColor_settings', true ) : '#7f54b3';
 
-$sent_to_admin = ( isset( $sent_to_admin ) ? $sent_to_admin : false );
-$text_align    = is_rtl() ? 'right' : 'left';
+$sent_to_admin   = ( isset( $sent_to_admin ) ? $sent_to_admin : false );
+$text_align      = is_rtl() ? 'right' : 'left';
+$productItemCost = isset( $yaymail_settings['product_item_cost'] ) ? $yaymail_settings['product_item_cost'] : 0;
 
 ?>
 
@@ -26,6 +27,11 @@ $text_align    = is_rtl() ? 'right' : 'left';
 			<th class="td" scope="col" style="text-align:left;">
 				<?php esc_html_e( 'Product', 'woocommerce' ); ?>
 			</th>
+			<?php if ( $productItemCost ) { ?>
+				<th class="td" scope="col" style="text-align:left;">
+					<?php esc_html_e( 'Cost', 'woocommerce' ); ?>
+				</th>
+			<?php } ?>
 			<th class="td" scope="col" style="text-align:left;">
 				<?php esc_html_e( 'Quantity', 'woocommerce' ); ?>
 			</th>
@@ -47,7 +53,7 @@ $text_align    = is_rtl() ? 'right' : 'left';
 		</tr>
 
 		<tr>
-			<td class="td" scope="row" colspan="2" style="text-align:left;font-weight:700;border-top-width: 4px;">
+			<td class="td" scope="row" colspan="<?php echo esc_attr( $productItemCost ? 3 : 2 ); ?>" style="text-align:left;font-weight:700;border-top-width: 4px;">
 				<?php esc_html_e( 'Subtotal:', 'yaymail' ); ?>
 			</td>
 			<td class="td" scope="row" colspan="1" style="text-align:left;border-top-width: 4px;">
@@ -55,7 +61,7 @@ $text_align    = is_rtl() ? 'right' : 'left';
 			</td>
 		</tr>
 		<tr>
-			<td class="td" scope="row" colspan="2" style="text-align:left;font-weight:700;">
+			<td class="td" scope="row" colspan="<?php echo esc_attr( $productItemCost ? 3 : 2 ); ?>" style="text-align:left;font-weight:700;">
 				<?php esc_html_e( 'Payment method:', 'yaymail' ); ?>
 			</td>
 			<td class="td" scope="row" colspan="1" style="text-align:left;">
@@ -63,7 +69,7 @@ $text_align    = is_rtl() ? 'right' : 'left';
 			</td>
 		</tr>
 		<tr>
-			<td class="td" scope="row" colspan="2" style="text-align:left;font-weight:700;">
+			<td class="td" scope="row" colspan="<?php echo esc_attr( $productItemCost ? 3 : 2 ); ?>" style="text-align:left;font-weight:700;">
 				<?php esc_html_e( 'Total:', 'yaymail' ); ?>
 			</td>
 			<td class="td" scope="row" colspan="1" style="text-align:left;">

@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit92514a9772d378673bbe0a517e722799
+class ComposerStaticInit469cce9eb5f0c718c5b5df44f4eb0c75
 {
     public static $files = array (
         'b45b351e6b6f7487d819961fef2fda77' => __DIR__ . '/..' . '/jakeasmith/http_build_url/src/http_build_url.php',
@@ -64,6 +64,9 @@ class ComposerStaticInit92514a9772d378673bbe0a517e722799
         'WeDevs\\Dokan\\Admin\\UserProfile' => __DIR__ . '/../..' . '/includes/Admin/UserProfile.php',
         'WeDevs\\Dokan\\Ajax' => __DIR__ . '/../..' . '/includes/Ajax.php',
         'WeDevs\\Dokan\\Assets' => __DIR__ . '/../..' . '/includes/Assets.php',
+        'WeDevs\\Dokan\\BackgroundProcess\\Manager' => __DIR__ . '/../..' . '/includes/BackgroundProcess/Manager.php',
+        'WeDevs\\Dokan\\BackgroundProcess\\RewriteVariableProductsAuthor' => __DIR__ . '/../..' . '/includes/BackgroundProcess/RewriteVariableProductsAuthor.php',
+        'WeDevs\\Dokan\\Blocks\\ProductBlock' => __DIR__ . '/../..' . '/includes/Blocks/ProductBlock.php',
         'WeDevs\\Dokan\\Cache' => __DIR__ . '/../..' . '/includes/Cache.php',
         'WeDevs\\Dokan\\CacheInvalidate' => __DIR__ . '/../..' . '/includes/CacheInvalidate.php',
         'WeDevs\\Dokan\\CatalogMode\\Admin\\Settings' => __DIR__ . '/../..' . '/includes/CatalogMode/Admin/Settings.php',
@@ -120,6 +123,7 @@ class ComposerStaticInit92514a9772d378673bbe0a517e722799
         'WeDevs\\Dokan\\ProductSections\\TopRated' => __DIR__ . '/../..' . '/includes/ProductSections/TopRated.php',
         'WeDevs\\Dokan\\Product\\Hooks' => __DIR__ . '/../..' . '/includes/Product/Hooks.php',
         'WeDevs\\Dokan\\Product\\Manager' => __DIR__ . '/../..' . '/includes/Product/Manager.php',
+        'WeDevs\\Dokan\\Product\\ProductAttribute' => __DIR__ . '/../..' . '/includes/Product/ProductAttribute.php',
         'WeDevs\\Dokan\\Product\\ProductCache' => __DIR__ . '/../..' . '/includes/Product/ProductCache.php',
         'WeDevs\\Dokan\\Product\\VendorStoreInfo' => __DIR__ . '/../..' . '/includes/Product/VendorStoreInfo.php',
         'WeDevs\\Dokan\\REST\\AdminDashboardController' => __DIR__ . '/../..' . '/includes/REST/AdminDashboardController.php',
@@ -130,13 +134,19 @@ class ComposerStaticInit92514a9772d378673bbe0a517e722799
         'WeDevs\\Dokan\\REST\\DummyDataController' => __DIR__ . '/../..' . '/includes/REST/DummyDataController.php',
         'WeDevs\\Dokan\\REST\\Manager' => __DIR__ . '/../..' . '/includes/REST/Manager.php',
         'WeDevs\\Dokan\\REST\\OrderController' => __DIR__ . '/../..' . '/includes/REST/OrderController.php',
+        'WeDevs\\Dokan\\REST\\OrderControllerV2' => __DIR__ . '/../..' . '/includes/REST/OrderControllerV2.php',
         'WeDevs\\Dokan\\REST\\ProductAttributeController' => __DIR__ . '/../..' . '/includes/REST/ProductAttributeController.php',
         'WeDevs\\Dokan\\REST\\ProductAttributeTermsController' => __DIR__ . '/../..' . '/includes/REST/ProductAttributeTermsController.php',
+        'WeDevs\\Dokan\\REST\\ProductBlockController' => __DIR__ . '/../..' . '/includes/REST/ProductBlockController.php',
         'WeDevs\\Dokan\\REST\\ProductController' => __DIR__ . '/../..' . '/includes/REST/ProductController.php',
+        'WeDevs\\Dokan\\REST\\ProductControllerV2' => __DIR__ . '/../..' . '/includes/REST/ProductControllerV2.php',
         'WeDevs\\Dokan\\REST\\ReverseWithdrawalController' => __DIR__ . '/../..' . '/includes/REST/ReverseWithdrawalController.php',
         'WeDevs\\Dokan\\REST\\StoreController' => __DIR__ . '/../..' . '/includes/REST/StoreController.php',
         'WeDevs\\Dokan\\REST\\StoreSettingController' => __DIR__ . '/../..' . '/includes/REST/StoreSettingController.php',
+        'WeDevs\\Dokan\\REST\\StoreSettingControllerV2' => __DIR__ . '/../..' . '/includes/REST/StoreSettingControllerV2.php',
+        'WeDevs\\Dokan\\REST\\VendorDashboardController' => __DIR__ . '/../..' . '/includes/REST/VendorDashboardController.php',
         'WeDevs\\Dokan\\REST\\WithdrawController' => __DIR__ . '/../..' . '/includes/REST/WithdrawController.php',
+        'WeDevs\\Dokan\\REST\\WithdrawControllerV2' => __DIR__ . '/../..' . '/includes/REST/WithdrawControllerV2.php',
         'WeDevs\\Dokan\\Registration' => __DIR__ . '/../..' . '/includes/Registration.php',
         'WeDevs\\Dokan\\ReverseWithdrawal\\Admin\\Hooks' => __DIR__ . '/../..' . '/includes/ReverseWithdrawal/Admin/Hooks.php',
         'WeDevs\\Dokan\\ReverseWithdrawal\\Admin\\Settings' => __DIR__ . '/../..' . '/includes/ReverseWithdrawal/Admin/Settings.php',
@@ -217,8 +227,18 @@ class ComposerStaticInit92514a9772d378673bbe0a517e722799
         'WeDevs\\Dokan\\Upgrade\\Upgrades\\V_3_5_1' => __DIR__ . '/../..' . '/includes/Upgrade/Upgrades/V_3_5_1.php',
         'WeDevs\\Dokan\\Upgrade\\Upgrades\\V_3_6_2' => __DIR__ . '/../..' . '/includes/Upgrade/Upgrades/V_3_6_2.php',
         'WeDevs\\Dokan\\Upgrade\\Upgrades\\V_3_6_4' => __DIR__ . '/../..' . '/includes/Upgrade/Upgrades/V_3_6_4.php',
+        'WeDevs\\Dokan\\Upgrade\\Upgrades\\V_3_6_5' => __DIR__ . '/../..' . '/includes/Upgrade/Upgrades/V_3_6_5.php',
+        'WeDevs\\Dokan\\Upgrade\\Upgrades\\V_3_7_10' => __DIR__ . '/../..' . '/includes/Upgrade/Upgrades/V_3_7_10.php',
         'WeDevs\\Dokan\\Vendor\\Hooks' => __DIR__ . '/../..' . '/includes/Vendor/Hooks.php',
         'WeDevs\\Dokan\\Vendor\\Manager' => __DIR__ . '/../..' . '/includes/Vendor/Manager.php',
+        'WeDevs\\Dokan\\Vendor\\SettingsApi\\Abstracts\\Gateways' => __DIR__ . '/../..' . '/includes/Vendor/SettingsApi/Abstracts/Gateways.php',
+        'WeDevs\\Dokan\\Vendor\\SettingsApi\\Abstracts\\Page' => __DIR__ . '/../..' . '/includes/Vendor/SettingsApi/Abstracts/Page.php',
+        'WeDevs\\Dokan\\Vendor\\SettingsApi\\Manager' => __DIR__ . '/../..' . '/includes/Vendor/SettingsApi/Manager.php',
+        'WeDevs\\Dokan\\Vendor\\SettingsApi\\Processor' => __DIR__ . '/../..' . '/includes/Vendor/SettingsApi/Processor.php',
+        'WeDevs\\Dokan\\Vendor\\SettingsApi\\Settings\\Pages\\Payments\\Gateways\\Bank' => __DIR__ . '/../..' . '/includes/Vendor/SettingsApi/Settings/Pages/Payments/Gateways/Bank.php',
+        'WeDevs\\Dokan\\Vendor\\SettingsApi\\Settings\\Pages\\Payments\\Gateways\\PayPal' => __DIR__ . '/../..' . '/includes/Vendor/SettingsApi/Settings/Pages/Payments/Gateways/PayPal.php',
+        'WeDevs\\Dokan\\Vendor\\SettingsApi\\Settings\\Pages\\Payments\\Payments' => __DIR__ . '/../..' . '/includes/Vendor/SettingsApi/Settings/Pages/Payments/Payments.php',
+        'WeDevs\\Dokan\\Vendor\\SettingsApi\\Settings\\Pages\\Store' => __DIR__ . '/../..' . '/includes/Vendor/SettingsApi/Settings/Pages/Store.php',
         'WeDevs\\Dokan\\Vendor\\SetupWizard' => __DIR__ . '/../..' . '/includes/Vendor/SetupWizard.php',
         'WeDevs\\Dokan\\Vendor\\StoreListsFilter' => __DIR__ . '/../..' . '/includes/Vendor/StoreListsFilter.php',
         'WeDevs\\Dokan\\Vendor\\UserSwitch' => __DIR__ . '/../..' . '/includes/Vendor/UserSwitch.php',
@@ -249,9 +269,9 @@ class ComposerStaticInit92514a9772d378673bbe0a517e722799
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit92514a9772d378673bbe0a517e722799::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit92514a9772d378673bbe0a517e722799::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit92514a9772d378673bbe0a517e722799::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit469cce9eb5f0c718c5b5df44f4eb0c75::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit469cce9eb5f0c718c5b5df44f4eb0c75::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit469cce9eb5f0c718c5b5df44f4eb0c75::$classMap;
 
         }, null, ClassLoader::class);
     }

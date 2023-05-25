@@ -1,9 +1,10 @@
 <?php
 
 use WeDevs\Dokan\Cache;
+use WeDevs\DokanPro\Dashboard\ProfileProgress;
 
 /**
- *  General Fnctions for Dokan Pro features
+ *  General Functions for Dokan Pro features
  *
  *  @since 2.4
  *
@@ -18,47 +19,26 @@ use WeDevs\Dokan\Cache;
  * @return output
  */
 if ( ! function_exists( 'dokan_get_profile_progressbar' ) ) {
-
     function dokan_get_profile_progressbar() {
-        $profile_info  = dokan_get_store_info( dokan_get_current_user_id() );
-        $progress      = isset( $profile_info['profile_completion']['progress'] ) ? $profile_info['profile_completion']['progress'] : 0;
-        $next_todo     = isset( $profile_info['profile_completion']['next_todo'] ) ? $profile_info['profile_completion']['next_todo'] : '';
-        $progress_vals = isset( $profile_info['profile_completion']['progress_vals'] ) ? $profile_info['profile_completion']['progress_vals'] : 0;
-        $progress      = $progress > 100 ? 100 : $progress;
+        $profile_progress = new ProfileProgress();
+        $progress_data    = $profile_progress->get();
 
-        $is_closed_by_user = isset( $profile_info['profile_completion']['closed_by_user'] ) ? $profile_info['profile_completion']['closed_by_user'] : false;
-
-        if ( $progress >= 100 && $is_closed_by_user ) {
+        if ( isset( $progress_data['closed_by_user'] ) && $progress_data['closed_by_user'] ) {
             return '';
         }
 
-        if ( $is_closed_by_user ) {
-            $profile_info['profile_completion']['closed_by_user'] = false;
-            update_user_meta( get_current_user_id(), 'dokan_profile_settings', $profile_info );
-        }
-
-        if ( strpos( $next_todo, '-' ) !== false ) {
-            $next_todo     = substr( $next_todo, strpos( $next_todo, '-' ) + 1 );
-            $progress_vals = isset( $profile_info['profile_completion']['progress_vals'] ) ? $profile_info['profile_completion']['progress_vals'] : 0;
-            $progress_vals = isset( $progress_vals['social_val'][ $next_todo ] ) ? $progress_vals['social_val'][ $next_todo ] : 0;
-        } else {
-            $progress_vals = isset( $progress_vals[ $next_todo ] ) ? $progress_vals[ $next_todo ] : 15;
-        }
-
         ob_start();
-
         dokan_get_template_part(
             'global/profile-progressbar', '', array(
-                'pro' => true,
-                'progress' => $progress,
-                'next_todo' => $next_todo,
-                'value' => $progress_vals,
+                'pro'       => true,
+                'progress'  => $progress_data['progress'],
+                'next_todo' => $progress_data['next_todo'],
+                'value'     => $progress_data['progress_vals'],
+                'next_url'  => $progress_data['next_todo_slug'],
+                'next_text' => $progress_data['next_progress_text'],
             )
         );
-
-        $output = ob_get_clean();
-
-        return $output;
+        return ob_get_clean();
     }
 }
 
@@ -250,12 +230,13 @@ function dokan_get_refund_localize_data() {
         'remove_item_meta'              => __( 'Remove this item meta?', 'dokan' ),
         'ajax_url'                      => admin_url( 'admin-ajax.php' ),
         'order_item_nonce'              => wp_create_nonce( 'order-item' ),
-        'post_id'                       => isset( $_GET['order_id'] ) ? $_GET['order_id'] : '',
+        'post_id'                       => isset( $_GET['order_id'] ) ? absint( wp_unslash( $_GET['order_id'] ) ) : '',
         'currency_format_num_decimals'  => wc_get_price_decimals(),
         'currency_format_symbol'        => get_woocommerce_currency_symbol(),
         'currency_format_decimal_sep'   => esc_attr( wc_get_price_decimal_separator() ),
         'currency_format_thousand_sep'  => esc_attr( wc_get_price_thousand_separator() ),
         'currency_format'               => esc_attr( str_replace( array( '%1$s', '%2$s' ), array( '%s', '%v' ), get_woocommerce_price_format() ) ), // For accounting JS
+        'round_at_subtotal'             => get_option( 'woocommerce_tax_round_at_subtotal', 'no' ),
         'rounding_precision'            => wc_get_rounding_precision(),
     );
 }
@@ -313,7 +294,7 @@ function dokan_get_best_sellers( $limit = 5 ) {
             ORDER BY total_sell DESC LIMIT " . $limit;
 
         $seller = $wpdb->get_results( $qry );
-        Cache::set( $cache_key, $seller, 'widget', 3600*6 );
+        Cache::set( $cache_key, $seller, 'widget', 3600 * 6 );
     }
 
     return $seller;
@@ -1232,3 +1213,22 @@ function dokan_get_script_suffix_and_version() {
 
     return [ $suffix, $script_version ];
 }
+
+/**
+ * Delete 'dokan_is_upgrading_db' from option table because we had some issue on lite-> v_3_6_4 and pro-> v_3_7_4
+ * Make sure to REMOVE this function 'dokan_pro_temporary_remove_upgrader' on the next release 3.7.3
+ *
+ * @since DOKAN_SINCE
+ *
+ * @return void
+ */
+function dokan_pro_temporary_remove_upgrader() {
+    if ( false === get_transient( 'dokan_pro_temporary_remove_upgrader' ) ) {
+        // delete from database
+        delete_option( 'dokan_is_upgrading_db' );
+
+        set_transient( 'dokan_pro_temporary_remove_upgrader', '1', YEAR_IN_SECONDS );
+    }
+
+}
+add_action( 'init', 'dokan_pro_temporary_remove_upgrader' );

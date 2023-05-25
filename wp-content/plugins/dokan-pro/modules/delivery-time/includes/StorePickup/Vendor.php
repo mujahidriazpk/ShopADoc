@@ -32,6 +32,8 @@ class Vendor {
      */
     public function render_store_pickup_location_order_details( $order ) {
         $pickup_location = $order->get_meta( 'dokan_store_pickup_location' );
+        $order_id        = $order->get_id();
+        $vendor_id       = (int) dokan_get_seller_id_by_order( $order_id );
         $date            = $order->get_meta( 'dokan_delivery_time_date' );
         $slot            = $order->get_meta( 'dokan_delivery_time_slot' );
 
@@ -45,6 +47,8 @@ class Vendor {
                 'location'         => $pickup_location,
                 'date'             => $date,
                 'slot'             => $slot,
+                'seller_id'        => $vendor_id,
+                'order_id'         => $order_id,
             ]
         );
     }
@@ -65,7 +69,7 @@ class Vendor {
             return;
         }
 
-        $enable_store_pickup = Helper::is_store_pickup_location_active_for_vendor( $vendor_id, false );
+        $enable_store_pickup = Helper::is_store_pickup_location_active( $vendor_id, false );
 
         dokan_get_template_part(
             'store-pickup/store-location-settings-form', '', [
@@ -87,7 +91,7 @@ class Vendor {
             return;
         }
 
-        if ( ! isset( $_POST['enable-store-location-pickup'] ) ) { // phpcs:ignore
+        if ( ! isset( $_POST['store-pickup'] ) ) { // phpcs:ignore
             return;
         }
 
@@ -97,7 +101,7 @@ class Vendor {
             return;
         }
 
-        $enable_store_pickup_location = wc_clean( wp_unslash( $_POST['enable-store-location-pickup'] ) ); // phpcs:ignore
+        $enable_store_pickup_location = wc_clean( wp_unslash( $_POST['store-pickup'] ) );
 
         $profile_info = dokan_get_store_info( $vendor_id );
 

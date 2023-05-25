@@ -3,6 +3,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use Automattic\WooCommerce\Utilities\OrderUtil;
+
 /**
  * Provides static methods as helpers.
  *
@@ -373,7 +375,22 @@ class WC_Stripe_Helper {
 	public static function get_order_by_source_id( $source_id ) {
 		global $wpdb;
 
-		$order_id = $wpdb->get_var( $wpdb->prepare( "SELECT DISTINCT ID FROM $wpdb->posts as posts LEFT JOIN $wpdb->postmeta as meta ON posts.ID = meta.post_id WHERE meta.meta_value = %s AND meta.meta_key = %s", $source_id, '_stripe_source_id' ) );
+		if ( class_exists( 'Automattic\WooCommerce\Utilities\OrderUtil' ) && OrderUtil::custom_orders_table_usage_is_enabled() ) {
+			$orders   = wc_get_orders(
+				[
+					'limit'      => 1,
+					'meta_query' => [
+						[
+							'key'   => '_stripe_source_id',
+							'value' => $source_id,
+						],
+					],
+				]
+			);
+			$order_id = current( $orders ) ? current( $orders )->get_id() : false;
+		} else {
+			$order_id = $wpdb->get_var( $wpdb->prepare( "SELECT DISTINCT ID FROM $wpdb->posts as posts LEFT JOIN $wpdb->postmeta as meta ON posts.ID = meta.post_id WHERE meta.meta_value = %s AND meta.meta_key = %s", $source_id, '_stripe_source_id' ) );
+		}
 
 		if ( ! empty( $order_id ) ) {
 			return wc_get_order( $order_id );
@@ -396,7 +413,17 @@ class WC_Stripe_Helper {
 			return false;
 		}
 
-		$order_id = $wpdb->get_var( $wpdb->prepare( "SELECT DISTINCT ID FROM $wpdb->posts as posts LEFT JOIN $wpdb->postmeta as meta ON posts.ID = meta.post_id WHERE meta.meta_value = %s AND meta.meta_key = %s", $charge_id, '_transaction_id' ) );
+		if ( class_exists( 'Automattic\WooCommerce\Utilities\OrderUtil' ) && OrderUtil::custom_orders_table_usage_is_enabled() ) {
+			$orders   = wc_get_orders(
+				[
+					'transaction_id' => $charge_id,
+					'limit'          => 1,
+				]
+			);
+			$order_id = current( $orders ) ? current( $orders )->get_id() : false;
+		} else {
+			$order_id = $wpdb->get_var( $wpdb->prepare( "SELECT DISTINCT ID FROM $wpdb->posts as posts LEFT JOIN $wpdb->postmeta as meta ON posts.ID = meta.post_id WHERE meta.meta_value = %s AND meta.meta_key = %s", $charge_id, '_transaction_id' ) );
+		}
 
 		if ( ! empty( $order_id ) ) {
 			return wc_get_order( $order_id );
@@ -415,7 +442,22 @@ class WC_Stripe_Helper {
 	public static function get_order_by_intent_id( $intent_id ) {
 		global $wpdb;
 
-		$order_id = $wpdb->get_var( $wpdb->prepare( "SELECT DISTINCT ID FROM $wpdb->posts as posts LEFT JOIN $wpdb->postmeta as meta ON posts.ID = meta.post_id WHERE meta.meta_value = %s AND meta.meta_key = %s", $intent_id, '_stripe_intent_id' ) );
+		if ( class_exists( 'Automattic\WooCommerce\Utilities\OrderUtil' ) && OrderUtil::custom_orders_table_usage_is_enabled() ) {
+			$orders   = wc_get_orders(
+				[
+					'limit'      => 1,
+					'meta_query' => [
+						[
+							'key'   => '_stripe_intent_id',
+							'value' => $intent_id,
+						],
+					],
+				]
+			);
+			$order_id = current( $orders ) ? current( $orders )->get_id() : false;
+		} else {
+			$order_id = $wpdb->get_var( $wpdb->prepare( "SELECT DISTINCT ID FROM $wpdb->posts as posts LEFT JOIN $wpdb->postmeta as meta ON posts.ID = meta.post_id WHERE meta.meta_value = %s AND meta.meta_key = %s", $intent_id, '_stripe_intent_id' ) );
+		}
 
 		if ( ! empty( $order_id ) ) {
 			return wc_get_order( $order_id );
@@ -434,7 +476,22 @@ class WC_Stripe_Helper {
 	public static function get_order_by_setup_intent_id( $intent_id ) {
 		global $wpdb;
 
-		$order_id = $wpdb->get_var( $wpdb->prepare( "SELECT DISTINCT ID FROM $wpdb->posts as posts LEFT JOIN $wpdb->postmeta as meta ON posts.ID = meta.post_id WHERE meta.meta_value = %s AND meta.meta_key = %s", $intent_id, '_stripe_setup_intent' ) );
+		if ( class_exists( 'Automattic\WooCommerce\Utilities\OrderUtil' ) && OrderUtil::custom_orders_table_usage_is_enabled() ) {
+			$orders   = wc_get_orders(
+				[
+					'limit'      => 1,
+					'meta_query' => [
+						[
+							'key'   => '_stripe_setup_intent',
+							'value' => $intent_id,
+						],
+					],
+				]
+			);
+			$order_id = current( $orders ) ? current( $orders )->get_id() : false;
+		} else {
+			$order_id = $wpdb->get_var( $wpdb->prepare( "SELECT DISTINCT ID FROM $wpdb->posts as posts LEFT JOIN $wpdb->postmeta as meta ON posts.ID = meta.post_id WHERE meta.meta_value = %s AND meta.meta_key = %s", $intent_id, '_stripe_setup_intent' ) );
+		}
 
 		if ( ! empty( $order_id ) ) {
 			return wc_get_order( $order_id );
@@ -694,5 +751,86 @@ class WC_Stripe_Helper {
 
 		$order->update_meta_data( '_stripe_intent_id', $payment_intent_id );
 		$order->save();
+	}
+
+	/**
+	 * Adds a source or payment method argument to the request array depending on what sort of
+	 * payment method ID is provided. If ID is neither a source or a payment method ID then nothing
+	 * is added.
+	 *
+	 * @param string $payment_method_id  The payment method ID that should be added to the request array.
+	 * @param array $request             The request representing the arguments that will be sent in the request.
+	 *
+	 * @return array  The updated request array.
+	 */
+	public static function add_payment_method_to_request_array( string $payment_method_id, array $request ): array {
+		if ( 0 === strpos( $payment_method_id, 'src_' ) ) {
+			$request['source'] = $payment_method_id;
+		} elseif ( 0 === strpos( $payment_method_id, 'pm_' ) ) {
+			$request['payment_method'] = $payment_method_id;
+		}
+
+		return $request;
+	}
+
+	/**
+	 * Evaluates whether the object passed to this function is a Stripe Payment Method.
+	 *
+	 * @param stdClass $object  The object that should be evaluated.
+	 * @return bool             Returns true if the object is a Payment Method; false otherwise.
+	 */
+	public static function is_payment_method_object( stdClass $payment_method ): bool {
+		return isset( $payment_method->object ) && 'payment_method' === $payment_method->object;
+	}
+
+	/**
+	 * Evaluates whether a given Stripe Source (or Stripe Payment Method) is reusable.
+	 * Payment Methods are always reusable; Sources are only reusable when the appropriate
+	 * usage metadata is provided.
+	 *
+	 * @param stdClass $payment_method  The source or payment method to be evaluated.
+
+	 * @return bool  Returns true if the source is reusable; false otherwise.
+	 */
+	public static function is_reusable_payment_method( stdClass $payment_method ): bool {
+		return self::is_payment_method_object( $payment_method ) || ( isset( $payment_method->usage ) && 'reusable' === $payment_method->usage );
+	}
+
+	/**
+	 * Returns true if the provided payment method is a card, false otherwise.
+	 *
+	 * @param stdClass $payment_method  The provided payment method object. Can be a Source or a Payment Method.
+	 *
+	 * @return bool  True if payment method is a card, false otherwise.
+	 */
+	public static function is_card_payment_method( stdClass $payment_method ): bool {
+		if ( ! isset( $payment_method->object ) || ! isset( $payment_method->type ) ) {
+			return false;
+		}
+
+		if ( 'payment_method' !== $payment_method->object && 'source' !== $payment_method->object ) {
+			return false;
+		}
+
+		return 'card' === $payment_method->type;
+	}
+
+	/**
+	 * Returns a source or payment method from a given intent object.
+	 *
+	 * @param stdClass|object $intent  The intent that contains the payment method.
+	 *
+	 * @return stdClass|string|null  The payment method if found, null otherwise.
+	 */
+	public static function get_payment_method_from_intent( $intent ) {
+		if ( ! empty( $intent->source ) ) {
+			return $intent->source;
+		}
+
+		if ( ! empty( $intent->payment_method ) ) {
+			return $intent->payment_method;
+		}
+
+		return null;
 	}
 }

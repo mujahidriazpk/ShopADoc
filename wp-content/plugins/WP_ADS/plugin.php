@@ -18,8 +18,8 @@ class ADS_List extends WP_List_Table {
 	public function __construct() {
 
 		parent::__construct( [
-			'singular' => __( 'ADS', 'sp' ), //singular name of the listed records
-			'plural'   => __( 'ADS', 'sp' ), //plural name of the listed records
+			'singular' => __( 'CURRENT RUNS', 'sp' ), //singular name of the listed records
+			'plural'   => __( 'CURRENT RUNS', 'sp' ), //plural name of the listed records
 			'ajax'     => false //does this table support ajax?
 		] );
 
@@ -393,8 +393,8 @@ class SP_Plugin_ADS {
 	public function plugin_menu() {
 
 		$hook = add_menu_page(
-			'ADS',
-			'ADS',
+			'CURRENT RUNS',
+			'CURRENT RUNS',
 			'shopadoc_admin_cap',
 			'ADS',
 			[ $this, 'plugin_settings_page' ]
@@ -416,9 +416,10 @@ class SP_Plugin_ADS {
 			$firstDateOfNextMonth =strtotime('first day of next month') ;
 			$next_date_option_label = "_".date('m_y', $firstDateOfNextMonth);
 		?>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.css" rel="stylesheet" type='text/css'>
 <link rel="stylesheet" href="https://getbootstrap.com/docs/4.2/dist/css/bootstrap.min.css" type="text/css" />
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<script src="/wp-content/plugins/WP_ADS/js/select2.js"></script>
+<script src="<?php echo home_url();?>/wp-content/plugins/WP_ADS/js/select2.js"></script>
 <?php /*?>
 <select style="width:300px" id="source">
                <optgroup label="Alaskan/Hawaiian Time Zone">
@@ -494,13 +495,13 @@ class SP_Plugin_ADS {
 			  ?>
 <div class="wrap">
   
- <div style="float:left;width:100%;"><h2 class="pull-left main_heading">ADS</h2> <a href="javascript:addUser('','Advertiser');" title="addUser" style="float:right" class="btn btn-primary">Add Company</a></p>
+ <div style="float:left;width:100%;"><h2 class="pull-left main_heading">CURRENT RUNS</h2> <a href="javascript:addUser('','Advertiser');" title="addUser" style="float:right;padding:8px .5% !important;" class="btn btn-primary">Add Company</a></p>
   <style type="text/css">
-  			#toplevel_page_admin-page-ADS a{
+  			#toplevel_page_admin-page-ADS a.menu-top{
 			background: #2271b1 !important;
 			color: #fff !important;
 			}
-			#toplevel_page_admin-page-ADS a:after {
+			#toplevel_page_admin-page-ADS a.menu-top:after {
 			right: 0;
 			border: solid 8px transparent;
 			content: " ";
@@ -520,6 +521,70 @@ class SP_Plugin_ADS {
 					font-weight: normal;
 				}
 				.jconfirm.jconfirm-white .jconfirm-box .jconfirm-buttons button, .jconfirm.jconfirm-light .jconfirm-box .jconfirm-buttons button{text-transform:none !important;}
+	  			/* The container */
+.container_checkbox {
+  display: block;
+  position: relative;
+  padding-left: 23px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  font-size: 22px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+/* Hide the browser's default checkbox */
+.container_checkbox input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+/* Create a custom checkbox */
+.checkmark {
+    position: absolute;
+    top: 7px !important;
+    left: 0;
+    height: 18px !important;
+    width: 18px !important;
+    background-color: #eee;
+    border: 3px solid black !important;
+}
+/* On mouse-over, add a grey background color */
+.container_checkbox:hover input ~ .checkmark {
+  background-color: #ccc;
+}
+/* When the checkbox is checked, add a blue background */
+.container_checkbox input:checked ~ .checkmark {
+  background-color: #2196F3;
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the checkmark when checked */
+.container_checkbox input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Style the checkmark/indicator */
+.container_checkbox .checkmark:after {
+  left: 4px;
+  top: 1px;
+  width: 5px;
+  height: 9px;
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
 			</style>
   <?php 
 				if (isset($_POST["submit"])) {
@@ -873,6 +938,7 @@ class SP_Plugin_ADS {
 						#<?php echo $option_name1."_main"?> .select2-container{height: 100%;}
 						#<?php echo $option_name1."_main"?> .selection{height: 100%;width:100%;float:left;}
 						#<?php echo $option_name1."_main"?> .select2-selection--single{height: 100%;display: flex;align-items: center; justify-content: center;}
+						#<?php echo $option_name1."_main"?> .select2-selection__arrow{display:block !important;width:100%;z-index: 11111;opacity: 0;top: 5px;}
 						</style>
                         <script type="text/javascript">
 						jQuery(document).ready(function() {
@@ -885,6 +951,9 @@ class SP_Plugin_ADS {
                       <select name="<?php echo $option_name1;?>" id="<?php echo $option_name1;?>" onchange="">
                         <option value="">- AVAILABLE -</option>
 						<option value="Vacate">Vacate</option>
+						  <?php if(get_option($option_name1) !=""){?>
+						 	<option value="edit" data-text='<?php echo get_option($option_name1);?>'>Edit Creative</option>
+						  <?php }?>
                         <option value="add">+ Add Creative</option>
                         <?php echo $html1;?>
                       </select>
@@ -902,6 +971,7 @@ class SP_Plugin_ADS {
 						#<?php echo $option_name2."_main"?> .select2-container{height: 100%;}
 						#<?php echo $option_name2."_main"?> .selection{height: 100%;width:100%;float:left;}
 						#<?php echo $option_name2."_main"?> .select2-selection--single{height: 100%;display: flex;align-items: center; justify-content: center;}
+						#<?php echo $option_name2."_main"?> .select2-selection__arrow{display:block !important;width:100%;z-index: 11111;opacity: 0;top: 5px;}
 						</style>
                         <script type="text/javascript">
 						jQuery(document).ready(function() {
@@ -914,6 +984,9 @@ class SP_Plugin_ADS {
                       <select name="<?php echo $option_name2;?>" id="<?php echo $option_name2;?>">
                         <option value="">- AVAILABLE -</option>
 						<option value="Vacate">Vacate</option>
+						  <?php if(get_option($option_name2) !=""){?>
+						 	<option value="edit" data-text='<?php echo get_option($option_name2);?>'>Edit Creative</option>
+						  <?php }?>
                         <option value="add">+ Add Creative</option>
                         <?php echo $html1;?>
                       </select>
@@ -931,6 +1004,7 @@ class SP_Plugin_ADS {
 						#<?php echo $option_name3."_main"?> .select2-container{height: 100%;}
 						#<?php echo $option_name3."_main"?> .selection{height: 100%;width:100%;float:left;}
 						#<?php echo $option_name3."_main"?> .select2-selection--single{height: 100%;display: flex;align-items: center; justify-content: center;}
+						#<?php echo $option_name3."_main"?> .select2-selection__arrow{display:block !important;width:100%;z-index: 11111;opacity: 0;top: 5px;}
 						</style>
                         <script type="text/javascript">
 							jQuery(document).ready(function() {
@@ -943,6 +1017,9 @@ class SP_Plugin_ADS {
                       <select name="<?php echo $option_name3;?>" id="<?php echo $option_name3;?>">
                         <option value="">- AVAILABLE -</option>
 						<option value="Vacate">Vacate</option>
+						  <?php if(get_option($option_name3) !=""){?>
+						 	<option value="edit" data-text='<?php echo get_option($option_name3);?>'>Edit Creative</option>
+						  <?php }?>
                         <option value="add">+ Add Creative</option>
                         <?php echo $html1;?>
                       </select>
@@ -960,6 +1037,7 @@ class SP_Plugin_ADS {
 						#<?php echo $option_name4."_main"?> .select2-container{height: 100%;}
 						#<?php echo $option_name4."_main"?> .selection{height: 100%;width:100%;float:left;}
 						#<?php echo $option_name4."_main"?> .select2-selection--single{height: 100%;display: flex;align-items: center; justify-content: center;}
+						#<?php echo $option_name4."_main"?> .select2-selection__arrow{display:block !important;width:100%;z-index: 11111;opacity: 0;top: 5px;}
 						</style>
                         <script type="text/javascript">
 							jQuery(document).ready(function() {
@@ -972,6 +1050,9 @@ class SP_Plugin_ADS {
                       <select name="<?php echo $option_name4;?>" id="<?php echo $option_name4;?>">
                         <option value="">- AVAILABLE -</option>
 						<option value="Vacate">Vacate</option>
+						  <?php if(get_option($option_name4) !=""){?>
+						 	<option value="edit" data-text='<?php echo get_option($option_name4);?>'>Edit Creative</option>
+						  <?php }?>
                         <option value="add">+ Add Creative</option>
                         <?php echo $html1;?>
                       </select>
@@ -995,8 +1076,8 @@ class SP_Plugin_ADS {
 						<?php }?>
 						
 						function formatState (state) {
-						  if (!state.id || state.text =='+ Add Creative' || state.text =='Vacate') {
-							  if(state.text =='+ Add Creative' || state.text =='Vacate'){
+						  if (!state.id || state.text =='+ Add Creative' || state.text =='Vacate' || state.text =='Edit Creative') {
+							  if(state.text =='+ Add Creative' || state.text =='Vacate' || state.text =='Edit Creative'){
 								 	  var state = jQuery('<strong class="blue">' + state.text + '</strong>');
 						  			 return state;
 								 }else{
@@ -1047,22 +1128,14 @@ class SP_Plugin_ADS {
 							var data = e.params.data;
 							if(data.id=='add'){
 								AdPopup(jQuery(this).attr("id"),'C','');
+							}else if(data.id=='edit'){
+								AdPopup(jQuery(this).attr("id"),'C',jQuery(this).find(":selected").attr("data-text"));
 							}else if(data.id=='Vacate'){
 								VacatePopup(jQuery(this).attr("id"),'C','')
 							}else{
 								AdSelected(data.id,jQuery(this).attr("id"),'C');
 							}
 						});
-					
-						/*jQuery("#<?php echo $option_name1;?>,#<?php echo $option_name2;?>,#<?php echo $option_name3;?>,#<?php echo $option_name4;?>").on("change", function(e) { 
-							if(jQuery(this).val()=='add'){
-								AdPopup(jQuery(this).attr("id"),'C','')
-							}else{
-								alert(jQuery(this).val());
-								alert(jQuery("#"+jQuery(this).attr("id")).val());
-								//AdSelected(jQuery(this).val(),jQuery(this).attr("id"),'C');
-							}
-					 	});*/
 				</script>
                   <?php 
 				
@@ -1168,6 +1241,7 @@ class SP_Plugin_ADS {
 						#<?php echo $option_name1."_main"?> .select2-container{height: 100%;}
 						#<?php echo $option_name1."_main"?> .selection{height: 100%;width:100%;float:left;}
 						#<?php echo $option_name1."_main"?> .select2-selection--single{height: 100%;display: flex;align-items: center; justify-content: center;}
+						#<?php echo $option_name1."_main"?> .select2-selection__arrow{display:block !important;width:100%;z-index: 11111;opacity: 0;top: 5px;}
 						</style>
                         <script type="text/javascript">
 							jQuery(document).ready(function() {
@@ -1180,6 +1254,9 @@ class SP_Plugin_ADS {
                       <select name="<?php echo $option_name1;?>" id="<?php echo $option_name1;?>">
                         <option value="">- AVAILABLE -</option>
 						<option value="Vacate">Vacate</option>
+						 <?php if(get_option($option_name1) !=""){?>
+						 	<option value="edit" data-text='<?php echo get_option($option_name1);?>'>Edit Creative</option>
+						  <?php }?>
                         <option value="add">+ Add Creative</option>
                         <?php echo $html1;?>
                       </select>
@@ -1197,6 +1274,7 @@ class SP_Plugin_ADS {
 						#<?php echo $option_name2."_main"?> .select2-container{height: 100%;}
 						#<?php echo $option_name2."_main"?> .selection{height: 100%;width:100%;float:left;}
 						#<?php echo $option_name2."_main"?> .select2-selection--single{height: 100%;display: flex;align-items: center; justify-content: center;}
+						#<?php echo $option_name2."_main"?> .select2-selection__arrow{display:block !important;width:100%;z-index: 11111;opacity: 0;top: 5px;}
 						</style>
                         <script type="text/javascript">
 							jQuery(document).ready(function() {
@@ -1209,6 +1287,9 @@ class SP_Plugin_ADS {
                       <select name="<?php echo $option_name2;?>" id="<?php echo $option_name2;?>">
                         <option value="">- AVAILABLE -</option>
 						<option value="Vacate">Vacate</option>
+						 <?php if(get_option($option_name2) !=""){?>
+						 	<option value="edit" data-text='<?php echo get_option($option_name2);?>'>Edit Creative</option>
+						  <?php }?>
                         <option value="add">+ Add Creative</option>
                         <?php echo $html1;?>
                       </select>
@@ -1226,6 +1307,7 @@ class SP_Plugin_ADS {
 						#<?php echo $option_name3."_main"?> .select2-container{height: 100%;}
 						#<?php echo $option_name3."_main"?> .selection{height: 100%;width:100%;float:left;}
 						#<?php echo $option_name3."_main"?> .select2-selection--single{height: 100%;display: flex;align-items: center; justify-content: center;}
+						#<?php echo $option_name3."_main"?> .select2-selection__arrow{display:block !important;width:100%;z-index: 11111;opacity: 0;top: 5px;}
 						</style>
                         <script type="text/javascript">
 							jQuery(document).ready(function() {
@@ -1238,6 +1320,9 @@ class SP_Plugin_ADS {
                       <select name="<?php echo $option_name3;?>" id="<?php echo $option_name3;?>">
                         <option value="">- AVAILABLE -</option>
 						<option value="Vacate">Vacate</option>
+						 <?php if(get_option($option_name3) !=""){?>
+						 	<option value="edit" data-text='<?php echo get_option($option_name3);?>'>Edit Creative</option>
+						  <?php }?>
                         <option value="add">+ Add Creative</option>
                         <?php echo $html1;?>
                       </select>
@@ -1255,6 +1340,7 @@ class SP_Plugin_ADS {
 						#<?php echo $option_name4."_main"?> .select2-container{height: 100%;}
 						#<?php echo $option_name4."_main"?> .selection{height: 100%;width:100%;float:left;}
 						#<?php echo $option_name4."_main"?> .select2-selection--single{height: 100%;display: flex;align-items: center; justify-content: center;}
+						#<?php echo $option_name4."_main"?> .select2-selection__arrow{display:block !important;width:100%;z-index: 11111;opacity: 0;top: 5px;}
 						</style>
                         <script type="text/javascript">
 							jQuery(document).ready(function() {
@@ -1267,6 +1353,9 @@ class SP_Plugin_ADS {
                       <select name="<?php echo $option_name4;?>" id="<?php echo $option_name4;?>">
                         <option value="">- AVAILABLE -</option>
 						<option value="Vacate">Vacate</option>
+						 <?php if(get_option($option_name4) !=""){?>
+						 	<option value="edit" data-text='<?php echo get_option($option_name4);?>'>Edit Creative</option>
+						  <?php }?>
                         <option value="add">+ Add Creative</option>
                         <?php echo $html1;?>
                       </select>
@@ -1303,6 +1392,8 @@ class SP_Plugin_ADS {
 							var data = e.params.data;
 							if(data.id=='add'){
 								AdPopup(jQuery(this).attr("id"),'D','');
+							}else if(data.id=='edit'){
+								AdPopup(jQuery(this).attr("id"),'D',jQuery(this).find(":selected").attr("data-text"));
 							}else if(data.id=='Vacate'){
 								VacatePopup(jQuery(this).attr("id"),'D','');
 							}else{
@@ -1418,6 +1509,7 @@ class SP_Plugin_ADS {
 						#<?php echo $option_name1."_main"?> .select2-container{height: 100%;}
 						#<?php echo $option_name1."_main"?> .selection{height: 100%;width:100%;float:left;}
 						#<?php echo $option_name1."_main"?> .select2-selection--single{height: 100%;display: flex;align-items: center; justify-content: center;}
+						#<?php echo $option_name1."_main"?> .select2-selection__arrow{display:block !important;width:100%;z-index: 11111;opacity: 0;top: 5px;}
 						</style>
                         <script type="text/javascript">
 							jQuery(document).ready(function() {
@@ -1430,6 +1522,9 @@ class SP_Plugin_ADS {
                       <select name="<?php echo $option_name1;?>" id="<?php echo $option_name1;?>">
                         <option value="">- AVAILABLE -</option>
 						<option value="Vacate">Vacate</option>
+						 <?php if(get_option($option_name1) !=""){?>
+						 	<option value="edit" data-text='<?php echo get_option($option_name1);?>'>Edit Creative</option>
+						  <?php }?>
                         <option value="add">+ Add Creative</option>
                         <?php echo $html1;?>
                       </select>
@@ -1447,6 +1542,7 @@ class SP_Plugin_ADS {
 						#<?php echo $option_name2."_main"?> .select2-container{height: 100%;}
 						#<?php echo $option_name2."_main"?> .selection{height: 100%;width:100%;float:left;}
 						#<?php echo $option_name2."_main"?> .select2-selection--single{height: 100%;display: flex;align-items: center; justify-content: center;}
+						#<?php echo $option_name2."_main"?> .select2-selection__arrow{display:block !important;width:100%;z-index: 11111;opacity: 0;top: 5px;}
 						</style>
                         <script type="text/javascript">
 							jQuery(document).ready(function() {
@@ -1459,6 +1555,9 @@ class SP_Plugin_ADS {
                       <select name="<?php echo $option_name2;?>" id="<?php echo $option_name2;?>">
                         <option value="">- AVAILABLE -</option>
 						<option value="Vacate">Vacate</option>
+						 <?php if(get_option($option_name2) !=""){?>
+						 	<option value="edit" data-text='<?php echo get_option($option_name2);?>'>Edit Creative</option>
+						  <?php }?>
                         <option value="add">+ Add Creative</option>
                         <?php echo $html1;?>
                       </select>
@@ -1476,6 +1575,7 @@ class SP_Plugin_ADS {
 						#<?php echo $option_name3."_main"?> .select2-container{height: 100%;}
 						#<?php echo $option_name3."_main"?> .selection{height: 100%;width:100%;float:left;}
 						#<?php echo $option_name3."_main"?> .select2-selection--single{height: 100%;display: flex;align-items: center; justify-content: center;}
+						#<?php echo $option_name3."_main"?> .select2-selection__arrow{display:block !important;width:100%;z-index: 11111;opacity: 0;top: 5px;}
 						</style>
                         <script type="text/javascript">
 							jQuery(document).ready(function() {
@@ -1488,6 +1588,9 @@ class SP_Plugin_ADS {
                       <select name="<?php echo $option_name3;?>" id="<?php echo $option_name3;?>">
                         <option value="">- AVAILABLE -</option>
 						<option value="Vacate">Vacate</option>
+						 <?php if(get_option($option_name3) !=""){?>
+						 	<option value="edit" data-text='<?php echo get_option($option_name3);?>'>Edit Creative</option>
+						  <?php }?>
                         <option value="add">+ Add Creative</option>
                         <?php echo $html1;?>
                       </select>
@@ -1505,6 +1608,7 @@ class SP_Plugin_ADS {
 						#<?php echo $option_name4."_main"?> .select2-container{height: 100%;}
 						#<?php echo $option_name4."_main"?> .selection{height: 100%;width:100%;float:left;}
 						#<?php echo $option_name4."_main"?> .select2-selection--single{height: 100%;display: flex;align-items: center; justify-content: center;}
+						#<?php echo $option_name4."_main"?> .select2-selection__arrow{display:block !important;width:100%;z-index: 11111;opacity: 0;top: 5px;}
 						</style>
                         <script type="text/javascript">
 							jQuery(document).ready(function() {
@@ -1517,6 +1621,9 @@ class SP_Plugin_ADS {
                       <select name="<?php echo $option_name4;?>" id="<?php echo $option_name4;?>">
                         <option value="">- AVAILABLE -</option>
 						<option value="Vacate">Vacate</option>
+						<?php if(get_option($option_name4) !=""){?>
+						 	<option value="edit" data-text='<?php echo get_option($option_name4);?>'>Edit Creative</option>
+						  <?php }?>
                         <option value="add">+ Add Creative</option>
                         <?php echo $html1;?>
                       </select>
@@ -1570,6 +1677,8 @@ class SP_Plugin_ADS {
 							var data = e.params.data;
 							if(data.id=='add'){
 								AdPopup(jQuery(this).attr("id"),'C','');
+							}else if(data.id=='edit'){
+								AdPopup(jQuery(this).attr("id"),'C',jQuery(this).find(":selected").attr("data-text"));
 							}else if(data.id=='Vacate'){
 								VacatePopup(jQuery(this).attr("id"),'C','');
 							}else{
@@ -1683,6 +1792,7 @@ class SP_Plugin_ADS {
 						#<?php echo $option_name1."_main"?> .select2-container{height: 100%;}
 						#<?php echo $option_name1."_main"?> .selection{height: 100%;width:100%;float:left;}
 						#<?php echo $option_name1."_main"?> .select2-selection--single{height: 100%;display: flex;align-items: center; justify-content: center;}
+						#<?php echo $option_name1."_main"?> .select2-selection__arrow{display:block !important;width:100%;z-index: 11111;opacity: 0;top: 5px;}
 						</style>
                         <script type="text/javascript">
 							jQuery(document).ready(function() {
@@ -1695,6 +1805,9 @@ class SP_Plugin_ADS {
                       <select name="<?php echo $option_name1;?>" id="<?php echo $option_name1;?>">
                         <option value="">- AVAILABLE -</option>
 						<option value="Vacate">Vacate</option>
+						 <?php if(get_option($option_name1) !=""){?>
+						 	<option value="edit" data-text='<?php echo get_option($option_name1);?>'>Edit Creative</option>
+						  <?php }?>
                         <option value="add">+ Add Creative</option>
                         <?php echo $html1;?>
                       </select>
@@ -1712,6 +1825,7 @@ class SP_Plugin_ADS {
 						#<?php echo $option_name2."_main"?> .select2-container{height: 100%;}
 						#<?php echo $option_name2."_main"?> .selection{height: 100%;width:100%;float:left;}
 						#<?php echo $option_name2."_main"?> .select2-selection--single{height: 100%;display: flex;align-items: center; justify-content: center;}
+						#<?php echo $option_name2."_main"?> .select2-selection__arrow{display:block !important;width:100%;z-index: 11111;opacity: 0;top: 5px;}
 						</style>
                         <script type="text/javascript">
 							jQuery(document).ready(function() {
@@ -1724,6 +1838,9 @@ class SP_Plugin_ADS {
                       <select name="<?php echo $option_name2;?>" id="<?php echo $option_name2;?>">
                         <option value="">- AVAILABLE -</option>
 						<option value="Vacate">Vacate</option>
+						  <?php if(get_option($option_name2) !=""){?>
+						 	<option value="edit" data-text='<?php echo get_option($option_name2);?>'>Edit Creative</option>
+						  <?php }?>
                         <option value="add">+ Add Creative</option>
                         <?php echo $html1;?>
                       </select>
@@ -1741,6 +1858,7 @@ class SP_Plugin_ADS {
 						#<?php echo $option_name3."_main"?> .select2-container{height: 100%;}
 						#<?php echo $option_name3."_main"?> .selection{height: 100%;width:100%;float:left;}
 						#<?php echo $option_name3."_main"?> .select2-selection--single{height: 100%;display: flex;align-items: center; justify-content: center;}
+						#<?php echo $option_name3."_main"?> .select2-selection__arrow{display:block !important;width:100%;z-index: 11111;opacity: 0;top: 5px;}
 						</style>
                         <script type="text/javascript">
 							jQuery(document).ready(function() {
@@ -1753,6 +1871,9 @@ class SP_Plugin_ADS {
                       <select name="<?php echo $option_name3;?>" id="<?php echo $option_name3;?>">
                         <option value="">- AVAILABLE -</option>
 						<option value="Vacate">Vacate</option>
+						 <?php if(get_option($option_name3) !=""){?>
+						 	<option value="edit" data-text='<?php echo get_option($option_name3);?>'>Edit Creative</option>
+						  <?php }?>
                         <option value="add">+ Add Creative</option>
                         <?php echo $html1;?>
                       </select>
@@ -1770,6 +1891,7 @@ class SP_Plugin_ADS {
 						#<?php echo $option_name4."_main"?> .select2-container{height: 100%;}
 						#<?php echo $option_name4."_main"?> .selection{height: 100%;width:100%;float:left;}
 						#<?php echo $option_name4."_main"?> .select2-selection--single{height: 100%;display: flex;align-items: center; justify-content: center;}
+						#<?php echo $option_name4."_main"?> .select2-selection__arrow{display:block !important;width:100%;z-index: 11111;opacity: 0;top: 5px;}
 						</style>
                         <script type="text/javascript">
 							jQuery(document).ready(function() {
@@ -1782,6 +1904,9 @@ class SP_Plugin_ADS {
                       <select name="<?php echo $option_name4;?>" id="<?php echo $option_name4;?>">
                         <option value="">- AVAILABLE -</option>
 						<option value="Vacate">Vacate</option>
+						<?php if(get_option($option_name4) !=""){?>
+						 	<option value="edit" data-text='<?php echo get_option($option_name4);?>'>Edit Creative</option>
+						  <?php }?>
                         <option value="add">+ Add Creative</option>
                         <?php echo $html1;?>
                       </select>
@@ -1819,6 +1944,8 @@ class SP_Plugin_ADS {
 							var data = e.params.data;
 							if(data.id=='add'){
 								AdPopup(jQuery(this).attr("id"),'D','');
+							}else if(data.id=='edit'){
+								AdPopup(jQuery(this).attr("id"),'D',jQuery(this).find(":selected").attr("data-text"));
 							}else if(data.id=='Vacate'){
 								VacatePopup(jQuery(this).attr("id"),'D','');
 							}else{
@@ -1837,7 +1964,7 @@ class SP_Plugin_ADS {
   </div>
 </div>
 <style type="text/css">
-.jconfirm-content-pane{height:auto !important;/*max-height:100% !important;*/}
+.jconfirm-content-pane{height:70vh !important;/*max-height:100% !important;*/}
 @media print {
     .myDivToPrint {
         background-color: white !important;
@@ -1855,8 +1982,34 @@ class SP_Plugin_ADS {
         line-height: 27px !important;
 	}	
 }
+	.main_div{float:left;width: 100%;}
+	.div1{float:left;width: 33%;}
+	.div2{float:left;width: 33%;}
+	.div3{float:left;width: 33%;max-height: 250px;overflow-y: scroll;}
+	.div3 ul{
+		float: left;
+		width: 100%;
+	}
+	.div3 ul li{
+		float: left;
+		width: 100%;
+	}
 </style>
 <script type="text/javascript">
+function getAdImages(userid){
+	jQuery.ajax({	
+				url:'<?php echo get_site_url();?>/ajax.php',	
+				type:'POST',
+				data:{'mode':'getPastAd','userid':userid,'postid':''},
+				beforeSend: function() {},
+				complete: function() {
+				},
+				success:function (data){
+					jQuery('#pastimages').html('<ul>'+data+'</ul>');
+					jQuery(".jconfirm-content-pane").attr('style','height:100%;max-height:100%;');				}
+				
+		});
+}
 function SelectAdType(id,value){
 	jQuery(".jconfirm-content-pane").css("height","auto");
 	jQuery(".jconfirm-content-pane").css("max-height","auto");
@@ -1890,6 +2043,7 @@ function load_image(id,ext){
 					/*alert(imgwidth);
 					alert(imgheight);*/
 				}
+				jQuery(".jconfirm-content-pane").attr('style','overflow-y:auto;height:70vh !important;');
 				//alert("Filename: " + files[i].name);
 				//alert("Type: " + files[i].type);
 				//alert("Size: " + files[i].size + " bytes");
@@ -1898,6 +2052,7 @@ function load_image(id,ext){
 		}
 		alert("upload only Image format");
 		jQuery("#ad_image_src").hide();
+	
 		document.getElementById(id).value='';
 
 		document.getElementById(id).focus();
@@ -2127,6 +2282,7 @@ function load_image(id,ext){
 								}
 								//jQuery("#wpforms-form-ad").submit();
 								
+						var ad_img = jQuery('input[name="ad_img"]:checked').val();
 						var company = jQuery('#company').val();
 						var ad_link = jQuery('#ad_link').val();
 						var start_date = jQuery('#start_date').val();
@@ -2146,6 +2302,7 @@ function load_image(id,ext){
                         form_data.append('ad_link', ad_link);
                         form_data.append('start_date', start_date);
                         form_data.append('end_date', end_date);
+						form_data.append('ad_img',ad_img);
 						form_data.append('id', id);
 						form_data.append('type', type);
 						form_data.append('selected_ad', selected_ad);
@@ -2190,7 +2347,23 @@ function load_image(id,ext){
 							});
 							to.on( 'change', function() {
 								from.datepicker( 'option', 'maxDate', to.val() );
-							});					}
+							});
+							jQuery('#ad_image_container').on( 'change', function() {
+								jQuery('.jconfirm-content-pane').css('max-height','100%');
+							});
+							jQuery.ajax({	
+									url:'<?php echo get_site_url();?>/ajax.php',	
+									type:'POST',
+									data:{'mode':'getPastAd','userid':'','postid':selected_ad},
+									beforeSend: function() {},
+									complete: function() {
+									},
+									success:function (data){
+										jQuery('#pastimages').html('<ul>'+data+'</ul>');
+										jQuery(".jconfirm-content-pane").attr('style','height:100%;max-height:100%;');				
+									}
+							});
+					}
 
 				});
 				

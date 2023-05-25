@@ -25,7 +25,6 @@ function persistent_login()
             'slug'    => 'wp-persistent-login',
             'contact' => false,
             'support' => false,
-            'account' => false,
             'parent'  => array(
             'slug' => 'users.php',
         ),

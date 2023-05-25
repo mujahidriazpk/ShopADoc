@@ -49,6 +49,7 @@ class Module {
     public function load_actions() {
         add_filter( 'dokan_settings_sections', array( $this, 'render_apperance_section' ) );
         add_filter( 'dokan_settings_fields', array( $this, 'render_apperance_settings' ) );
+        add_filter( 'dokan_localized_args', [ $this, 'render_header_section' ], 10, 1 );
 
         add_action( 'wp_head', array( $this, 'load_styles' ) );
         add_action( 'dokan_setup_wizard_styles', array( $this, 'load_styles' ) );
@@ -358,6 +359,28 @@ class Module {
     }
 
     /**
+     * Render header styles to override default styles
+     *
+     * @since 3.7.6
+     *
+     * return $args
+     */
+    public function render_header_section( $args ) {
+        if ( ! isset( $args['modal_header_color'] ) ) {
+            return $args;
+        }
+
+        $colors         = dokan_get_option( 'store_color_pallete', 'dokan_colors', [] );
+        $default_colors = $this->get_default_color_settings();
+
+        $btn_bg     = ! empty( $colors['btn_primary'] ) ? $colors['btn_primary'] : $default_colors['btn_primary'];
+
+        $args['modal_header_color'] = $btn_bg;
+
+        return $args;
+    }
+
+    /**
      * Render styles to override default styles
      *
      * @since 1.0
@@ -383,34 +406,70 @@ class Module {
         $btn_h_border = ! empty( $colors['btn_hover_border'] ) ? $colors['btn_hover_border'] : $default_colors['btn_hover_border'];
 
         $dash_nav_bg          = ! empty( $colors['dash_nav_bg'] ) ? $colors['dash_nav_bg'] : $default_colors['dash_nav_bg'];
+        $submenu_nav_bg       = $dash_nav_bg . 'ed';
         $dash_nav_text        = ! empty( $colors['dash_nav_text'] ) ? $colors['dash_nav_text'] : $default_colors['dash_nav_text'];
         $dash_active_menu     = ! empty( $colors['dash_active_link'] ) ? $colors['dash_active_link'] : $default_colors['dash_active_link'];
         $dash_nav_active_text = ! empty( $colors['dash_nav_active_text'] ) ? $colors['dash_nav_active_text'] : $default_colors['dash_nav_active_text'];
         ?>
         <style>
+            .dokan-dashboard-wrap .dokan-form-group #insert-media-button,
             input[type="submit"].dokan-btn-theme, a.dokan-btn-theme, .dokan-btn-theme {
                 color: <?php echo esc_attr( $btn_text ); ?> !important;
                 background-color: <?php echo esc_attr( $btn_bg ); ?> !important;
                 border-color: <?php echo esc_attr( $btn_border ); ?> !important;
             }
-            input[type="submit"].dokan-btn-theme:hover,
-            a.dokan-btn-theme:hover, .dokan-btn-theme:hover,
-            input[type="submit"].dokan-btn-theme:focus,
-            a.dokan-btn-theme:focus, .dokan-btn-theme:focus,
-            input[type="submit"].dokan-btn-theme:active,
-            a.dokan-btn-theme:active, .dokan-btn-theme:active,
-            input[type="submit"].dokan-btn-theme.active, a.dokan-btn-theme.active,
+
             .dokan-btn-theme.active,
-            .open .dropdown-toggleinput[type="submit"].dokan-btn-theme,
+            .open .dropdown-toggle.dokan-btn-theme,
             .open .dropdown-togglea.dokan-btn-theme,
-            .open .dropdown-toggle.dokan-btn-theme {
+            input[type="submit"].dokan-btn-theme:hover,
+            input[type="submit"].dokan-btn-theme:focus,
+            input[type="submit"].dokan-btn-theme:active,
+            a.dokan-btn-theme:hover, .dokan-btn-theme:hover,
+            a.dokan-btn-theme:focus, .dokan-btn-theme:focus,
+            a.dokan-btn-theme:active, .dokan-btn-theme:active,
+            .dokan-geo-filters-column .dokan-geo-product-search-btn,
+            .open .dropdown-toggleinput[type="submit"].dokan-btn-theme,
+            .dokan-dashboard-wrap .dokan-subscription-content .pack_price,
+            .dokan-dashboard-wrap .dokan-dashboard-content .wpo_wcpdf:hover,
+            .dashboard-content-area .woocommerce-importer .wc-actions a.button,
+            .dokan-dashboard-wrap .dokan-form-group #insert-media-button:hover,
+            input[type="submit"].dokan-btn-theme.active, a.dokan-btn-theme.active,
+            .dokan-dashboard-wrap .dokan-modal-content .modal-footer .inner button,
+            .dashboard-content-area .woocommerce-importer .wc-actions button.button-next,
+            .wc-setup .wc-setup-content .checkbox input[type=checkbox]:checked + label::before,
+            .dokan-dashboard-wrap .dokan-dashboard-content .my_account_quotes td:last-child a:hover,
+            .dokan-dashboard-wrap .dokan-dashboard-content .dokan-btn:not(.disconnect, .wc-pao-remove-option, .dokan-btn-success):hover,
+            .dokan-dashboard-wrap .dokan-dashboard-content .dokan-btn:not(.disconnect, .wc-pao-remove-option, .dokan-btn-success):focus,
+            .dokan-dashboard-wrap .dokan-dashboard-content #delivery-time-calendar .fc-button-primary:not(.fc-button-active):not(:disabled):hover {
                 color: <?php echo esc_attr( $btn_h_text ); ?> !important;
                 border-color: <?php echo esc_attr( $btn_h_border ); ?> !important;
                 background-color: <?php echo esc_attr( $btn_h_bg ); ?> !important;
             }
 
+            #dokan-store-listing-filter-wrap .right .toggle-view .active,
+            .dokan-dashboard-wrap .dokan-settings-area .dokan-page-help p a,
+            .dokan-dashboard-wrap .dokan-dashboard-header .entry-title small a,
+            .dokan-dashboard-wrap .dokan-settings-area .dokan-ajax-response + a,
+            .dokan-dashboard-wrap .dokan-settings-area .dokan-pa-all-addons div a,
+            .dokan-dashboard-wrap .dokan-subscription-content .seller_subs_info p span,
+            .dokan-table.product-listing-table .product-advertisement-th i.fa-stack-2x,
+            .dokan-dashboard-wrap .dokan-stuffs-content .entry-title span.dokan-right a,
+            .dokan-dashboard-wrap .dokan-settings-area #dokan-shipping-zone .router-link-active,
+            .dokan-dashboard-wrap .dokan-settings-area .dokan-ajax-response ~ .dokan-text-left p a,
+            .dokan-dashboard-wrap .dokan-settings-area .dokan-pa-create-addons .back-to-addon-lists-btn,
+            .dokan-dashboard-wrap .dokan-withdraw-content .dokan-panel-inner-container .dokan-w8 strong a,
+            .dokan-dashboard-wrap .dokan-settings-area #dokan-shipping-zone .dokan-form-group .limit-location-link,
+            .dokan-dashboard-wrap .dashboard-content-area .woocommerce-importer .woocommerce-importer-done::before,
+            .product-edit-new-container .dokan-proudct-advertisement .dokan-section-heading h2 span.fa-stack i.fa-stack-2x {
+                color: <?php echo esc_attr( $btn_bg ); ?> !important;
+            }
+
             .dokan-dashboard .dokan-dash-sidebar,
-            .dokan-dashboard .dokan-dash-sidebar ul.dokan-dashboard-menu {
+            .wc-setup .wc-setup-steps li.done::before,
+            .dokan-dashboard .dokan-dash-sidebar ul.dokan-dashboard-menu,
+            .dokan-dashboard-wrap .dashboard-widget .dokan-dashboard-announce-unread,
+            .dokan-dashboard-wrap .dokan-dashboard-content #vendor-own-coupon .code:hover {
                 background-color: <?php echo esc_attr( $dash_nav_bg ); ?> !important;
             }
 
@@ -430,6 +489,73 @@ class Module {
             .dokan-dashboard .dokan-dash-sidebar ul.dokan-dashboard-menu li.active,
             .dokan-dashboard .dokan-dash-sidebar ul.dokan-dashboard-menu li.dokan-common-links a:hover {
                 background-color: <?php echo esc_attr( $dash_active_menu ); ?> !important;
+            }
+
+            .dokan-dashboard .dokan-dash-sidebar ul.dokan-dashboard-menu ul.navigation-submenu,
+            .dokan-dashboard .dokan-dash-sidebar ul.dokan-dashboard-menu li ul.navigation-submenu li {
+                background: <?php echo esc_attr( $submenu_nav_bg ); ?> !important;
+            }
+
+            .dokan-dashboard .dokan-dash-sidebar ul.dokan-dashboard-menu ul.navigation-submenu li a {
+                color: <?php echo esc_attr( $dash_nav_text ); ?> !important;
+            }
+
+            .dokan-dashboard .dokan-dash-sidebar ul.dokan-dashboard-menu ul.navigation-submenu li:hover a {
+                font-weight: 800 !important;
+            }
+
+            .dokan-dashboard .dokan-dash-sidebar ul.dokan-dashboard-menu ul.navigation-submenu li a:focus {
+                outline: none !important;
+                background: none !important;
+            }
+
+            .dokan-dashboard .dokan-dash-sidebar ul.dokan-dashboard-menu li.active ul.navigation-submenu {
+                border-bottom: 0.5px solid <?php echo esc_attr( $dash_active_menu ); ?> !important;
+            }
+
+            .dokan-dashboard .dokan-dash-sidebar ul.dokan-dashboard-menu li:hover:not(.active) ul.navigation-submenu {
+                background: <?php echo esc_attr( $submenu_nav_bg ); ?> !important;
+            }
+
+            .dokan-dashboard .dokan-dash-sidebar ul.dokan-dashboard-menu li:hover:not(.active).has-submenu:after {
+                border-color: transparent <?php echo esc_attr( $submenu_nav_bg ); ?> transparent transparent;
+                border-left-color: <?php echo esc_attr( $submenu_nav_bg ); ?>;
+            }
+
+            .dokan-dashboard .dokan-dash-sidebar ul.dokan-dashboard-menu li ul.navigation-submenu li:hover:before,
+            .dokan-dashboard .dokan-dash-sidebar ul.dokan-dashboard-menu li ul.navigation-submenu li.current:before {
+                border-color: <?php echo esc_attr( $dash_nav_active_text ); ?> !important;
+            }
+
+            .dokan-dashboard .dokan-dash-sidebar ul.dokan-dashboard-menu li ul.navigation-submenu li:hover a,
+            .dokan-dashboard .dokan-dash-sidebar ul.dokan-dashboard-menu li ul.navigation-submenu li.current a {
+                color: <?php echo esc_attr( $dash_nav_active_text ); ?> !important;
+            }
+
+            .dokan-dashboard-wrap .dokan-booking-wrapper ul.dokan_tabs .active {
+                border-top: 2px solid <?php echo esc_attr( $btn_bg ); ?> !important;
+            }
+
+            .dokan-dashboard-wrap a:focus {
+                outline-color: <?php echo esc_attr( $btn_bg ); ?> !important;
+            }
+
+            .wc-setup .wc-setup-steps li.done,
+            .wc-setup .wc-setup-steps li.active,
+            .wc-setup .wc-setup-steps li.done::before,
+            .wc-setup .wc-setup-steps li.active::before,
+            .dokan-dashboard-wrap .dashboard-content-area .wc-progress-steps li.done,
+            .dokan-dashboard-wrap .dashboard-content-area .wc-progress-steps li.active,
+            .dokan-dashboard-wrap .dashboard-content-area .wc-progress-steps li.done::before,
+            .dokan-dashboard-wrap .dashboard-content-area .wc-progress-steps li.active::before,
+            .store-lists-other-filter-wrap .range-slider-container input[type="range"]::-webkit-slider-thumb,
+            .dokan-geolocation-location-filters .dokan-range-slider-value + input[type="range"]::-webkit-slider-thumb {
+                color: <?php echo esc_attr( $btn_h_bg ); ?> !important;
+                border-color: <?php echo esc_attr( $btn_h_bg ); ?> !important;
+            }
+
+            .dokan-subscription-content .pack_content_wrapper .product_pack_item.current_pack {
+                border-color: <?php echo esc_attr( $btn_h_bg ); ?> !important;
             }
         </style>
 

@@ -1,11 +1,11 @@
 === Admin Bar & Dashboard Access Control ===
 Contributors: Collizo4sky
-Donate link: https://profilepress.net/pricing/
+Donate link: https://profilepress.com/pricing/
 Tags: admin, admin bar, dashboard, access, role, roles, admin dashboard, admin bar, toolbar, disable, hide, disable admin bar, disable toolbar, disable-wordpress-admin-bar, disable-wordpress-toolbar, remove admin bar, remove-toolbar, remove-wordpress-admin-bar, remove-wordpress-toolbar, Toolbar
 Requires at least: 4.0
 Requires PHP: 5.3
-Tested up to: 5.0.2
-Stable tag: 1.2.5
+Tested up to: 6.0.1
+Stable tag: 1.2.6
 License: GPL-2.0+
 
 Disable admin bar and control users access to WordPress dashboard.
@@ -17,14 +17,9 @@ Simple plugin for disabling admin bar and preventing access to WordPress dashboa
 It is that simple :D
 
 
-### Contribution
-Plugin is open source on [GitHub](https://github.com/ProfilePress/Admin-Bar-Dashboard-Control). Issues and pull requests are welcome.
-
-
 ### Plugins you will like:
-* **[ProfilePress](https://wordpress.org/plugins/ppress/)**: A shortcode based WordPress form builder that makes building custom login, registration and password reset forms stupidly simple. [More info here](http://profilepress.net)
+* **[ProfilePress](https://wordpress.org/plugins/wp-user-avatar/)**: A simple yet powerful eCommerce and paid membership plugin for accepting one-time and recurring payments and selling subscriptions via Stripe & PayPal, restrict content and control user access.. [Learn more](https://profilepress.com/)
 * **[MailOptin](https://mailoptin.io/)** - The best WordPress email optin forms, email automation & newsletters plugin in the market.
-* **[EDD Paddle for WordPress](https://omnipay.io/downloads/edd-paddle-payment-gateway/)** - Accept payments through the Paddle.com payment gateway on Easy Digital Downloads.
 
 == Installation ==
 
@@ -44,6 +39,9 @@ Have any question, shoot us a mail via support[at]profilepress.net
 1. Settings page
 
 == Changelog ==
+
+= 1.2.6 =
+* Bumped tested up to readme.
 
 = 1.2.5 =
 * Tuned down admin notices.

@@ -5,7 +5,7 @@
  Author:       Tareq Hasan
  Author URI:   http://tareq.weDevs.com
  Template:     dokan
- Version:      1.6.32
+ Version:      1.6.53
  License:      GNU General Public License v2 or later
  License URI:  http://www.gnu.org/licenses/gpl-2.0.html
  Text Domain:  dokan-child
@@ -62,6 +62,56 @@
     display: block !important;
 	transform:none !important;
 }*/
+.e-hosted-video{
+	aspect-ratio:auto !important;
+}
+.required::-moz-selection,.wpforms-required-label::-moz-selection { /* Code for Firefox */
+  color: red;
+}
+
+.required::selection,.wpforms-required-label::selection {
+  color: red;
+}
+label .optional{display:none;}
+#post-upload-info{display:none !important;}
+.media-router .media-menu-item:focus {
+    box-shadow: none !important;
+    color: inherit;
+    outline: 1px solid transparent;
+}
+.media-router .media-menu-item{color:#0a7be2;text-transform: capitalize;}
+.media-router .active, .media-router .active:hover{color:#000 !important;}
+.mobile_app_section .elementor-row {
+    flex-wrap: unset;
+}
+th.product-total,td.product-total,tr.order-total td{
+    text-align: center;
+}
+td.product-total span{
+    float: none;
+    text-align: center;
+    display: inline-block;
+}
+.woocommerce table.shop_table .cart_item td.product-total,th.product-total{
+	padding-left:0 !important;
+	padding-right:0 !important;
+}
+@media (max-width: 1024px){
+.elementor-342 .elementor-element.elementor-element-6f6669b > .elementor-widget-container {
+    margin: -20px 0px 15px 0px !important;
+}
+}
+.page-id-15 .fbv-modal .media-frame:not(.hide-menu):not(.hide-router) .media-frame-menu .media-menu{display:none !important;}
+.site-footer {
+    float: left;
+    width: 100%;
+}
+.wc-terms-and-conditions{float: left;width: 100%;}
+.rotation_ad img{height: 250px;}
+input:focus{outline-color:#0A7BE2 !important;}
+#billing_state_field .select2-container--default.select2-container--disabled .select2-selection--single{background:#fdfdfd !important;border: 1px solid #EDEDED !important;}
+#billing_state_field .select2-container--default.select2-container--disabled .select2-selection--single .select2-selection__rendered{color:#767676 !important;}
+#billing_state_field .select2-container--default.select2-container--disabled .select2-selection--single .select2-selection__arrow{display:none !important;}
 .media-frame-menu,.media-frame-menu-heading{display:none !important;}
 .media-frame-router,.media-frame-content,.media-frame-toolbar{left:0 !important;}
 #wpforms-4017-field_5-container{padding-top:0 !important;}
@@ -89,9 +139,9 @@ navbar-top-area .navbar-nav > li > a {
 					display:block;
 				  }
 }
-.rotation_ad span{
+/*.rotation_ad span{
 	display:none;
-}
+}*/
 .detail_section{float:left;width:100%;}
 .woocommerce #content div.product div.summary, .woocommerce div.product div.summary, .woocommerce-page #content div.product div.summary, .woocommerce-page div.product div.summary{
 	width:51%;
@@ -1219,7 +1269,7 @@ position: fixed;
 	top: -2px;
 	position: absolute;
 }
-.sgpb-content-2721 .TM_popup {
+.sgpb-content-2721 .TM_popup,.sgpb-content-6776 .TM_popup{
 	top: 20px;
 }
 .TM_offer {
@@ -1346,7 +1396,19 @@ button#responsive-menu-button {
 }
 
 }
+.only_shown_desktop{
+	display: inline-block;
+}
+.only_shown_mobile{
+	display: none;
+}
 @media (max-width: 850px) {
+.only_shown_desktop{
+	display: none !important;
+}
+.only_shown_mobile{
+	display: inline-block !important;
+}
 .Zebra_Tooltip{
 	width:99% !important;
 }
@@ -1409,12 +1471,13 @@ ul.custom_service li {
 .elementor-widget-video .elementor-custom-embed-image-overlay img{
 	width:50px !important;
 }
-.navbar-nav .open .dropdown-menu {
-	left:-100px;
+.navbar-nav .open .dropdown-menu,.lang_es .navbar-nav .open .dropdown-menu {
+	left:unset;
+	right: 0px;
 }
-.lang_es .navbar-nav .open .dropdown-menu {
+/*.lang_es .navbar-nav .open .dropdown-menu {
 	left:-120px;
-}
+}*/
 .woocommerce .blockUI.blockOverlay:before,.woocommerce .loader:before{
 	position:fixed !important;
 	margin-left:0 !important;
@@ -3293,6 +3356,12 @@ div[class^="advads-place-"] {
 }
 }
  @media only screen and (min-width: 448px) and (max-width:850px) {
+ .elementor-widget-video .elementor-custom-embed-image-overlay img{
+	 width: 15% !important;
+ }
+ .elementor-widget-heading .elementor-heading-title.elementor-size-medium{
+	 font-size:40px !important;
+ }
 .rotation_ad {
 	width: 49.73%;
 }
@@ -3366,6 +3435,11 @@ div[class^="advads-place-"] {
 }*/
 
 @media only screen and (max-width: 850px) {
+.demo_txt h2{
+	margin-top: -8px;
+	padding-bottom: 10px;
+}
+.rotation_ad img{height: auto;}
 .navbar-top-area .navbar-nav > li > a{
 	line-height:normal !important;
 	padding:5px 10px !important;
@@ -3407,6 +3481,7 @@ td.up_down {
 }
 }
 @media only screen and (min-width: 448px) and (max-width:850px) {
+.social_img img{width:50%;}
 #wc-yith-stripe-cc-form label{
 	line-height:18px !important;
 	height:31px;
@@ -3453,6 +3528,7 @@ td.up_down {
 .rotation_set{position:relative;top:0;}
 }
 @media only screen and (max-width: 448px) {
+.social_img img{width:65%;}
 #timer_div {
 
 	padding-bottom:20px !important;

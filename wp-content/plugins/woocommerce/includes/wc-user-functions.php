@@ -8,6 +8,9 @@
  * @version 2.2.0
  */
 
+use Automattic\WooCommerce\Internal\DataStores\Orders\OrdersTableDataStore;
+use Automattic\WooCommerce\Utilities\OrderUtil;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -260,7 +263,7 @@ function wc_update_new_customer_past_orders( $customer_id ) {
 
 			do_action( 'woocommerce_update_new_customer_past_order', $order_id, $customer );
 
-			if ( get_post_status( $order_id ) === 'wc-completed' ) {
+			if ( $order->get_status() === 'wc-completed' ) {
 				$complete++;
 			}
 
@@ -344,19 +347,40 @@ function wc_customer_bought_product( $customer_email, $user_id, $product_id ) {
 			return false;
 		}
 
-		$result = $wpdb->get_col(
-			"
-			SELECT im.meta_value FROM {$wpdb->posts} AS p
-			INNER JOIN {$wpdb->postmeta} AS pm ON p.ID = pm.post_id
-			INNER JOIN {$wpdb->prefix}woocommerce_order_items AS i ON p.ID = i.order_id
-			INNER JOIN {$wpdb->prefix}woocommerce_order_itemmeta AS im ON i.order_item_id = im.order_item_id
-			WHERE p.post_status IN ( 'wc-" . implode( "','wc-", $statuses ) . "' )
-			AND pm.meta_key IN ( '_billing_email', '_customer_user' )
-			AND im.meta_key IN ( '_product_id', '_variation_id' )
-			AND im.meta_value != 0
-			AND pm.meta_value IN ( '" . implode( "','", $customer_data ) . "' )
+		if ( OrderUtil::custom_orders_table_usage_is_enabled() ) {
+			$statuses = array_map(
+				function ( $status ) {
+					return "wc-$status";
+				},
+				$statuses
+			);
+			$order_table = OrdersTableDataStore::get_orders_table_name();
+			$sql = "
+SELECT im.meta_value FROM $order_table AS o
+INNER JOIN {$wpdb->prefix}woocommerce_order_items AS i ON o.id = i.order_id
+INNER JOIN {$wpdb->prefix}woocommerce_order_itemmeta AS im ON i.order_item_id = im.order_item_id
+WHERE o.status IN ('" . implode( "','", $statuses ) . "')
+AND im.meta_key IN ('_product_id', '_variation_id' )
+AND im.meta_value != 0
+AND ( o.customer_id IN ('" . implode( "','", $customer_data ) . "') OR o.billing_email IN ('" . implode( "','", $customer_data ) . "') )
+
+";
+			$result = $wpdb->get_col( $sql );
+		} else {
+			$result = $wpdb->get_col(
+				"
+SELECT im.meta_value FROM {$wpdb->posts} AS p
+INNER JOIN {$wpdb->postmeta} AS pm ON p.ID = pm.post_id
+INNER JOIN {$wpdb->prefix}woocommerce_order_items AS i ON p.ID = i.order_id
+INNER JOIN {$wpdb->prefix}woocommerce_order_itemmeta AS im ON i.order_item_id = im.order_item_id
+WHERE p.post_status IN ( 'wc-" . implode( "','wc-", $statuses ) . "' )
+AND pm.meta_key IN ( '_billing_email', '_customer_user' )
+AND im.meta_key IN ( '_product_id', '_variation_id' )
+AND im.meta_value != 0
+AND pm.meta_value IN ( '" . implode( "','", $customer_data ) . "' )
 		"
-		); // WPCS: unprepared SQL ok.
+			); // WPCS: unprepared SQL ok.
+		}
 		$result = array_map( 'absint', $result );
 
 		$transient_value = array(
@@ -690,16 +714,40 @@ function wc_get_customer_order_count( $user_id ) {
 function wc_reset_order_customer_id_on_deleted_user( $user_id ) {
 	global $wpdb;
 
-	$wpdb->update(
-		$wpdb->postmeta,
-		array(
-			'meta_value' => 0,
-		),
-		array(
-			'meta_key'   => '_customer_user',
-			'meta_value' => $user_id,
-		)
-	); // WPCS: slow query ok.
+	if ( OrderUtil::custom_orders_table_usage_is_enabled() ) {
+		$order_table_ds = wc_get_container()->get( OrdersTableDataStore::class );
+		$order_table    = $order_table_ds::get_orders_table_name();
+		$wpdb->update(
+			$order_table,
+			array(
+				'customer_id'      => 0,
+				'date_updated_gmt' => current_time( 'mysql', true ),
+			),
+			array(
+				'customer_id' => $user_id,
+			),
+			array(
+				'%d',
+				'%s',
+			),
+			array(
+				'%d',
+			)
+		);
+	}
+
+	if ( ! OrderUtil::custom_orders_table_usage_is_enabled() || OrderUtil::is_custom_order_tables_in_sync() ) {
+		$wpdb->update(
+			$wpdb->postmeta,
+			array(
+				'meta_value' => 0, //phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+			),
+			array(
+				'meta_key'   => '_customer_user', //phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+				'meta_value' => $user_id, //phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+			)
+		);
+	}
 }
 
 add_action( 'deleted_user', 'wc_reset_order_customer_id_on_deleted_user' );
@@ -755,7 +803,7 @@ add_action( 'profile_update', 'wc_update_profile_last_update_time', 10, 2 );
  * @param int    $meta_id     ID of the meta object that was changed.
  * @param int    $user_id     The user that was updated.
  * @param string $meta_key    Name of the meta key that was changed.
- * @param string $_meta_value Value of the meta that was changed.
+ * @param mixed  $_meta_value Value of the meta that was changed.
  */
 function wc_meta_update_last_update_time( $meta_id, $user_id, $meta_key, $_meta_value ) {
 	$keys_to_track = apply_filters( 'woocommerce_user_last_update_fields', array( 'first_name', 'last_name' ) );

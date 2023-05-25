@@ -18,8 +18,8 @@ class ADDEMO_List extends WP_List_Table {
 	public function __construct() {
 
 		parent::__construct( [
-			'singular' => __( 'AD DEMO', 'sp' ), //singular name of the listed records
-			'plural'   => __( 'AD DEMO', 'sp' ), //plural name of the listed records
+			'singular' => __( 'PROSPECTS', 'sp' ), //singular name of the listed records
+			'plural'   => __( 'PROSPECTS', 'sp' ), //plural name of the listed records
 			'ajax'     => false //does this table support ajax?
 		] );
 
@@ -456,8 +456,8 @@ class SP_Plugin_ADDEMO {
 	public function plugin_menu() {
 
 		$hook = add_menu_page(
-			'AD DEMO',
-			'AD DEMO',
+			'PROSPECTS',
+			'PROSPECTS',
 			'shopadoc_admin_cap',
 			'ADDEMO',
 			[ $this, 'plugin_settings_page' ]
@@ -476,7 +476,8 @@ class SP_Plugin_ADDEMO {
 		?>
 
 <div class="wrap">
-  <h2>AD DEMO</h2>
+  <h2>PROSPECTS</h2>
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.css" rel="stylesheet" type='text/css'>
   <script type="text/javascript" src="<?php echo get_template_directory_uri(); ?>-child/autosuggest/js/bsn.AutoSuggest_2.1.3.js" charset="utf-8"></script>
   <link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>-child/autosuggest/css/autosuggest_inquisitor.css" type="text/css" />
   <!--<link rel="stylesheet" href="<?php echo get_template_directory_uri();?>-child/jQuery-Validation-Engine/css/validationEngine.jquery.css" type="text/css"/>
@@ -515,11 +516,11 @@ function submitUser(){
   <style type="text/css">
   div.wpforms-container-full .wpforms-form input:disabled, div.wpforms-container-full .wpforms-form textarea:disabled, div.wpforms-container-full .wpforms-form select:disabled{color:#333 !important;}
   div.wpforms-container-full .wpforms-form .wpforms-field-label{font-weight:normal !important}
-  #toplevel_page_admin-page-ADDEMO a{
+  #toplevel_page_admin-page-ADDEMO a.menu-top{
 			background: #2271b1 !important;
 			color: #fff !important;
 			}
-			#toplevel_page_admin-page-ADDEMO a:after {
+			#toplevel_page_admin-page-ADDEMO a.menu-top:after {
 			right: 0;
 			border: solid 8px transparent;
 			content: " ";
@@ -538,11 +539,6 @@ function submitUser(){
 					float: left;
 				}
 				.jconfirm.jconfirm-white .jconfirm-box .jconfirm-buttons button, .jconfirm.jconfirm-light .jconfirm-box .jconfirm-buttons button{
-				background:#0A7BE2 !important;
-				border:1px solid #F5F5F5 !important;
-				border-radius:5px;
-				padding:8px 10px !important;
-				color:#fff !important;
 			}
 			.jconfirm.jconfirm-white .jconfirm-box .jconfirm-buttons, .jconfirm.jconfirm-light .jconfirm-box .jconfirm-buttons {
     float: left !important;
@@ -637,7 +633,7 @@ function submitUser(){
 
 					
 		  ?>
-          <p class="pull-right"><a href="javascript:addUser('','Demo');" title="addUser" style="float:right" class="btn btn-primary">Add New</a></p>
+          <p class="pull-right"><a href="javascript:addUser('','Demo');" title="addUser" style="float:right;padding:8px 32% !important;" class="btn btn-primary">Add New</a></p>
           <table class="wp-list-table widefat fixed striped table-view-list users">
             <thead>
               <tr>

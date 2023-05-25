@@ -6,7 +6,7 @@ Author URI: https://puri.io
 Author: Morgan Hvidt
 Donate link: https://www.paypal.me/morganhvidt/
 Requires at least: 4.0
-Tested up to: 5.9
+Tested up to: 6.0
 Requires PHP: 7.0
 Stable tag: trunk
 License: GPLv2 or later
@@ -87,6 +87,10 @@ The Checkout Countdown top bar works with any theme that doesn't use a **fixed h
 5. Matches your theme, Divi Theme in this case.
 
 == Changelog ==
+
+= 3.1.7 =
+* Tested and ready for WooCommerce 6.6+
+* Tested and ready for WordPress 6.0+
 
 = 3.1.6 =
 * Tested and ready for WooCommerce 6.2+

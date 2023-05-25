@@ -910,6 +910,14 @@ ol.dokan-order-shipment-notes-updates {
 .dokan-reports-content .dokan-reports-area table.table .progress {
   margin-bottom: 0;
 }
+.dokan-reports-content .dokan-reports-area table.table tbody tr th a,
+.dokan-reports-content .dokan-reports-area table.table tbody tr td a {
+  color: #6d6d6d;
+}
+.dokan-reports-content .dokan-reports-area table.table tbody tr th a:hover,
+.dokan-reports-content .dokan-reports-area table.table tbody tr td a:hover {
+  color: #000;
+}
 .dokan-reports-content .dokan-reports-area .dokan-reports-main h3 {
   margin: 0 0 15px 0;
 }
@@ -944,6 +952,9 @@ ol.dokan-order-shipment-notes-updates {
 .dokan-reviews-content .dokan-reviews-area .dokan-comments-wrap ul.dokan-cmt-row-actions a {
   text-decoration: none;
 }
+.dokan-reviews-content .dokan-reviews-area .dokan-comments-wrap ul.dokan-cmt-row-actions a[data-cmt_status='delete']:hover {
+  color: red !important;
+}
 .dokan-reviews-content .dokan-reviews-area .dokan-comments-wrap ul.dokan-cmt-row-actions li {
   display: inline;
   border-right: 1px solid #EDEDED;
@@ -964,7 +975,7 @@ ol.dokan-order-shipment-notes-updates {
 }
 .dokan-reviews-content .dokan-reviews-area .dokan-comments-wrap #dokan-comments-table td.col-author,
 .dokan-reviews-content .dokan-reviews-area .dokan-comments-wrap #dokan-comments-table th.col-author {
-  width: 33%;
+  width: 25%;
 }
 .dokan-reviews-content .dokan-reviews-area .dokan-comments-wrap #dokan-comments-table td.col-author .dokan-author-img,
 .dokan-reviews-content .dokan-reviews-area .dokan-comments-wrap #dokan-comments-table th.col-author .dokan-author-img {
@@ -1461,5 +1472,58 @@ and open the template in the editor.
   #dokan-store-listing-filter-wrap .sort-by.item {
     font-size: 12px;
   }
+}
+.dokan-switch-container {
+  display: flex;
+  align-items: center;
+}
+.dokan-switch-container strong {
+  margin-right: 0.5rem;
+}
+.dokan-switch-container .dokan-switch {
+  position: relative;
+  display: inline-block;
+  width: 42px;
+  height: 20px;
+}
+.dokan-switch-container .dokan-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.dokan-switch-container .dokan-switch .slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+}
+.dokan-switch-container .dokan-switch .slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.4s;
+}
+.dokan-switch-container .dokan-switch .slider.round {
+  border-radius: 34px;
+}
+.dokan-switch-container .dokan-switch .slider.round:before {
+  border-radius: 50%;
+}
+.dokan-switch-container .dokan-switch input:checked + .slider {
+  background-color: #2196F3;
+}
+.dokan-switch-container .dokan-switch input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+.dokan-switch-container .dokan-switch input:checked + .slider:before {
+  transform: translateX(22px);
 }
 

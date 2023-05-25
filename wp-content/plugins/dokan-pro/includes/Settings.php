@@ -24,8 +24,7 @@ class Settings extends DokanSettings {
      * @return void
      */
     public function __construct() {
-        $this->currentuser  = dokan_get_current_user_id();
-        $this->profile_info = dokan_get_store_info( dokan_get_current_user_id() );
+        $this->currentuser = dokan_get_current_user_id();
 
         // Settings hooks.
         $this->hooks();
@@ -349,7 +348,7 @@ class Settings extends DokanSettings {
             'pro'           => true,
             'social_fields' => $social_fields,
             'current_user'  => $this->currentuser,
-            'profile_info'  => $this->profile_info,
+            'profile_info'  => dokan_get_store_info( $this->currentuser ),
         ) );
     }
 
@@ -550,7 +549,7 @@ class Settings extends DokanSettings {
         if ( isset( $dokan_settings['payment'] ) && isset( $dokan_settings['payment']['bank'] ) ) {
             $count_bank = true;
 
-            $bank_required_fields = [ 'ac_name', 'ac_number', 'routing_number', 'ac_type' ];
+            $bank_required_fields = array_keys( dokan_bank_payment_required_fields() );
             foreach ( $bank_required_fields as $field ) {
                 if ( empty( $dokan_settings['payment']['bank'][ $field ] ) ) {
                     $count_bank = false;
@@ -666,9 +665,9 @@ class Settings extends DokanSettings {
             <label class="dokan-w3 dokan-control-label"><?php _e( 'Biography', 'dokan' ); ?></label>
             <div class="dokan-w7 dokan-text-left">
                 <?php
-                    wp_editor( $biography, 'vendor_biography', [
+                    wp_editor( $biography, 'vendor_biography', apply_filters( 'dokan_vendor_biography_form', [
                         'quicktags' => false
-                    ] );
+                    ] ) );
                 ?>
             </div>
         </div>

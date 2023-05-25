@@ -9,8 +9,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 Plugin::$instance->elements_manager->add_category(
 	'music-player-for-woocommerce-cat',
 	array(
-		'title'=>'Music Player For WooCommerce',
-		'icon' => 'fa fa-plug'
+		'title' => 'Music Player For WooCommerce',
+		'icon'  => 'fa fa-plug',
 	),
 	2 // position
 );

@@ -74,7 +74,7 @@ class Billing {
         $customer_fields = $this->get_active_customer_fields_and_labels();
 
         foreach ( $customer_fields as $field => $label ) {
-            $fields['billing']['fields'][ $field ] = [ 'label' => $label ];
+            $fields['billing']['fields'][ $field ] = [ 'label' => $label, 'description' => '' ];
         }
 
         return $fields;

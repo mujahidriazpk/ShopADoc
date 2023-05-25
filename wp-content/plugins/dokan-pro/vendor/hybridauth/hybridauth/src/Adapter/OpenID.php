@@ -252,7 +252,7 @@ abstract class OpenID extends AbstractAdapter implements AdapterInterface
      */
     protected function fetchUserGender(User\Profile $userProfile, $gender)
     {
-        $gender = strtolower((string)$gender);
+        $gender = strtolower($gender);
 
         if ('f' == $gender) {
             $gender = 'female';

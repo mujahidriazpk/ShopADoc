@@ -1,42 +1,48 @@
 <div class='dokan-form-group'>
-    <span class="and-time"></span>
+    <span class="day and-time"></span>
 
     <!-- Store opening times start -->
     <label for='opening-time-<?php echo esc_attr( $current_day ); ?>' class='time' >
         <div class='clock-picker'>
-            <span class="fa fa-clock-o" aria-hidden="true"></span>
+            <span class="far fa-clock"></span>
             <input type='text' class='dokan-form-control opening-time'
-                name='opening_time[<?php echo esc_attr( $current_day ); ?>][]'
                 id='opening-time-<?php echo esc_attr( $current_day ); ?>'
-                placeholder='<?php echo esc_attr( '00:00' ); ?>'
+                placeholder='<?php echo esc_attr( $place_start ); ?>'
                 value='<?php echo esc_attr( dokan_get_store_times( $current_day, 'opening_time', $index ) ); ?>'
-                autocomplete='off'>
+                autocomplete='off' />
+            <input type="hidden" value='<?php echo esc_attr( dokan_get_store_times( $current_day, 'opening_time', $index ) ); ?>'
+                class="clockOne" name="opening_time[<?php echo esc_attr( $current_day ); ?>][]" />
             <span class="fa fa-exclamation-triangle"></span>
         </div>
     </label>
     <!-- Store opening times end -->
 
-    <span class='time-to'> &#45; </span>
+    <span class='time-to fas fa-minus'></span>
 
     <!-- Store closing times start -->
     <label for='closing-time-<?php echo esc_attr( $current_day ); ?>' class='time' >
         <div class='clock-picker'>
-            <span class="fa fa-clock-o" aria-hidden="true"></span>
+            <span class="far fa-clock"></span>
             <input type='text' class='dokan-form-control closing-time'
-                name='closing_time[<?php echo esc_attr( $current_day ); ?>][]'
                 id='closing-time-<?php echo esc_attr( $current_day ); ?>'
-                placeholder='<?php echo esc_attr( '00:00' ); ?>'
+                placeholder='<?php echo esc_attr( $place_end ); ?>'
                 value='<?php echo esc_attr( dokan_get_store_times( $current_day, 'closing_time', $index ) ); ?>'
-                autocomplete='off'/>
+                autocomplete='off' />
+            <input type="hidden" value='<?php echo esc_attr( dokan_get_store_times( $current_day, 'closing_time', $index ) ); ?>'
+                class="clockTwo" name='closing_time[<?php echo esc_attr( $current_day ); ?>][]' />
             <span class="fa fa-exclamation-triangle"></span>
         </div>
     </label>
     <!-- Store closing times end -->
 
     <!-- Store times action start -->
-    <label for='open-close-actions' class='time open-close-actions'>
-        <a href="" class="remove-store-closing-time"><span class="fa fa-times" aria-hidden="true"></span></a>
-        <a href="" class="added-store-opening-time"><span class="fa fa-plus" aria-hidden="true"></span></a>
+    <label for='open-close-actions' class='open-close-actions'>
+        <a href='' class='remove-store-closing-time'>
+            <span class="fas fa-times"></span>
+        </a>
+        <a href='' class='added-store-opening-time'>
+            <?php echo esc_html( $add_action ); ?>
+        </a>
     </label>
     <!-- Store times action end -->
 </div>

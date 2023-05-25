@@ -89,7 +89,7 @@ if ( ! class_exists( 'WP_Analytify_Addons' ) ) {
 				if ( isset( $extension->status ) &&	$extension->status != '' ) {
 					echo sprintf( esc_html__( '%1$s Download %2$s', 'wp-analytify' ), '<a target="_blank" href="' . $extension->url . '" class="button-primary">', '</a>' ); 
 				} else {
-					echo sprintf( esc_html__( '%1$s Get this add-on %2$s', 'wp-analytify' ), '<a target="_blank" href="' . $extension->url . '" class="button-primary">', '</a>' ); 
+					echo sprintf( esc_html__( '%1$s Get this add-on %2$s', 'wp-analytify' ), '<a target="_blank" href="' . $extension->url . '?utm_source=analytify-lite" class="button-primary">', '</a>' ); 
 				}
 			}
 		}
@@ -142,7 +142,7 @@ if ( ! class_exists( 'WP_Analytify_Addons' ) ) {
 
 			} else {
 
-				echo sprintf( esc_html__( '%1$s Get this add-on %2$s', 'wp-analytify' ), '<a type="button" class="button-primary analytify-activate-module" href=" ' . $this->modules_list[$slug]['url'] . '" target="_blank">', '</a>' );
+				echo sprintf( esc_html__( '%1$s Get this add-on %2$s', 'wp-analytify' ), '<a type="button" class="button-primary analytify-activate-module" href=" ' . $this->modules_list[$slug]['url'] . '?utm_source=analytify-lite" target="_blank">', '</a>' );
 
 			}
 		}
@@ -217,7 +217,7 @@ $version = defined( 'ANALYTIFY_PRO_VERSION' ) ? ANALYTIFY_PRO_VERSION : ANALYTIF
 					<a href="https://analytify.io/changelog/" target="_blank" class="btn">Changelog - v<?php echo $version; ?></a>
 				</div>
 				<div class="wpb_plugin_header_logo">
-					<img src="<?php echo ANALYTIFY_PLUGIN_URL . '/assets/images/logo.svg'?>" alt="Analytify">
+					<img src="<?php echo ANALYTIFY_PLUGIN_URL . '/assets/img/logo.svg'?>" alt="Analytify">
 				</div>
 			</div>
 		</div>
@@ -235,7 +235,7 @@ $version = defined( 'ANALYTIFY_PRO_VERSION' ) ? ANALYTIFY_PRO_VERSION : ANALYTIF
 					<div class="wpb_plugin_tabs_content analytify-dashboard-content">
 						<div class="wrap analytify-addons-wrapper">
  
-							<h2 class='opt-title'><span id='icon-options-general' class='analytics-options'><img src="<?php echo plugins_url( '../assets/images/wp-analytics-logo.png', __FILE__ );?>" alt=""></span>
+							<h2 class='opt-title'><span id='icon-options-general' class='analytics-options'><img src="<?php echo plugins_url( '../assets/img/wp-analytics-logo.png', __FILE__ );?>" alt=""></span>
 							<?php esc_html_e( 'Extend the functionality of Analytify with these awesome Add-ons', 'wp-analytify' ); ?>
 							</h2>
 
@@ -245,7 +245,7 @@ $version = defined( 'ANALYTIFY_PRO_VERSION' ) ? ANALYTIFY_PRO_VERSION : ANALYTIF
 								foreach ( $addons as $name => $extension ) : ?>
 
 									<div class="wp-extension <?php echo $name; ?>">
-										<a target="_blank" href="<?php echo $extension->url; ?>">
+										<a target="_blank" href="<?php echo $extension->url; ?>?utm_source=analytify-lite">
 											<h3 style="background-image: url(<?php echo $extension->media->icon->url ?>);"><?php echo $extension->title; ?></h3>
 										</a>
 										<p><?php echo wpautop( wp_strip_all_tags( $extension->excerpt ) ) ?></p>
@@ -260,7 +260,7 @@ $version = defined( 'ANALYTIFY_PRO_VERSION' ) ? ANALYTIFY_PRO_VERSION : ANALYTIF
 								<?php foreach ( $modules as $module ) { ?>
 
 										<div class="wp-extension <?php echo $module['slug']; ?>">
-											<a target="_blank" href="<?php echo $module['url']; ?>">
+											<a target="_blank" href="<?php echo $module['url']; ?>?utm_source=analytify-lite">
 												<h3 style="background-image: url(<?php echo $module['image'] ?>);"><?php echo $module['title']; ?></h3>
 											</a>
 											<p><?php echo $module['description'] ?></p>

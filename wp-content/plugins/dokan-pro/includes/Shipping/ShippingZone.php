@@ -53,7 +53,6 @@ class ShippingZone {
                 $zones[ $zone->get_id() ]['formatted_zone_location'] = $zone->get_formatted_location();
                 $zones[ $zone->get_id() ]['shipping_methods']        = self::get_shipping_methods( $zone->get_id(), $seller_id );
                 $zones[ $zone->get_id() ]['available_methods']       = $available_methods;
-
             }
         }
 
@@ -139,6 +138,7 @@ class ShippingZone {
         }
 
         \WC_Cache_Helper::invalidate_cache_group( 'shipping_zones' ); // needed to invalidate cache set in get_zone_matching_package method
+        \WC_Cache_Helper::get_transient_version( 'shipping', true ); // if vendor update shipping settings, need to invalidate transient
 
         return $wpdb->insert_id;
     }
@@ -172,6 +172,7 @@ class ShippingZone {
         do_action( 'dokan_delete_shipping_zone_methods', $data['zone_id'], $data['instance_id'] );
 
         \WC_Cache_Helper::invalidate_cache_group( 'shipping_zones' ); // needed to invalidate cache set in get_zone_matching_package method
+        \WC_Cache_Helper::get_transient_version( 'shipping', true ); // if vendor update shipping settings, need to invalidate transient
 
         return $result;
     }
@@ -244,18 +245,35 @@ class ShippingZone {
     public static function update_shipping_method( $args ) {
         global $wpdb;
 
-        $data = array(
+        $sanitizer = new SanitizeCost();
+
+        if ( isset( $args['settings']['title'] ) ) {
+			$args['settings']['title'] = sanitize_text_field( $args['settings']['title'] );
+		}
+        if ( isset( $args['settings']['description'] ) ) {
+			$args['settings']['description'] = sanitize_text_field( $args['settings']['description'] );
+		}
+        if ( isset( $args['settings']['cost'] ) ) {
+            try {
+                $args['settings']['cost'] = $sanitizer->sanitize_cost( $args['settings']['cost'] );
+            } catch ( \Exception $e ) {
+                wp_send_json_error( $e->getMessage() );
+            }
+		}
+
+        $data = [
             'method_id' => $args['method_id'],
             'zone_id'   => $args['zone_id'],
             'seller_id' => empty( $args['seller_id'] ) ? dokan_get_current_user_id() : $args['seller_id'],
             'settings'  => maybe_serialize( $args['settings'] ),
-        );
+        ];
 
         $table_name = "{$wpdb->prefix}dokan_shipping_zone_methods";
         $updated = $wpdb->update( $table_name, $data, array( 'instance_id' => $args['instance_id'] ), array( '%s', '%d', '%d', '%s' ) );
 
         if ( $updated ) {
             \WC_Cache_Helper::invalidate_cache_group( 'shipping_zones' ); // needed to invalidate cache set in get_zone_matching_package method
+            \WC_Cache_Helper::get_transient_version( 'shipping', true ); // if vendor update shipping settings, need to invalidate transient
 
             return $data;
         }
@@ -286,6 +304,7 @@ class ShippingZone {
         }
 
         \WC_Cache_Helper::invalidate_cache_group( 'shipping_zones' ); // needed to invalidate cache set in get_zone_matching_package method
+        \WC_Cache_Helper::get_transient_version( 'shipping', true ); // if vendor update shipping settings, need to invalidate transient
 
         return true;
     }
@@ -316,10 +335,10 @@ class ShippingZone {
 
         if ( $results ) {
             foreach ( $results as $key => $result ) {
-                $locations[] = array(
+                $locations[] = [
                     'code' => $result->location_code,
-                    'type'  => $result->location_type,
-                );
+                    'type' => $result->location_type,
+                ];
             }
         }
 

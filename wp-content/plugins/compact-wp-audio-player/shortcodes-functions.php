@@ -32,7 +32,7 @@ function sc_embed_player_handler($atts, $content = null) {
 
     $player_cont = '<div class="' . esc_attr($class) . '">';
     $player_cont .= '<input type="button" id="btnplay_' . $ids . '" class="myButton_play" onClick="play_mp3(\'play\',\'' . $ids . '\',\'' . esc_url($fileurl) . '\',\'' . esc_attr($volume) . '\',\'' . esc_attr($loops) . '\');show_hide(\'play\',\'' . $ids . '\');" />';
-    $player_cont .= '<input type="button"  id="btnstop_' . $ids . '" style="display:none" class="myButton_stop" onClick="play_mp3(\'stop\',\'' . $ids . '\',\'\',\'' . $volume . '\',\'' . $loops . '\');show_hide(\'stop\',\'' . $ids . '\');" />';
+    $player_cont .= '<input type="button"  id="btnstop_' . $ids . '" style="display:none" class="myButton_stop" onClick="play_mp3(\'stop\',\'' . $ids . '\',\'\',\'' . esc_attr($volume) . '\',\'' . esc_attr($loops) . '\');show_hide(\'stop\',\'' . $ids . '\');" />';
     $player_cont .= '<div id="sm2-container"><!-- flash movie ends up here --></div>';
     $player_cont .= '</div>';
 

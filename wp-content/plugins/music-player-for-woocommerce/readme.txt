@@ -3,8 +3,8 @@ Contributors: codepeople
 Donate link: https://wcmp.dwbooster.com
 Tags:WooCommerce,music player,audio,music,song,player,audio player,media player,mp3,m3u,m3u8,wav,oga,ogg,dokan,wcfm
 Requires at least: 3.5.0
-Tested up to: 6.0
-Stable tag: 1.0.177
+Tested up to: 6.2
+Stable tag: 1.0.196
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,9 +12,9 @@ Music Player for WooCommerce includes the MediaElement.js music player in the pa
 
 == Description ==
 
-Features of the Music Player for WooCommerce, Dokan, and WCFM Marketplace:
+Features of the Music Player for WooCommerce, Dokan, WCFM Marketplace, and MultivendorX:
 
-♪ Integrate a music player into the WooCommerce products, Dokan and WCFM Marketplace
+♪ Integrate a music player into the WooCommerce products, Dokan, WCFM Marketplace, and MultivendorX
 ♪ Includes an audio player that supports formats: OGA, MP3, WAV, WMA
 ♪ Supports M3U, M3U8 playlists
 ♪ Includes multiple skins for the Music Player
@@ -29,7 +29,7 @@ Features of the Music Player for WooCommerce, Dokan, and WCFM Marketplace:
 
 Note: for the other editors, insert directly the playlists' shortcodes.
 
-Music Player for WooCommerce includes the MediaElement.js music player in the pages of the products with audio files associated, and in the store's pages. It allows the integration with the multivendor stores generated with Dokan and WCFM Marketplace. Furthermore, the plugin allows selecting between multiple skins.
+Music Player for WooCommerce includes the MediaElement.js music player in the pages of the products with audio files associated, and in the store's pages. It allows the integration with the multivendor stores generated with Dokan, WCFM Marketplace, and MultivendorX. Furthermore, the plugin allows selecting between multiple skins.
 
 MediaElement.js is an music player compatible with all major browsers: Internet Explorer, Firefox, Opera, Safari, Chrome and mobile devices: iPhone, iPad, Android. The music player is developed following the html5 standard. The music player supports the following file formats: MP3, WAV, WMA and OGA.
 
@@ -46,6 +46,7 @@ The basic version of the plugin, available for free from the WordPress Directory
 * Dokan
 * WCFM - Marketplace
 * WC Vendors
+* MultivendorX
 * Advanced AJAX Product Filters by berocket
 * Load More Products for WooCommerce by berocket
 * Themify - WooCommerce Product Filter by Themify
@@ -84,6 +85,7 @@ The global settings are accessible through the menu option: "Settings/Music Play
 *   Player layout: list of available skins for the music player.
 *   Preload: to decide if preload the audio files, their metadata, or don't preload nothing at all.
 *	Play all: play all players in the page (one after the other).
+*	Loop: plays the audio player on the product page in a loop.
 *   Player controls: determines the controls to include in the music player.
 *   Display the player's title: show/hide the name associated to the downloadable file.
 *   Protect the file: checkbox to playback the songs in secure mode (only available in the pro version of the plugin).
@@ -96,7 +98,7 @@ The global settings are accessible through the menu option: "Settings/Music Play
 
 **Setting up the Music Players through the products' pages**
 
-The Music Players are configured from the products pages, the Dokan interface, and WCFM Marketplace.
+The Music Players are configured from the products pages, the Dokan interface, WCFM Marketplace, and MultivendorX.
 
 **Settings Interface**
 
@@ -106,6 +108,7 @@ The Music Players are configured from the products pages, the Dokan interface, a
 *   Player layout: list of available skins for the music player.
 *   Preload: to decide if preload the audio files, their metadata, or don't preload nothing at all.
 *	Play all: play all players in the page (one after the other).
+*	Loop: plays the audio player on the product page in a loop.
 *   Player controls: determines the controls to include in the music player.
 *   Display the player's title: show/hide the name associated to the downloadable file.
 *   Protect the file: checkbox to playback the songs in secure mode (only available in the pro version of the plugin).
@@ -187,6 +190,10 @@ Note: In mobiles devices where the direct action of user is required for playing
 * wcmp_widget_audio_tag: filter called when the audio tag is generated as a widget on sidebars. The callback function receives four parameters: the audio tag, the product's id, the file's id, URL to the audio file;
 * wcmp_widget_file_name: filter called when the file's name is included with the player as a widget on sidebars. The callback function receives three parameters: the file's name, the product's id, and the file's id;
 
+* wcmp_purchased_product: filter called to know if the product was purchased or not. The callback function receives two parameters: false and the product's id.
+
+* wcmp_ffmpeg_time: filter called to determine the duration of truncated copies of the audio files for demos when the FFmpeg application is used to generate them.
+
 **Other recommended plugins**
 
 * If your project is a music store, and WooCommerce is more than you need it is possible to use [Music Store plugin](https://wordpress.org/plugins/music-store/ "Music Store")
@@ -225,6 +232,80 @@ Each time save the data of a product, the files for demo are deleted and generat
 10. Inserting the playlist Visual Composer
 
 == Changelog ==
+
+= 1.0.196 =
+
+* Modifies the player on the product cover feature to support other page structures.
+* Fixes an issue with the add-to-cart buttons in the playlists.
+
+= 1.0.195 =
+
+* Fixes an issue with  loop attribute in the products settings.
+
+= 1.0.194 =
+
+* Allows entering multiple hook names separate by comma symbols through the 'WooCommerce hook used to display the players in the shop pages' and 'WooCommerce hook used to display the players in the products pages' attributes in the plugin settings.
+
+= 1.0.193 =
+
+* Includes the loop attribute in the player and global plugin settings.
+
+= 1.0.192 =
+= 1.0.191 =
+
+* Modifies the module that identifies locally hosted audio files.
+
+= 1.0.190 =
+
+* Implements the MultivendorX integration add-on.
+* Fixes an issue in the CP Media Player add-on.
+* Make minor changes in the players' settings.
+
+= 1.0.189 =
+
+* Modifies the integration with Elementor to ensure compatibility with the latest version of Elementor.
+
+= 1.0.188 =
+
+* Implements the download_links attribute in the playlist shortcode to include download links to the WooCommerce purchased products.
+
+= 1.0.187 =
+= 1.0.186 =
+
+* Improves the integration with WCFM.
+
+= 1.0.185 =
+
+* Modifies the global settings.
+* Includes a new hook.
+
+= 1.0.184 =
+
+* Loads the resources locally.
+
+= 1.0.183 =
+
+* Checks if the shell_exec function is available before calling it.
+
+= 1.0.182 =
+
+* Modifies the module that reads the audio files.
+
+= 1.0.181 =
+
+* Modifies the general settings.
+
+= 1.0.180 =
+
+* Improves the plugin feedback.
+
+= 1.0.179 =
+
+* Improves the plugin code.
+
+= 1.0.178 =
+
+* Modifies the preload behavior to avoid affecting server performance.
 
 = 1.0.177 =
 

@@ -44,13 +44,13 @@ class Ajax {
             ]
         );
 
-        $request->validate();
+        $request->sanitize();
 
         if ( $request->has_error() ) {
             throw new DokanException( $request->get_error() );
         }
 
-        $request->sanitize();
+        $request->validate();
 
         if ( $request->has_error() ) {
             throw new DokanException( $request->get_error() );

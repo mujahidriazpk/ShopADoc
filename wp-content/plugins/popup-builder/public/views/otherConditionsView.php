@@ -56,4 +56,10 @@ $conditionsCanBeUsed = PopupBuilderActivePackage::canUseSection('popupOtherCondi
 		top: 8%;
 		right: 48%;
 	}
+	.rtl #options-otherConditionsMetaBoxView .sgpb-unlock-options {
+		position: absolute;
+		top: 8%;
+		left: 48%;
+		right: unset;
+	}
 </style>

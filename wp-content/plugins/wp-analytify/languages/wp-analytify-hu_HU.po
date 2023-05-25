@@ -1228,25 +1228,25 @@ msgstr "Tudta hogy..."
 msgid "people landed at this page directly."
 msgstr "ember ékezett erre az oldalra."
 
-#: views/default/admin/system-stats.php:20
+#: views/default/admin/tech-stats.php:20
 msgid "Browsers statistics"
 msgstr "Böngésző statisztikák"
 
-#: views/default/admin/system-stats.php:21
-#: views/default/admin/system-stats.php:53
-#: views/default/admin/system-stats.php:81
+#: views/default/admin/tech-stats.php:21
+#: views/default/admin/tech-stats.php:53
+#: views/default/admin/tech-stats.php:81
 msgid "Visits"
 msgstr "Látogatások"
 
-#: views/default/admin/system-stats.php:52
+#: views/default/admin/tech-stats.php:52
 msgid "Operating system statistics"
 msgstr "Operációs rendszer statisztikák"
 
-#: views/default/admin/system-stats.php:80
+#: views/default/admin/tech-stats.php:80
 msgid "Mobile device statistics"
 msgstr "Mobil eszköz statisztikák"
 
-#: views/default/admin/system-stats.php:106
+#: views/default/admin/tech-stats.php:106
 msgid "Listing statistics of top Mobile, Browsers and Operating System Stats."
 msgstr "Top mobil, böngésző és operációs rendszer statisztikák listája."
 

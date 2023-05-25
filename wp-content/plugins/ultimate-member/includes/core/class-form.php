@@ -148,6 +148,13 @@ if ( ! class_exists( 'um\core\Form' ) ) {
 				wp_send_json( $arr_options );
 			}
 
+			if ( UM()->fields()->is_source_blacklisted( $ajax_source_func ) ) {
+				$arr_options['status']  = 'error';
+				$arr_options['message'] = __( 'This is not possible for security reasons.', 'ultimate-member' );
+
+				wp_send_json( $arr_options );
+			}
+
 			if ( isset( $_POST['form_id'] ) ) {
 				UM()->fields()->set_id = absint( $_POST['form_id'] );
 			}
@@ -438,7 +445,7 @@ if ( ! class_exists( 'um\core\Form' ) ) {
 				 * }
 				 * ?>
 				 */
-				$this->post_form = apply_filters( 'um_submit_post_form', $_POST );
+				$this->post_form = apply_filters( 'um_submit_post_form', wp_unslash( $_POST ) );
 
 				if ( isset( $this->post_form[ UM()->honeypot ] ) && '' !== $this->post_form[ UM()->honeypot ] ) {
 					wp_die( esc_html__( 'Hello, spam bot!', 'ultimate-member' ) );
@@ -486,13 +493,7 @@ if ( ! class_exists( 'um\core\Form' ) ) {
 							}
 
 							global $wp_roles;
-							$role_keys     = array_map(
-								function( $item ) {
-									return 'um_' . $item;
-								},
-								get_option( 'um_roles', array() )
-							);
-							$exclude_roles = array_diff( array_keys( $wp_roles->roles ), array_merge( $role_keys, array( 'subscriber' ) ) );
+							$exclude_roles = array_diff( array_keys( $wp_roles->roles ), UM()->roles()->get_editable_user_roles() );
 
 							if ( ! empty( $role ) &&
 								( ! in_array( $role, $custom_field_roles, true ) || in_array( $role, $exclude_roles, true ) ) ) {
@@ -638,7 +639,24 @@ if ( ! class_exists( 'um\core\Form' ) ) {
 											break;
 										case 'textarea':
 											if ( ! empty( $field['html'] ) || ( UM()->profile()->get_show_bio_key( $form ) === $k && UM()->options()->get( 'profile_show_html_bio' ) ) ) {
-												$form[ $k ] = wp_kses_post( $form[ $k ] );
+												$allowed_html = UM()->get_allowed_html( 'templates' );
+												if ( empty( $allowed_html['iframe'] ) ) {
+													$allowed_html['iframe'] = array(
+														'allow'           => true,
+														'frameborder'     => true,
+														'loading'         => true,
+														'name'            => true,
+														'referrerpolicy'  => true,
+														'sandbox'         => true,
+														'src'             => true,
+														'srcdoc'          => true,
+														'title'           => true,
+														'width'           => true,
+														'height'          => true,
+														'allowfullscreen' => true,
+													);
+												}
+												$form[ $k ] = wp_kses( $form[ $k ], $allowed_html );
 											} else {
 												$form[ $k ] = sanitize_textarea_field( $form[ $k ] );
 											}
@@ -646,23 +664,51 @@ if ( ! class_exists( 'um\core\Form' ) ) {
 										case 'url':
 											$f = UM()->builtin()->get_a_field( $k );
 
-											if ( array_key_exists( 'match', $f ) && array_key_exists( 'advanced', $f ) && 'social' === $f['advanced'] ) {
+											if ( is_array( $f ) && array_key_exists( 'match', $f ) && array_key_exists( 'advanced', $f ) && 'social' === $f['advanced'] ) {
 												$v = sanitize_text_field( $form[ $k ] );
 
 												// Make a proper social link
-												if ( ! empty( $v ) && ! strstr( $v, $f['match'] ) ) {
-													$domain = trim( strtr( $f['match'], array(
-														'https://' => '',
-														'http://'  => '',
-													) ), ' /' );
+												if ( ! empty( $v ) ) {
+													$replace_match = is_array( $f['match'] ) ? $f['match'][0] : $f['match'];
 
-													if ( ! strstr( $v, $domain ) ) {
-														$v = $f['match'] . $v;
-													} else {
-														$v = 'https://' . trim( strtr( $v, array(
-															'https://' => '',
-															'http://'  => '',
-														) ), ' /' );
+													$need_replace = false;
+													if ( is_array( $f['match'] ) ) {
+														$need_replace = true;
+														foreach ( $f['match'] as $arr_match ) {
+															if ( strstr( $v, $arr_match ) ) {
+																$need_replace = false;
+															}
+														}
+													}
+
+													if ( ! is_array( $f['match'] ) || $need_replace ) {
+														if ( ! strstr( $v, $replace_match ) ) {
+															$domain = trim(
+																strtr(
+																	$replace_match,
+																	array(
+																		'https://' => '',
+																		'http://'  => '',
+																	)
+																),
+																' /'
+															);
+
+															if ( ! strstr( $v, $domain ) ) {
+																$v = $replace_match . $v;
+															} else {
+																$v = 'https://' . trim(
+																	strtr(
+																		$v,
+																		array(
+																			'https://' => '',
+																			'http://'  => '',
+																		)
+																	),
+																	' /'
+																	);
+															}
+														}
 													}
 												}
 
@@ -788,13 +834,7 @@ if ( ! class_exists( 'um\core\Form' ) ) {
 
 			// role field
 			global $wp_roles;
-			$role_keys     = array_map(
-				function( $item ) {
-					return 'um_' . $item;
-				},
-				get_option( 'um_roles', array() )
-			);
-			$exclude_roles = array_diff( array_keys( $wp_roles->roles ), array_merge( $role_keys, array( 'subscriber' ) ) );
+			$exclude_roles = array_diff( array_keys( $wp_roles->roles ), UM()->roles()->get_editable_user_roles() );
 
 			$roles = UM()->roles()->get_roles( false, $exclude_roles );
 			$roles = array_map(
@@ -806,7 +846,7 @@ if ( ! class_exists( 'um\core\Form' ) ) {
 
 			foreach ( $fields as $field_key => $field_settings ) {
 
-				if ( strstr( $field_key, 'role_' ) && is_array( $field_settings['options'] ) ) {
+				if ( strstr( $field_key, 'role_' ) && array_key_exists( 'options', $field_settings ) && is_array( $field_settings['options'] ) ) {
 
 					if ( isset( $this->post_form['mode'] ) && 'profile' === $this->post_form['mode'] &&
 						 isset( $field_settings['editable'] ) && $field_settings['editable'] == 0 ) {

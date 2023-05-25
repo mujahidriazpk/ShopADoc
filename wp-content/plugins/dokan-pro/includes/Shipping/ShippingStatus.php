@@ -62,7 +62,7 @@ class ShippingStatus {
         add_filter( 'manage_edit-shop_order_columns', [ $this, 'admin_shipping_status_tracking_columns' ], 10 );
         add_action( 'manage_shop_order_posts_custom_column', [ $this, 'shop_order_shipping_status_columns' ], 11 );
         add_action( 'woocommerce_order_details_after_order_table', [ $this, 'shipment_order_details_after_order_table' ], 11 );
-        add_action( 'woocommerce_my_account_my_orders_columns', [ $this, 'shipment_my_account_my_orders_columns' ], 11 );
+        add_action( 'woocommerce_account_orders_columns', [ $this, 'shipment_my_account_my_orders_columns' ], 11 );
         add_action( 'woocommerce_my_account_my_orders_column_dokan-shipment-status', [ $this, 'shipment_my_account_orders_column_data' ], 11 );
         add_action( 'add_meta_boxes', [ $this, 'shipment_order_add_meta_boxes' ], 11 );
         add_filter( 'dokan_localized_args', [ $this, 'set_localized_data' ] );
@@ -503,13 +503,6 @@ class ShippingStatus {
         ];
 
         $comment_id = wp_insert_comment( $data );
-
-        do_action(
-            'woocommerce_new_customer_note', [
-                'order_id'      => dokan_get_prop( $order, 'id' ),
-                'customer_note' => $ship_info,
-            ]
-        );
     }
 
     /**

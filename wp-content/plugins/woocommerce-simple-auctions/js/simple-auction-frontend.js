@@ -446,17 +446,22 @@ function AjaxTest(already_bid,lang) {
 				var seller_screen = jQuery('#seller_screen').val();
 				if(seller_screen=='yes'){
 					//Important seller only
-					var timeLeft = 180;
+					var timeLeft = 420;
 					var elem = document.getElementById('timer_div');
+					localStorage.clear();
+					var count = parseInt(localStorage.getItem('counter')) || 0;
 					var timerId = setInterval(countdown_flash, 1000);
 					function countdown_flash() {
 					  if (timeLeft == 0) {
 						clearTimeout(timerId);
+						localStorage.clear();
 						elem.innerHTML = '0 '+remaining_seconds_txt;
 						window.location.replace(jQuery('#product_url').val()+"?action=expire");
 					  } else {
 						elem.innerHTML = timeLeft + ' '+remaining_seconds_txt;
 						timeLeft--;
+						count++;
+  						localStorage.setItem('counter', count);
 					  }
 					}
 					setTimeout("LoadRelist()",2000);
@@ -491,7 +496,7 @@ function AjaxTest(already_bid,lang) {
 						
 					}else{
 						jQuery('.swf_container,.sc_fancy_player_container').hide();
-						jQuery('#audio-'+jQuery('#product_id').val()+'-1_html5 source,#audio-'+jQuery('#product_id').val()+'-1_html5').attr('src','https://shopadoc.com/wp-content/uploads/sounds/auction_sucess.mp3');			
+						jQuery('#audio-'+jQuery('#product_id').val()+'-1_html5 source,#audio-'+jQuery('#product_id').val()+'-1_html5').attr('src','/wp-content/uploads/sounds/auction_sucess.mp3');			
 						jQuery('audio').get(0).load();
 						jQuery('audio').get(0).play();
 						setTimeout("jQuery('audio').get(0).pause()",5000);

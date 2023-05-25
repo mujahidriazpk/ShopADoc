@@ -2,6 +2,7 @@
 class ConfigDataHelper
 {
 	public static $customPostType;
+	public static $allCustomPosts = array();
 
 	public static function getPostTypeData($args = array())
 	{
@@ -32,6 +33,12 @@ class ConfigDataHelper
 		return $query;
 	}
 
+	/**
+	 * this method is used for to get all other post types
+	 * that may created by another plugins or theme or website owner!
+	 *
+	 * example: download from EDD, product from Woocommerce!
+	 */
 	public static function getAllCustomPosts()
 	{
 		$args = array(
@@ -44,8 +51,8 @@ class ConfigDataHelper
 		if (isset($allCustomPosts[SG_POPUP_POST_TYPE])) {
 			unset($allCustomPosts[SG_POPUP_POST_TYPE]);
 		}
-
-		return $allCustomPosts;
+		self::$allCustomPosts = $allCustomPosts;
+		return $allCustomPosts; // TODO check for usages and remove this line
 	}
 
 	public static function addFilters()
@@ -55,16 +62,19 @@ class ConfigDataHelper
 
 	private static function addPostTypeToFilters()
 	{
+		self::getAllCustomPosts();
 		add_filter('sgPopupTargetParams', array(__CLASS__, 'addPopupTargetParams'), 1, 1);
 		add_filter('sgPopupTargetData', array(__CLASS__, 'addPopupTargetData'), 1, 1);
 		add_filter('sgPopupTargetTypes', array(__CLASS__, 'addPopupTargetTypes'), 1, 1);
 		add_filter('sgPopupTargetAttrs', array(__CLASS__, 'addPopupTargetAttrs'), 1, 1);
 		add_filter('sgPopupPageTemplates', array(__CLASS__, 'addPopupPageTemplates'), 1, 1);
+		add_filter('sgPopupTargetPostType', array(__CLASS__, 'getAllCustomPostTypes'), 1, 1);
+		add_filter('sgPopupTargetPageType', array(__CLASS__, 'getPageTypes'), 1, 1);
 	}
 
 	public static function addPopupTargetParams($targetParams)
 	{
-		$allCustomPostTypes = self::getAllCustomPosts();
+		$allCustomPostTypes = self::$allCustomPosts;
 		// for conditions, to exclude other post types, tags etc.
 		if (isset($targetParams['select_role'])) {
 			return $targetParams;
@@ -84,7 +94,7 @@ class ConfigDataHelper
 
 	public static function addPopupTargetData($targetData)
 	{
-		$allCustomPostTypes = self::getAllCustomPosts();
+		$allCustomPostTypes = self::$allCustomPosts;
 
 		foreach ($allCustomPostTypes as $customPostType) {
 			$targetData[$customPostType.'_all'] = null;
@@ -108,7 +118,7 @@ class ConfigDataHelper
 
 	public static function addPopupTargetTypes($targetTypes)
 	{
-		$allCustomPostTypes = self::getAllCustomPosts();
+		$allCustomPostTypes = self::$allCustomPosts;
 
 		foreach ($allCustomPostTypes as $customPostType) {
 			$targetTypes[$customPostType.'_selected'] = 'select';
@@ -120,7 +130,7 @@ class ConfigDataHelper
 
 	public static function addPopupTargetAttrs($targetAttrs)
 	{
-		$allCustomPostTypes = self::getAllCustomPosts();
+		$allCustomPostTypes = self::$allCustomPosts;
 
 		foreach ($allCustomPostTypes as $customPostType) {
 			$targetAttrs[$customPostType.'_selected']['htmlAttrs'] = array('class' => 'js-sg-select2 js-select-ajax', 'data-select-class' => 'js-select-ajax', 'data-select-type' => 'ajax', 'data-value-param' => $customPostType, 'multiple' => 'multiple');
@@ -157,21 +167,20 @@ class ConfigDataHelper
 		return $allCustomPosts;
 	}
 
-	public static function getPostsAllCategories($postType = 'post', $taxonomies = array())
+	public static function getPostsAllCategories($postType = 'post', $taxonomies = array(), $search_text = '')
 	{
-		$cats = get_transient(SGPB_TRANSIENT_POPUPS_ALL_CATEGORIES);
-		if ($cats === false) {
-			$cats =  get_terms(
-				array(
-					'taxonomy' => $taxonomies,
-					'hide_empty' => false,
-					'type'      => $postType,
-					'orderby'   => 'name',
-					'order'     => 'ASC'
-				)
-			);
-			set_transient(SGPB_TRANSIENT_POPUPS_ALL_CATEGORIES, $cats, SGPB_TRANSIENT_TIMEOUT_WEEK);
-		}
+		$cats =  get_terms(
+			array(
+				'taxonomy' => $taxonomies,
+				'hide_empty' => false,
+				'type'      => $postType,
+				'orderby'   => 'name',
+				'order'     => 'ASC',
+				'number'    => 200,
+				'offset'    => 0,
+				'name__like'    => $search_text
+			)
+		);
 
 		$supportedTaxonomies = array('category');
 		if (!empty($taxonomies)) {
@@ -229,17 +238,55 @@ class ConfigDataHelper
 		return $pageTemplates;
 	}
 
-	public static function getAllTags()
+	public static function getAllTags($search_text = '')
 	{
 		$allTags = array();
 		$tags = get_tags(array(
-			'hide_empty' => false
+			'hide_empty' => false,
+			'name__like' => $search_text
 		));
 
 		foreach ($tags as $tag) {
 			$allTags[$tag->slug] = $tag->name;
 		}
 
+		return $allTags;
+	}
+	public static function getTagsByIds($ids = [])
+	{
+		$allTags = array();
+		$tags = get_tags(array(
+			'hide_empty' => false,
+			'include' => $ids
+		));
+		foreach ($tags as $tag) {
+			$allTags[$tag->slug] = $tag->name;
+		}
+		return $allTags;
+	}
+	public static function getTagsBySlug($ids = [])
+	{
+		$allTags = array();
+		$tags = get_tags(array(
+			'hide_empty' => false,
+			'slug' => $ids
+		));
+		foreach ($tags as $tag) {
+			$allTags[$tag->slug] = $tag->name;
+		}
+		return $allTags;
+	}
+
+	public static function getTermsByIds($ids = array())
+	{
+		$allTags = array();
+		$terms = get_terms(array(
+			'hide_empty' => false,
+			'include' => $ids
+		));
+		foreach ($terms as $term) {
+			$allTags[$term->term_id] = $term->name;
+		}
 		return $allTags;
 	}
 
@@ -571,13 +618,13 @@ class ConfigDataHelper
 		);
 
 		$data['weekDaysArray'] = array(
-			'Mon' => __('Monday', SG_POPUP_TEXT_DOMAIN),
-			'Tue' => __('Tuesday', SG_POPUP_TEXT_DOMAIN),
-			'Wed' => __('Wednesday', SG_POPUP_TEXT_DOMAIN),
-			'Thu' => __('Thursday', SG_POPUP_TEXT_DOMAIN),
-			'Fri' => __('Friday', SG_POPUP_TEXT_DOMAIN),
-			'Sat' => __('Saturday', SG_POPUP_TEXT_DOMAIN),
-			'Sun' => __('Sunday', SG_POPUP_TEXT_DOMAIN)
+			'Mon' => __('Monday'),
+			'Tue' => __('Tuesday'),
+			'Wed' => __('Wednesday'),
+			'Thu' => __('Thursday'),
+			'Fri' => __('Friday'),
+			'Sat' => __('Saturday'),
+			'Sun' => __('Sunday')
 		);
 
 		$data['messageResize'] = array(
@@ -1199,6 +1246,7 @@ class ConfigDataHelper
 	{
 		$translatedData = array(
 			'imageSupportAlertMessage' => __('Only image files supported', SG_POPUP_TEXT_DOMAIN),
+			'pdfSupportAlertMessage' => __('Only pdf files supported', SG_POPUP_TEXT_DOMAIN),
 			'areYouSure' => __('Are you sure?', SG_POPUP_TEXT_DOMAIN),
 			'addButtonSpinner' => __('L', SG_POPUP_TEXT_DOMAIN),
 			'audioSupportAlertMessage' => __('Only audio files supported (e.g.: mp3, wav, m4a, ogg)', SG_POPUP_TEXT_DOMAIN),

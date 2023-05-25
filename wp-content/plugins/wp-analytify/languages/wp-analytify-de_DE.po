@@ -1238,25 +1238,25 @@ msgstr "Wussten Sie, dass"
 msgid "people landed at this page directly."
 msgstr "Besucher landeten direkt auf dieser Seite."
 
-#: views/default/admin/system-stats.php:20
+#: views/default/admin/tech-stats.php:20
 msgid "Browsers statistics"
 msgstr "Browser Statistiken"
 
-#: views/default/admin/system-stats.php:21
-#: views/default/admin/system-stats.php:53
-#: views/default/admin/system-stats.php:81
+#: views/default/admin/tech-stats.php:21
+#: views/default/admin/tech-stats.php:53
+#: views/default/admin/tech-stats.php:81
 msgid "Visits"
 msgstr "Besuche"
 
-#: views/default/admin/system-stats.php:52
+#: views/default/admin/tech-stats.php:52
 msgid "Operating system statistics"
 msgstr "Betriebssystem Statistiken"
 
-#: views/default/admin/system-stats.php:80
+#: views/default/admin/tech-stats.php:80
 msgid "Mobile device statistics"
 msgstr "Mobilgeräte Statistiken"
 
-#: views/default/admin/system-stats.php:106
+#: views/default/admin/tech-stats.php:106
 msgid "Listing statistics of top Mobile, Browsers and Operating System Stats."
 msgstr "Statistiken der Top Mobilgeräte, Browser und Betriebssysteme."
 

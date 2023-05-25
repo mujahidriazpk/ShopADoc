@@ -68,11 +68,11 @@ class SgpbDataConfig
 		$targetDataParams['operator'] = apply_filters('sgPopupTargetOperator', $targetDataOperator);
 		$targetDataParams['post_selected'] = apply_filters('sgPopupTargetPostData', array());
 		$targetDataParams['page_selected'] = apply_filters('sgPopupTargetPageSelected', array());
-		$targetDataParams['post_type'] = apply_filters('sgPopupTargetPostType', ConfigDataHelper::getAllCustomPostTypes());
-		$targetDataParams['post_category'] = apply_filters('sgPopupTargetPostCategory', ConfigDataHelper::getPostsAllCategories());
-		$targetDataParams['page_type'] = apply_filters('sgPopupTargetPageType', ConfigDataHelper::getPageTypes());
+		$targetDataParams['post_type'] = apply_filters('sgPopupTargetPostType', array());
+		$targetDataParams['post_category'] = apply_filters('sgPopupTargetPostCategory', array());
+		$targetDataParams['page_type'] = apply_filters('sgPopupTargetPageType', array());
 		$targetDataParams['page_template'] = apply_filters('sgPopupPageTemplates', array());
-		$targetDataParams['post_tags_ids'] = apply_filters('sgPopupTags', ConfigDataHelper::getAllTags());
+		$targetDataParams['post_tags_ids'] = apply_filters('sgPopupTags', array());
 		$targetDataParams['everywhere'] = null;
 		$targetDataParams['not_rule'] = null;
 		$targetDataParams['post_all'] = null;
@@ -148,9 +148,10 @@ class SgpbDataConfig
 				'htmlAttrs' => array(
 					'class' => 'js-sg-select2 js-select-ajax',
 					'data-select-class' => 'js-select-ajax',
-					'data-select-type' => 'multiple',
+					'data-select-type' => 'ajax',
 					'data-value-param' => 'postCategories',
 					'isNotPostType' => true,
+					'isPostCategory' => true,
 					'multiple' => 'multiple'
 				),
 				'infoAttrs' => array(
@@ -163,7 +164,7 @@ class SgpbDataConfig
 					'class' => 'js-sg-select2 js-select-ajax',
 					'data-select-class' => 'js-select-ajax',
 					'data-select-type' => 'multiple',
-					'data-value-param' => 'postCategories',
+					'data-value-param' => 'pageTypes',
 					'isNotPostType' => true,
 					'multiple' => 'multiple'
 				),
@@ -190,9 +191,10 @@ class SgpbDataConfig
 				'htmlAttrs' => array(
 					'class' => 'js-sg-select2 js-select-ajax',
 					'data-select-class' => 'js-select-ajax',
-					'data-select-type' => 'multiple',
+					'data-select-type' => 'ajax',
 					'data-value-param' => 'postTags',
 					'isNotPostType' => true,
+					'isPostTag' => true,
 					'multiple' => 'multiple'
 				),
 				'infoAttrs' => array(
@@ -415,7 +417,7 @@ class SgpbDataConfig
 		);
 
 		$targetParams = array(
-			'select_role' => __('Select role', SG_POPUP_TEXT_DOMAIN)
+			'select_role' => __('Select Conditions', SG_POPUP_TEXT_DOMAIN)
 		);
 
 		$targetOperators = array(
@@ -905,7 +907,7 @@ class SgpbDataConfig
 		$options[] = array('name' => 'sgpb-enable-popup-overlay', 'type' => 'checkbox', 'defaultValue' => 'on', 'min-version' => SGPB_POPUP_PRO_MIN_VERSION, 'min-pkg' => SGPB_POPUP_PKG_SILVER);
 		$options[] = array('name' => 'sgpb-overlay-custom-class', 'type' => 'text', 'defaultValue' => 'sgpb-popup-overlay');
 		$options[] = array('name' => 'sgpb-overlay-color', 'type' => 'text', 'defaultValue' => '');
-		$options[] = array('name' => 'sgpb-background-color', 'type' => 'text', 'defaultValue' => '');
+		$options[] = array('name' => 'sgpb-background-color', 'type' => 'text', 'defaultValue' => '#FFFFFF');
 		$options[] = array('name' => 'sgpb-overlay-opacity', 'type' => 'text', 'defaultValue' => 0.8);
 		$options[] = array('name' => 'sgpb-content-opacity', 'type' => 'text', 'defaultValue' => 0.8);
 		$options[] = array('name' => 'sgpb-background-image', 'type' => 'text', 'defaultValue' => '');
@@ -1029,5 +1031,23 @@ class SgpbDataConfig
 		);
 
 		$SGPB_TRANSIENT_CONFIG = apply_filters('sgpbAllTransients', $SGPB_TRANSIENT_CONFIG);
+	}
+
+	/**
+	 * method to get popup default conditions or other configs
+	 *
+	*/
+	public static function websiteDefaultConfigs() {
+		$configs = array();
+		$eventsInitialData = array(
+			array('param' => 'load', 'value' => '', 'hiddenOption' => array())
+		);
+		$targetInitialData = array(
+			array('param' => 'everywhere')
+		);
+		$configs['events'] = apply_filters('sgPopupEventsInitialData', $eventsInitialData);
+		$configs['target'] = apply_filters('sgPopupTargetInitialData', $targetInitialData);
+
+		return $configs;
 	}
 }

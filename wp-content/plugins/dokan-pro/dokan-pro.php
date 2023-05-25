@@ -3,11 +3,11 @@
  * Plugin Name: Dokan Pro
  * Plugin URI: https://wedevs.com/dokan/
  * Description: An e-commerce marketplace plugin for WordPress. Powered by WooCommerce and weDevs.
- * Version: 3.7.4
+ * Version: 3.7.19
  * Author: weDevs
  * Author URI: https://wedevs.com/
  * WC requires at least: 5.0.0
- * WC tested up to: 6.8.0
+ * WC tested up to: 7.5.1
  * License: GPL2
  * TextDomain: dokan
  */
@@ -29,14 +29,14 @@ class Dokan_Pro {
      *
      * @var string
      */
-    private $plan = 'dokan-professional';
+    private $plan = 'dokan-starter';
 
     /**
      * Plugin version
      *
      * @var string
      */
-    public $version = '3.7.4';
+    public $version = '3.7.19';
 
     /**
      * Database version key
@@ -346,9 +346,12 @@ class Dokan_Pro {
         new \WeDevs\DokanPro\Upgrade\Hooks();
         new \WeDevs\DokanPro\StoreCategory();
         new \WeDevs\DokanPro\StoreListsFilter();
+        new \WeDevs\DokanPro\Blocks\Manager();
 
         // Initialize multiple store time settings.
         new \WeDevs\DokanPro\StoreTime\Settings();
+
+        new \WeDevs\DokanPro\SettingsApi\Manager();
 
         if ( is_admin() ) {
             new \WeDevs\DokanPro\Admin\Admin();
@@ -386,7 +389,7 @@ class Dokan_Pro {
         $this->container['catalog_mode_inline_edit'] = new \WeDevs\DokanPro\CatalogModeProductInlineEdit();
 
         if ( is_user_logged_in() ) {
-            new \WeDevs\DokanPro\Dashboard();
+            new \WeDevs\DokanPro\Dashboard\Dashboard();
             new WeDevs\DokanPro\Reports();
             new WeDevs\DokanPro\CustomWithdrawMethod();
 

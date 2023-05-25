@@ -7,6 +7,7 @@ use Elementor\Group_Control_Border;
 use Elementor\Group_Control_Typography;
 use Elementor\Scheme_Color;
 use Elementor\Scheme_Typography;
+use Elementor\Utils;
 use ElementorPro\Modules\ThemeBuilder\Module;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -31,14 +32,14 @@ class Post_Comments_Skin_Classic extends Skin_Base {
 		$this->start_controls_section(
 			'section_title',
 			[
-				'label' => __( 'Title', 'elementor-pro' ),
+				'label' => esc_html__( 'Title', 'elementor-pro' ),
 			]
 		);
 
 		$this->add_control(
 			'title',
 			[
-				'label' => __( 'Title', 'elementor-pro' ),
+				'label' => esc_html__( 'Title', 'elementor-pro' ),
 				'default' => '[field id="comment-count"]',
 				'label_block' => true,
 				'dynamic' => [
@@ -57,18 +58,18 @@ class Post_Comments_Skin_Classic extends Skin_Base {
 		$this->start_controls_section(
 			'section_content',
 			[
-				'label' => __( 'Content', 'elementor-pro' ),
+				'label' => esc_html__( 'Content', 'elementor-pro' ),
 			]
 		);
 
 		$this->add_control(
 			'show_gravatar',
 			[
-				'label' => __( 'Gravatar', 'elementor-pro' ),
+				'label' => esc_html__( 'Gravatar', 'elementor-pro' ),
 				'type' => Controls_Manager::SWITCHER,
 				'default' => 'yes',
-				'label_off' => __( 'Hide', 'elementor-pro' ),
-				'label_on' => __( 'Show', 'elementor-pro' ),
+				'label_off' => esc_html__( 'Hide', 'elementor-pro' ),
+				'label_on' => esc_html__( 'Show', 'elementor-pro' ),
 			]
 		);
 
@@ -77,7 +78,7 @@ class Post_Comments_Skin_Classic extends Skin_Base {
 		$this->start_controls_section(
 			'section_style',
 			[
-				'label' => __( 'Comments', 'elementor-pro' ),
+				'label' => esc_html__( 'Comments', 'elementor-pro' ),
 				'tab' => Controls_Manager::TAB_STYLE,
 			]
 		);
@@ -85,8 +86,9 @@ class Post_Comments_Skin_Classic extends Skin_Base {
 		$this->add_control(
 			'row_gap',
 			[
-				'label' => __( 'Rows Gap', 'elementor-pro' ),
+				'label' => esc_html__( 'Rows Gap', 'elementor-pro' ),
 				'type' => Controls_Manager::SLIDER,
+				'size_units' => [ 'px', 'em', 'rem', 'custom' ],
 				'default' => [
 					'size' => '10',
 				],
@@ -105,7 +107,7 @@ class Post_Comments_Skin_Classic extends Skin_Base {
 		$this->add_control(
 			'row_background_color',
 			[
-				'label' => __( 'Background Color', 'elementor-pro' ),
+				'label' => esc_html__( 'Background Color', 'elementor-pro' ),
 				'type' => Controls_Manager::COLOR,
 				'default' => '#ffffff',
 				'selectors' => [
@@ -118,7 +120,7 @@ class Post_Comments_Skin_Classic extends Skin_Base {
 		$this->add_control(
 			'row_border_color',
 			[
-				'label' => __( 'Border Color', 'elementor-pro' ),
+				'label' => esc_html__( 'Border Color', 'elementor-pro' ),
 				'type' => Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .elementor-comment' => 'border-color: {{VALUE}};',
@@ -130,10 +132,10 @@ class Post_Comments_Skin_Classic extends Skin_Base {
 		$this->add_control(
 			'row_border_width',
 			[
-				'label' => __( 'Border Width', 'elementor-pro' ),
+				'label' => esc_html__( 'Border Width', 'elementor-pro' ),
 				'type' => Controls_Manager::DIMENSIONS,
+				'size_units' => [ 'px', '%', 'em', 'rem', 'vw', 'custom' ],
 				'placeholder' => '1',
-				'size_units' => [ 'px' ],
 				'selectors' => [
 					'{{WRAPPER}} .elementor-comment' => 'border-width: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
 				],
@@ -143,9 +145,9 @@ class Post_Comments_Skin_Classic extends Skin_Base {
 		$this->add_control(
 			'row_border_radius',
 			[
-				'label' => __( 'Border Radius', 'elementor-pro' ),
+				'label' => esc_html__( 'Border Radius', 'elementor-pro' ),
 				'type' => Controls_Manager::DIMENSIONS,
-				'size_units' => [ 'px', '%' ],
+				'size_units' => [ 'px', '%', 'em', 'rem', 'custom' ],
 				'selectors' => [
 					'{{WRAPPER}} .elementor-comment' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
 				],
@@ -157,7 +159,7 @@ class Post_Comments_Skin_Classic extends Skin_Base {
 		$this->start_controls_section(
 			'section_meta_style',
 			[
-				'label' => __( 'Meta', 'elementor-pro' ),
+				'label' => esc_html__( 'Meta', 'elementor-pro' ),
 				'tab' => Controls_Manager::TAB_STYLE,
 			]
 		);
@@ -165,8 +167,9 @@ class Post_Comments_Skin_Classic extends Skin_Base {
 		$this->add_control(
 			'meta_spacing',
 			[
-				'label' => __( 'Spacing', 'elementor-pro' ),
+				'label' => esc_html__( 'Spacing', 'elementor-pro' ),
 				'type' => Controls_Manager::SLIDER,
+				'size_units' => [ 'px', 'em', 'rem', 'custom' ],
 				'default' => [
 					'size' => '0',
 				],
@@ -185,7 +188,7 @@ class Post_Comments_Skin_Classic extends Skin_Base {
 		$this->add_control(
 			'meta_color',
 			[
-				'label' => __( 'Text Color', 'elementor-pro' ),
+				'label' => esc_html__( 'Text Color', 'elementor-pro' ),
 				'type' => Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .elementor-comment .comment-meta' => 'color: {{VALUE}};',
@@ -212,7 +215,7 @@ class Post_Comments_Skin_Classic extends Skin_Base {
 		$this->start_controls_section(
 			'section_content_style',
 			[
-				'label' => __( 'Content', 'elementor-pro' ),
+				'label' => esc_html__( 'Content', 'elementor-pro' ),
 				'tab' => Controls_Manager::TAB_STYLE,
 			]
 		);
@@ -220,7 +223,7 @@ class Post_Comments_Skin_Classic extends Skin_Base {
 		$this->add_control(
 			'content_text_color',
 			[
-				'label' => __( 'Text Color', 'elementor-pro' ),
+				'label' => esc_html__( 'Text Color', 'elementor-pro' ),
 				'type' => Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .elementor-comment .comment-content' => 'color: {{VALUE}};',
@@ -247,7 +250,7 @@ class Post_Comments_Skin_Classic extends Skin_Base {
 		$this->start_controls_section(
 			'section_reply_button_style',
 			[
-				'label' => __( 'Reply Button', 'elementor-pro' ),
+				'label' => esc_html__( 'Reply Button', 'elementor-pro' ),
 				'tab' => Controls_Manager::TAB_STYLE,
 			]
 		);
@@ -257,14 +260,14 @@ class Post_Comments_Skin_Classic extends Skin_Base {
 		$this->start_controls_tab(
 			'tab_reply_button_normal',
 			[
-				'label' => __( 'Normal', 'elementor-pro' ),
+				'label' => esc_html__( 'Normal', 'elementor-pro' ),
 			]
 		);
 
 		$this->add_control(
 			'reply_button_text_color',
 			[
-				'label' => __( 'Text Color', 'elementor-pro' ),
+				'label' => esc_html__( 'Text Color', 'elementor-pro' ),
 				'type' => Controls_Manager::COLOR,
 				'default' => '',
 				'selectors' => [
@@ -277,7 +280,6 @@ class Post_Comments_Skin_Classic extends Skin_Base {
 			Group_Control_Typography::get_type(),
 			[
 				'name' => 'reply_button_typography',
-				'label' => __( 'Typography', 'elementor-pro' ),
 				'global' => [
 					'default' => Global_Typography::TYPOGRAPHY_ACCENT,
 				],
@@ -288,7 +290,7 @@ class Post_Comments_Skin_Classic extends Skin_Base {
 		$this->add_control(
 			'reply_button_background_color',
 			[
-				'label' => __( 'Background Color', 'elementor-pro' ),
+				'label' => esc_html__( 'Background Color', 'elementor-pro' ),
 				'type' => Controls_Manager::COLOR,
 				'global' => [
 					'default' => Global_Colors::COLOR_ACCENT,
@@ -302,7 +304,7 @@ class Post_Comments_Skin_Classic extends Skin_Base {
 		$this->add_group_control(
 			Group_Control_Border::get_type(), [
 				'name' => 'reply_button_border',
-				'label' => __( 'Border', 'elementor-pro' ),
+				'label' => esc_html__( 'Border', 'elementor-pro' ),
 				'placeholder' => '1px',
 				'default' => '1px',
 				'selector' => '{{WRAPPER}} .elementor-comment .comment-reply-link',
@@ -312,9 +314,9 @@ class Post_Comments_Skin_Classic extends Skin_Base {
 		$this->add_control(
 			'reply_button_border_radius',
 			[
-				'label' => __( 'Border Radius', 'elementor-pro' ),
+				'label' => esc_html__( 'Border Radius', 'elementor-pro' ),
 				'type' => Controls_Manager::DIMENSIONS,
-				'size_units' => [ 'px', '%' ],
+				'size_units' => [ 'px', '%', 'em', 'rem', 'custom' ],
 				'selectors' => [
 					'{{WRAPPER}} .elementor-comment .comment-reply-link' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
 				],
@@ -324,9 +326,9 @@ class Post_Comments_Skin_Classic extends Skin_Base {
 		$this->add_control(
 			'reply_button_text_padding',
 			[
-				'label' => __( 'Text Padding', 'elementor-pro' ),
+				'label' => esc_html__( 'Text Padding', 'elementor-pro' ),
 				'type' => Controls_Manager::DIMENSIONS,
-				'size_units' => [ 'px', 'em', '%' ],
+				'size_units' => [ 'px', '%', 'em', 'rem', 'custom' ],
 				'selectors' => [
 					'{{WRAPPER}} .elementor-comment .comment-reply-link' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
 				],
@@ -338,14 +340,14 @@ class Post_Comments_Skin_Classic extends Skin_Base {
 		$this->start_controls_tab(
 			'tab_reply_button_hover',
 			[
-				'label' => __( 'Hover', 'elementor-pro' ),
+				'label' => esc_html__( 'Hover', 'elementor-pro' ),
 			]
 		);
 
 		$this->add_control(
 			'button_hover_color',
 			[
-				'label' => __( 'Text Color', 'elementor-pro' ),
+				'label' => esc_html__( 'Text Color', 'elementor-pro' ),
 				'type' => Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .elementor-comment .comment-reply-link:hover' => 'color: {{VALUE}};',
@@ -356,7 +358,7 @@ class Post_Comments_Skin_Classic extends Skin_Base {
 		$this->add_control(
 			'reply_button_background_hover_color',
 			[
-				'label' => __( 'Background Color', 'elementor-pro' ),
+				'label' => esc_html__( 'Background Color', 'elementor-pro' ),
 				'type' => Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .elementor-comment .comment-reply-link:hover' => 'background-color: {{VALUE}};',
@@ -367,7 +369,7 @@ class Post_Comments_Skin_Classic extends Skin_Base {
 		$this->add_control(
 			'reply_button_hover_border_color',
 			[
-				'label' => __( 'Border Color', 'elementor-pro' ),
+				'label' => esc_html__( 'Border Color', 'elementor-pro' ),
 				'type' => Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .elementor-comment .comment-reply-link:hover' => 'border-color: {{VALUE}};',
@@ -381,7 +383,7 @@ class Post_Comments_Skin_Classic extends Skin_Base {
 		$this->add_control(
 			'reply_button_hover_animation',
 			[
-				'label' => __( 'Animation', 'elementor-pro' ),
+				'label' => esc_html__( 'Animation', 'elementor-pro' ),
 				'type' => Controls_Manager::HOVER_ANIMATION,
 			]
 		);
@@ -423,9 +425,9 @@ class Post_Comments_Skin_Classic extends Skin_Base {
 			$class .= ' parent';
 		}
 		?>
-		<<?php echo $tag; ?> id="comment-<?php comment_ID(); ?>" <?php comment_class( $class, $comment ); ?>>
+		<<?php Utils::print_validated_html_tag( $tag ); ?> id="comment-<?php comment_ID(); ?>" <?php comment_class( $class, $comment ); ?>>
 		<article id="div-comment-<?php comment_ID(); ?>" class="comment-body">
-			<footer class="comment-meta">
+			<div class="comment-meta">
 				<div class="comment-author vcard">
 					<?php
 					if ( 0 < $args['avatar_size'] ) {
@@ -433,9 +435,12 @@ class Post_Comments_Skin_Classic extends Skin_Base {
 					}
 					?>
 					<?php
-					/* translators: %s: Comment author link. */
-					printf( __( '%s <span class="says">says:</span>', 'elementor-pro' ),
-						sprintf( '<b class="fn">%s</b>', get_comment_author_link( $comment ) )
+					printf(
+						/* translators: 1: Comment author link, 2: Span open tag, 3: Span closing tag. */
+						esc_html__( '%1$s %2$ssays:%3$s', 'elementor-pro' ),
+						sprintf( '<b class="fn">%s</b>', get_comment_author_link( $comment ) ),
+						'<span class="says">',
+						'</span>'
 					);
 					?>
 				</div><!-- .comment-author -->
@@ -445,17 +450,17 @@ class Post_Comments_Skin_Classic extends Skin_Base {
 						<time datetime="<?php comment_time( 'c' ); ?>">
 							<?php
 							/* translators: 1: Comment date, 2: Comment time. */
-							printf( __( '%1$s at %2$s', 'elementor-pro' ), get_comment_date( '', $comment ), get_comment_time() );
+							wp_kses_post( sprintf( esc_html__( '%1$s at %2$s', 'elementor-pro' ), get_comment_date( '', $comment ), get_comment_time() ) );
 							?>
 						</time>
 					</a>
-					<?php edit_comment_link( __( 'Edit', 'elementor-pro' ), '<span class="edit-link">', '</span>' ); ?>
+					<?php edit_comment_link( esc_html__( 'Edit', 'elementor-pro' ), '<span class="edit-link">', '</span>' ); ?>
 				</div><!-- .comment-metadata -->
 
 				<?php if ( '0' == $comment->comment_approved ) : ?>
 					<p class="comment-awaiting-moderation"><?php esc_html_e( 'Your comment is awaiting moderation.', 'elementor-pro' ); ?></p>
 				<?php endif; ?>
-			</footer><!-- .comment-meta -->
+			</div><!-- .comment-meta -->
 
 			<div class="comment-content">
 				<?php comment_text(); ?>
@@ -471,6 +476,7 @@ class Post_Comments_Skin_Classic extends Skin_Base {
 			] ) );
 			?>
 		</article><!-- .comment-body -->
+		</<?php Utils::print_validated_html_tag( $tag ); ?>>
 		<?php
 	}
 }

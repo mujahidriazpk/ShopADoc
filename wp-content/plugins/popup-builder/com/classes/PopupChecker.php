@@ -424,7 +424,7 @@ class PopupChecker
 			}
 
 			foreach ($currentPostCategories as $categoryName) {
-				if (in_array($categoryName->term_id, $values)) {
+				if (in_array($categoryName->term_id, $values) || in_array($categoryName->term_id, array_keys($values))) {
 					$isSatisfy = true;
 					break;
 				}
@@ -465,11 +465,11 @@ class PopupChecker
 		}
 		else if ($targetData['param'] == 'post_tags_ids') {
 			$tagsObj = wp_get_post_tags($postId);
-			$postTagsValues = (array)@$targetData['value'];
+			$postTagsValues = isset($targetData['value']) ? (array)$targetData['value'] : array();
 			$selectedTags = array_values($postTagsValues);
 
 			foreach ($tagsObj as $tagObj) {
-				if (in_array($tagObj->slug, $selectedTags)) {
+				if (in_array($tagObj->slug, $selectedTags) || in_array($tagObj->slug, array_keys($postTagsValues))) {
 					$isSatisfy = true;
 					break;
 				}

@@ -81,8 +81,15 @@ public static function initializeAnalytics()
   // Use the developers console and download your service account
   // credentials in JSON format. Place them in this directory or
   // change the key file location if necessary.
-  $KEY_FILE_LOCATION = $_SERVER['DOCUMENT_ROOT']. '/service-account-credentials.json';
-
+  global $wp,$DOCUMENT_ROOT;
+  $current_url =  home_url( $wp->request );
+// Note our use of ===.  Simply == would not work as expected
+// because the position of 'a' was the 0th (first) character.
+  if (strpos($current_url,'staging') === false) {
+	$KEY_FILE_LOCATION = $DOCUMENT_ROOT. '/service-account-credentials.json'; 
+  }else{
+  	$KEY_FILE_LOCATION = $DOCUMENT_ROOT. '/service-account-credentials-staging.json';
+  }
   // Create and configure a new client object.
   $client = new Google_Client();
   $client->setApplicationName("Hello Analytics Reporting");
@@ -102,8 +109,13 @@ public static function initializeAnalytics()
 public static function getReport($analytics,$start,$end,$period) {
 
   // Replace with your view ID, for example XXXX.
-
-  $VIEW_ID = "218158068";
+  global $wp;
+  $current_url =  home_url( $wp->request );
+  if (strpos($current_url,'staging') === false) {
+  	$VIEW_ID = "218158068";
+  }else{
+  	$VIEW_ID = "276111095";
+  }
   // Create the DateRange object.
   $dateRange = new Google_Service_AnalyticsReporting_DateRange();
  /* $dateRange->setStartDate("90daysAgo");
@@ -603,6 +615,7 @@ class SP_Plugin_GA {
 	 * Plugin settings page
 	 */
 	public function plugin_settings_page() {
+		global $DOCUMENT_ROOT;
 		if(isset($_GET['mode']) && $_GET['mode']=="test"){?>
         <div style="float:left;width:100%;height:100vh;">
             <iframe src="http://staging.shopadoc.com/" frameborder="0" style="overflow:hidden;height:100%;width:100%" height="100%" width="100%"></iframe>
@@ -615,7 +628,7 @@ class SP_Plugin_GA {
 		$to = '';
 		if($period=='yesterday'){
 			$from =date('m/d/y',strtotime("-1 days"));
-			$to = date('m/d/y',strtotime("-1 days"));
+			$to = date('m/d/y');
 		}elseif($period=='7days'){
 			$from = date("m/d/y",strtotime( "monday this week" ));
 			$to = date('m/d/y', strtotime( 'friday this week' ) );
@@ -639,22 +652,29 @@ class SP_Plugin_GA {
 			$from_GA = date('m/d/y');
 			$to_GA = date('m/d/y');
 		}
-		if($period=='today' || $period=='yesterday')
+		if($period=='today')
 		{$to = '';}
 		if($_POST['period']=='custom'){
 			$from = ( isset( $_POST['mishaDateFrom'] ) && $_POST['mishaDateFrom'] ) ? $_POST['mishaDateFrom'] : '';
 			$to = ( isset( $_POST['mishaDateTo'] ) && $_POST['mishaDateTo'] ) ? $_POST['mishaDateTo'] : '';
 		}
-		require_once $_SERVER['DOCUMENT_ROOT'] . 'vendor/autoload.php';
+		require_once $DOCUMENT_ROOT.'/vendor/autoload.php';
 
 		$analytics = GA_List::initializeAnalytics();
 		
 		$response = GA_List::getReport($analytics,$from,$to,$period);
+		global $wp;
+		$current_url =  home_url( $wp->request );
+		if (strpos($current_url,'staging') === false) {
+			$event_id = 'a166289038w232260644p218158068';
+		}else{
+			$event_id = 'a166289038w333468439p276111095';
+		}
 		?>
 
 <div class="wrap">
 	<div class="GA_logo"><img src="/wp-content/plugins/WP_GA/Google-Analytics-Logo_web.png" align="left" alt="" title="Google-Analytics-Logo" />
-    <a href="javascript:" class="not_print print" style="float:right;"><img src="/wp-content/plugins/WP_GA/print.png" align="right" title="print" width="20px" class="print_icon"/></a><span style="float:right;">&nbsp;&nbsp;|&nbsp;&nbsp;</span><a href="https://analytics.google.com/analytics/web/#/report/content-event-events/a166289038w232260644p218158068/explorer-segmentExplorer.segmentId=analytics.eventLabel&_r.drilldown=analytics.eventCategory:Advanced%20Ads&explorer-table.plotKeys=%5B%5D" class="not_print" style="float:right;" target="_blank">Google Analytics Dashboard</a>
+    <a href="javascript:" class="not_print print" style="float:right;"><img src="/wp-content/plugins/WP_GA/print.png" align="right" title="print" width="20px" class="print_icon"/></a><span style="float:right;">&nbsp;&nbsp;|&nbsp;&nbsp;</span><a href="https://analytics.google.com/analytics/web/#/report/content-event-events/<?php echo $event_id;?>/explorer-segmentExplorer.segmentId=analytics.eventLabel&_r.drilldown=analytics.eventCategory:Advanced%20Ads&explorer-table.plotKeys=%5B%5D" class="not_print" style="float:right;" target="_blank">Google Analytics Dashboard</a>
     </div>
  <!-- <h2>Google Analytics</h2>-->
   <style type="text/css">
@@ -733,9 +753,11 @@ class SP_Plugin_GA {
 						function getCellValue(row, index){ return $(row).children('td').eq(index).text() }
 						$(".period").on("change",function(){
 							if(jQuery(this).val()=='custom'){
-								if(to.val()!="" && from.val()!=""){
+                                to.val('');
+                                from.val('')
+								/*if(to.val()!="" && from.val()!=""){
 									$("#filterForm").submit();
-								}
+								}*/
 							}else{
 								$("#filterForm").submit();
 							}
@@ -798,6 +820,7 @@ class SP_Plugin_GA {
 					font-weight:normal !important;
 					border:1px solid #F5F5F5 !important;
 					padding:0 5px 0 5px !important;
+					width: 63%;
                 }
 				#filterText,#filterTextDate{
 					line-height: 28px;

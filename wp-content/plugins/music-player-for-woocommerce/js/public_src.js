@@ -51,17 +51,26 @@
 
 		function _setOverImage(p)
 		{
-			var i = p.data('product'),
-				t = $('img.product-'+i);
+			var i = p.data('product');
+			$('[data-product="'+i+'"]').each(function(){
+				var e = $(this),
+					p = e.closest('.product'),
+					t = p.find('img.product-'+i);
+				if(
+					t.length &&
+					p.closest('.wcmp-player-list').length == 0 &&
+					p.find('.wcmp-player-list').length == 0
+				)
+				{
+					var o = t.offset(),
+						c = p.find('div.wcmp-player');
 
-			if(t.length && $('[data-product="'+i+'"]').length == 1)
-			{
-				var o = t.offset(),
-					c = p.closest('div.wcmp-player');
-
-				c.css({'position': 'absolute', 'z-index': 999999})
-				 .offset({'left': o.left+(t.width()-c.width())/2, 'top': o.top+(t.height()-c.height())/2});
-			}
+					if(c.length){
+						c.css({'position': 'absolute', 'z-index': 999999})
+						 .offset({'left': o.left+(t.width()-c.width())/2, 'top': o.top+(t.height()-c.height())/2});
+					}
+				}
+			});
 		};
 
 		$.expr[':'].regex = function(elem, index, match) {

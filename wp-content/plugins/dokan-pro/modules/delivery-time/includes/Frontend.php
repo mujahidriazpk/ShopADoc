@@ -97,8 +97,7 @@ class Frontend {
                 continue;
             }
 
-            $_vendor = dokan_get_vendor_by_product( $_product );
-
+            $_vendor    = dokan_get_vendor_by_product( $_product );
             $_vendor_id = (int) $_vendor->get_id();
 
             if ( isset( $vendor_infos[ $_vendor_id ] ) ) {
@@ -110,7 +109,7 @@ class Frontend {
             $delivery_date_label = dokan_get_option( 'delivery_date_label', 'dokan_delivery_time', 'off' );
             $delivery_box_info   = dokan_get_option( 'delivery_box_info', 'dokan_delivery_time', 'off' );
 
-            $is_delivery_time_active           = isset( $vendor_delivery_options['allow_vendor_delivery_time_option'] ) && 'on' === $vendor_delivery_options['allow_vendor_delivery_time_option'];
+            $is_delivery_time_active           = isset( $vendor_delivery_options['delivery_support'] ) && 'on' === $vendor_delivery_options['delivery_support'];
             $vendor['is_delivery_time_active'] = $is_delivery_time_active;
 
             $preorder_date = isset( $vendor_delivery_options['preorder_date'] ) ? $vendor_delivery_options['preorder_date'] : '';
@@ -133,7 +132,7 @@ class Frontend {
             $vendor['store_name']              = $store_info['store_name'];
             $vendor['delivery_time_slots']     = $vendor_delivery_slots;
             $vendor['vendor_delivery_options'] = $vendor_delivery_options;
-            $vendor['vendor_vacation_days']    = ( dokan_pro()->module->is_active( 'seller_vacation' ) && isset( $store_info['seller_vacation_schedules'] ) ) ? $store_info['seller_vacation_schedules'] : [];
+            $vendor['vendor_vacation_days']    = ( dokan_pro()->module->is_active( 'seller_vacation' ) && isset( $store_info['seller_vacation_schedules'] ) && isset( $store_info['setting_go_vacation'] ) && 'yes' === $store_info['setting_go_vacation'] ) ? $store_info['seller_vacation_schedules'] : [];
 
             $current_date                  = $current_date->modify( '+' . $vendor_preorder_blocked_date_count . ' day' );
             $vendor_preorder_block_date_to = strtolower( $current_date->format( 'Y-m-d' ) );
@@ -149,7 +148,7 @@ class Frontend {
                 ];
             }
 
-            $is_store_location_pickup_active    = StorePickupHelper::is_store_pickup_location_active_for_vendor( $_vendor_id );
+            $is_store_location_pickup_active    = StorePickupHelper::is_store_pickup_location_active( $_vendor_id );
             $vendor['is_store_location_active'] = $is_store_location_pickup_active;
 
             $vendor = apply_filters( 'dokan_vendor_delivery_time_info', $vendor, $_vendor );
@@ -173,7 +172,12 @@ class Frontend {
      * @return void
      */
     public function save_delivery_time_args( $order, $vendor_id ) {
-        if ( ! isset( $_POST['woocommerce-process-checkout-nonce'] ) || ! wp_verify_nonce( sanitize_key( wp_unslash( $_POST['woocommerce-process-checkout-nonce'] ) ), 'woocommerce-process_checkout' ) ) {
+        /**
+         * We're skipping nonce verification here. Because, if the customer creates account from checkout page at the time of ordering, the nonce changes. So, the nonce fails to verify.
+         *
+         * @see https://github.com/weDevsOfficial/dokan-pro/issues/2144
+         */
+        if ( ! isset( $_POST['woocommerce-process-checkout-nonce'] ) ) {
             return;
         }
 
@@ -237,6 +241,7 @@ class Frontend {
 
         dokan_get_template_part(
             'delivery-time-order-details', '', [
+                'order'                   => $order,
                 'is_delivery_time'        => true,
                 'delivery_time_date_slot' => [
                     'date' => $delivery_time_date,
@@ -267,16 +272,8 @@ class Frontend {
             wp_send_json_error( [ 'message' => __( 'No date or vendor id found.', 'dokan' ) ], 400 );
         }
 
-        $vendor_delivery_options = Helper::get_delivery_time_settings( $vendor_id );
-
-        $current_date = dokan_current_datetime();
-        $current_date = $current_date->modify( $date );
-        $day          = strtolower( trim( $current_date->format( 'l' ) ) );
-
-        $vendor_order_per_slot = (int) isset( $vendor_delivery_options['order_per_slot'][ $day ] ) ? $vendor_delivery_options['order_per_slot'][ $day ] : -1;
-        $vendor_delivery_slots = Helper::get_available_delivery_slots_by_date( $vendor_id, $vendor_order_per_slot, $date );
-
-        wp_send_json_success( [ 'vendor_delivery_slots' => $vendor_delivery_slots ], 201 );
+        $delivery_time_slots = Helper::get_current_date_active_delivery_time_slots( $vendor_id, $date );
+        wp_send_json_success( [ 'vendor_delivery_slots' => $delivery_time_slots ], 201 );
     }
 
     /**

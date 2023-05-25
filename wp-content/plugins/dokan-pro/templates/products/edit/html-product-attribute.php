@@ -3,7 +3,7 @@
         <span><i class="fas fa-bars" aria-hidden="true"></i>&nbsp;&nbsp;<strong><?php echo ! empty( $attribute_label ) ? esc_html( $attribute_label ) : esc_html__( 'Attribute Name', 'dokan' ); ?></strong></span>
         <a href="#" class="dokan-product-remove-attribute"><?php esc_html_e( 'Remove', 'dokan' ); ?></a>
         <a href="#" class="dokan-product-toggle-attribute">
-            <i class="fas fa-sort-down fa-flip-horizointal" aria-hidden="true"></i>
+            <i class="fas fa-sort-down fa-flip-horizontal" aria-hidden="true"></i>
         </a>
     </div>
 
@@ -56,6 +56,12 @@
 					<div class="dokan-pre-defined-attribute-btn-group">
 						<button class="dokan-btn dokan-btn-default plus dokan-select-all-attributes"><?php esc_html_e( 'Select all', 'dokan' ); ?></button>
 						<button class="dokan-btn dokan-btn-default minus dokan-select-no-attributes"><?php esc_html_e( 'Select none', 'dokan' ); ?></button>
+
+						<?php if ( dokan_get_option( 'add_new_attribute', 'dokan_selling', 'off' ) !== 'off' ) : ?>
+
+						<button class="dokan-btn dokan-btn-default fr plus dokan-add-new-attribute dokan-right"><?php esc_html_e( 'Add new', 'dokan' ); ?></button>
+
+						<?php endif; ?>
 					</div>
 				<?php elseif ( 'text' === $attribute_taxonomy->attribute_type ) : ?>
 					<?php // translators: %s:  WC DELIMITER ?>

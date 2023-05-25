@@ -22,7 +22,7 @@ class WP_Persistent_Login_Active_Logins {
         }
         
 		// Use password check filter.
-		add_filter( 'check_password', array( $this, 'validate_block_logic' ), 20, 4 );
+		add_filter( 'authenticate', array( $this, 'validate_block_logic' ), 20, 3 );
 
 	}
 
@@ -41,12 +41,12 @@ class WP_Persistent_Login_Active_Logins {
         $seconds_ago = (time() - $login_time);
 
         $time_breaks = array(
-            31536000 => __(' years ago', WPPL_TEXT_DOMAIN),
-            2419200 => __(' months ago', WPPL_TEXT_DOMAIN),
-            86400 => __(' days ago', WPPL_TEXT_DOMAIN),
-            3600 => __(' hours ago', WPPL_TEXT_DOMAIN),
-            60 => __(' mins ago', WPPL_TEXT_DOMAIN),
-            0 => __('Active now', WPPL_TEXT_DOMAIN)
+            31536000 => __(' years ago', 'wp-persistent-login' ),
+            2419200 => __(' months ago', 'wp-persistent-login' ),
+            86400 => __(' days ago', 'wp-persistent-login' ),
+            3600 => __(' hours ago', 'wp-persistent-login' ),
+            60 => __(' mins ago', 'wp-persistent-login' ),
+            0 => __('Active now', 'wp-persistent-login' )
         );
 
         foreach( $time_breaks as $key => $value ) {
@@ -84,7 +84,7 @@ class WP_Persistent_Login_Active_Logins {
         $os = $device->os->toString();
         $the_device = $device->device->toString().' ';
 
-        return $browser .' '. __('on', WPPL_TEXT_DOMAIN) .' ' . $the_device . $os .' ('. $device_type .')';
+        return $browser .' '. __('on', 'wp-persistent-login' ) .' ' . $the_device . $os .' ('. $device_type .')';
 
     }
 
@@ -248,27 +248,46 @@ class WP_Persistent_Login_Active_Logins {
 	 *
 	 * @return bool
 	 */
-	public function validate_block_logic( $check, $password, $hash, $user_id ) {
+	public function validate_block_logic( $user, $username, $password ) {
 
-        // If the validation failed already, bail.
-		if ( ! $check ) {
-			return false;
-		}
-        $settings = new WP_Persistent_Login_Settings();
-        $limit_active_logins = $settings->get_limit_active_logins();
-        
-        // if we should limit the number of active logins, 
-        if( $limit_active_logins === '1' ) {
+        if( !is_wp_error($user) && NULL !== $user ) {
 
-            $user = get_user_by('id', $user_id);
+            $user_id = $user->ID;
+            $settings = new WP_Persistent_Login_Settings();
+            $limit_active_logins = $settings->get_limit_active_logins();
+            
+            // if we should limit the number of active logins, 
+            if( $limit_active_logins === '1' ) {
 
-            // if the limit is exceeded, start ending sessions
-            if ( $this->reached_limit( $user ) ) {
-                $this->end_excess_logins( $user );
+                // if the limit is exceeded, start ending sessions
+                if ( $this->reached_limit( $user_id ) === true ) {
+                    
+                    // check the limit reached logic
+                    $limit_reached_logic = $settings->get_limit_reached_logic();
+
+                    switch($limit_reached_logic) {
+
+                        // automatically end excess login sessions
+                        case 'automatic' :
+
+                            $this->end_excess_logins( $user );
+                            break;
+
+                        // block the login if users have reached the login limit 
+                        case 'block' :
+
+                            $error = new WP_Error( '401', __( 'You have reached the maximum number of logins allowed at one time. Please log out of another device and try again.', 'wp-persistent-login' ) );
+
+                            return $error;
+
+                    }
+
+                }
             }
+
         }
 
-        return true;
+        return $user;
 
         
 	}
@@ -286,9 +305,6 @@ class WP_Persistent_Login_Active_Logins {
 
         // setup a session manager
         $session_manager = new WP_Persistent_Login_Manage_Sessions( $user_id );
-
-        // count the current sessions
-        $session_count = $this->get_login_count( $user_id );
 
         // invalid sessions = current sessions, plus this login, minus the limit
         $invalid_sessions = $this->get_invalid_session_count( $user_id );
@@ -333,13 +349,10 @@ class WP_Persistent_Login_Active_Logins {
      */
     protected function get_invalid_session_count($user_id) {
 
-        $user = get_user_by('ID', $user_id);
-
-        // get all users sessions, oldest first
-        $sessions = $this->get_user_sessions($user, SORT_ASC);
-
         // count the current sessions
-        $session_count = $this->get_login_count($user_id);
+        $session_count = $this->get_login_count( $user_id );
+        
+        $this->limit = apply_filters('wppl_invalid_sessions_count', $this->limit, $user_id, $session_count);
 
         // invalid sessions = current sessions, plus this login, minus the limit
         $invalid_sessions = ($session_count+1) - $this->limit;

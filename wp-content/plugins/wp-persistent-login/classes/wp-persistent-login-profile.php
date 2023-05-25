@@ -146,12 +146,12 @@ class WP_Persistent_Login_Profile {
         $seconds_ago = (time() - $login_time);
 
         $time_breaks = array(
-            31536000 => __(' years ago', WPPL_TEXT_DOMAIN),
-            2419200 => __(' months ago', WPPL_TEXT_DOMAIN),
-            86400 => __(' days ago', WPPL_TEXT_DOMAIN),
-            3600 => __(' hours ago', WPPL_TEXT_DOMAIN),
-            60 => __(' mins ago', WPPL_TEXT_DOMAIN),
-            0 => __('Active now', WPPL_TEXT_DOMAIN)
+            31536000 => __(' years ago', 'wp-persistent-login' ),
+            2419200 => __(' months ago', 'wp-persistent-login' ),
+            86400 => __(' days ago', 'wp-persistent-login' ),
+            3600 => __(' hours ago', 'wp-persistent-login' ),
+            60 => __(' mins ago', 'wp-persistent-login' ),
+            0 => __('Active now', 'wp-persistent-login' )
         );
 
         foreach( $time_breaks as $key => $value ) {
@@ -206,11 +206,11 @@ class WP_Persistent_Login_Profile {
         ?>
 
             <h2 id="sessions" style="margin: 2rem 0 0;">
-                <?php _e('Active Logins - WP Persistent Login', WPPL_TEXT_DOMAIN); ?>
+                <?php _e('Active Logins - WP Persistent Login', 'wp-persistent-login' ); ?>
             </h2>
 
             <p class="description">
-                <?php _e('Select the active logins you want to end, and click update profile', WPPL_TEXT_DOMAIN); ?>
+                <?php _e('Select the active logins you want to end, and click update profile', 'wp-persistent-login' ); ?>
             </p>
 
             <?php if( $sessions ) : ?>
@@ -219,13 +219,13 @@ class WP_Persistent_Login_Profile {
 
                     <tr class="persistent-login-table-header-row" style="border-bottom: 1px solid #dfdfdf;">
                         <th width="50%" style="padding-left: 10px;">
-                            <?php _e('Session Details', WPPL_TEXT_DOMAIN); ?>
+                            <?php _e('Session Details', 'wp-persistent-login' ); ?>
                         </th>
                         <th width="25%" style="padding-left: 10px;">
-                            <?php _e('Last Active', WPPL_TEXT_DOMAIN); ?>
+                            <?php _e('Last Active', 'wp-persistent-login' ); ?>
                         </th>
                         <th width="25%" style="padding-left: 10px; text-align: right;">
-                            <?php _e('Manage', WPPL_TEXT_DOMAIN); ?>
+                            <?php _e('Manage', 'wp-persistent-login' ); ?>
                         </th>
                     </tr>
 
@@ -237,11 +237,11 @@ class WP_Persistent_Login_Profile {
                                 <?php echo $session['device']; ?><br/>
                                 <small>
                                     <?php 
-                                        _e('IP Address: ', WPPL_TEXT_DOMAIN);
+                                        _e('IP Address: ', 'wp-persistent-login' );
                                         echo $session['ip']; 
                                         
                                         if( isset($session['location']) ) {
-                                            _e('Approximate location: ', WPPL_TEXT_DOMAIN);
+                                            _e('Approximate location: ', 'wp-persistent-login' );
                                             echo $session['location'];
                                         }
                                     ?> 
@@ -253,7 +253,7 @@ class WP_Persistent_Login_Profile {
                                 <?php if( $session['current_device'] === true ) : ?>
                                     <small class="meta">
                                         <strong>
-                                            <?php _e('(this device)', WPPL_TEXT_DOMAIN); ?>
+                                            <?php _e('(this device)', 'wp-persistent-login' ); ?>
                                         </strong>
                                     </small>
                                 <?php endif; ?>
@@ -261,7 +261,7 @@ class WP_Persistent_Login_Profile {
                         
                             <td width="25%">
                                 <label 
-                                    title="<?php _e('End Session', WPPL_TEXT_DOMAIN); ?>" 
+                                    title="<?php _e('End Session', 'wp-persistent-login' ); ?>" 
                                     style="cursor: pointer;padding: 3px 10px 4px; height: auto;" 
                                     class="button right persistent-login-end-session-link"
                                 >
@@ -270,9 +270,9 @@ class WP_Persistent_Login_Profile {
                                         name="endSessions[]" 
                                         value="<?php echo $session['session_key']; ?>" 
                                         style="margin: 0 5px 0 0;" 
-                                        title="<?php _e('End Session', WPPL_TEXT_DOMAIN); ?>" 
+                                        title="<?php _e('End Session', 'wp-persistent-login' ); ?>" 
                                     />
-                                    <?php _e('End Session', WPPL_TEXT_DOMAIN); ?>
+                                    <?php _e('End Session', 'wp-persistent-login' ); ?>
                                 </label>
                             </td>
                         
@@ -294,7 +294,7 @@ class WP_Persistent_Login_Profile {
 
             <?php else : ?>
 
-                <p><?php _e('You don\'t have any active logins at the moment.', WPPL_TEXT_DOMAIN); ?></p>
+                <p><?php _e('You don\'t have any active logins at the moment.', 'wp-persistent-login' ); ?></p>
 
             <?php endif; ?>
 

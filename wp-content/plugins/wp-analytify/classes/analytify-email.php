@@ -37,7 +37,7 @@ class Analytify_Email_Core {
 	 * @since 1.0
 	 */
 	function analytify_email_scripts() {
-		wp_enqueue_script( 'analytify_email_script', ANALYTIFY_PLUGIN_URL . 'assets/default/js/wp-analytify-email.js', array(), ANALYTIFY_VERSION, 'true' );
+		wp_enqueue_script( 'analytify_email_script', ANALYTIFY_PLUGIN_URL . 'assets/js/wp-analytify-email.js', array(), ANALYTIFY_VERSION, 'true' );
 	}
 
 	// /**
@@ -166,7 +166,7 @@ class Analytify_Email_Core {
 		// stop TranslatePress to translate the emails.
 		add_filter( 'trp_stop_translating_page', '__return_true' );
 
-		$Analytify_Email = $GLOBALS['WP_ANALYTIFY'];
+		$wp_analytify = $GLOBALS['WP_ANALYTIFY'];
 		$site_url = site_url();
 		$when_to_send_report = $this->when_to_send_report();
 		
@@ -192,7 +192,7 @@ class Analytify_Email_Core {
 			$compare_start_date  = date( 'Y-m-d', $compare_start_date );
 			$compare_end_date 	 = $start_date;
 
-			$_logo_id  = $Analytify_Email->settings->get_option( 'analytify_email_logo','wp-analytify-email' );
+			$_logo_id  = $wp_analytify->settings->get_option( 'analytify_email_logo','wp-analytify-email' );
 
 			if ( $_logo_id ) {
 				$_logo_link_array =  wp_get_attachment_image_src( $_logo_id, array( 150, 150 ) );
@@ -201,7 +201,7 @@ class Analytify_Email_Core {
 				$logo_link = ANALYTIFY_IMAGES_PATH . "logo.png";
 			}
 
-			$emails = $Analytify_Email->settings->get_option( 'analytify_email_user_email','wp-analytify-email' );
+			$emails = $wp_analytify->settings->get_option( 'analytify_email_user_email','wp-analytify-email' );
 			$emails_array = [];
 			
 			if ( ! empty( $emails ) ) {
@@ -212,7 +212,7 @@ class Analytify_Email_Core {
 				}
 			}
 
-			$subject = $Analytify_Email->settings->get_option( 'analytify_email_subject','wp-analytify-email' );
+			$subject = $wp_analytify->settings->get_option( 'analytify_email_subject','wp-analytify-email' );
 			
 			if ( ! $subject ) {
 				$protocols = array( 'https://', 'https://www', 'http://', 'http://www.', 'www.' );
@@ -225,9 +225,9 @@ class Analytify_Email_Core {
 				}
 			}
 
-			$_from_name  = $Analytify_Email->settings->get_option( 'analytiy_from_name', 'wp-analytify-email' );
+			$_from_name  = $wp_analytify->settings->get_option( 'analytiy_from_name', 'wp-analytify-email' );
 			$_from_name  = ! empty( $_from_name ) ? $_from_name : 'Analytify Notifications';
-			$_from_email = $Analytify_Email->settings->get_option( 'analytiy_from_email', 'wp-analytify-email' );
+			$_from_email = $wp_analytify->settings->get_option( 'analytiy_from_email', 'wp-analytify-email' );
 			$_from_email = ! empty( $_from_email ) ? $_from_email : 'no-reply@analytify.io';
 
 			foreach ( $emails_array as $email_group ) {
@@ -341,7 +341,6 @@ class Analytify_Email_Core {
 								<tr>
 						<td style="padding: 0 15px;">
 										<table width="100%" cellpadding="0" cellspacing="0" align="center">
-										
 											<tr>
 												<td valign="top">
 													<table width="100%" cellspacing="0" cellpadding="0" border="0" align="center" bgcolor="#ffffff">
@@ -352,31 +351,100 @@ class Analytify_Email_Core {
 														</tr>
 														<tr>
 															<td	style="font: normal 14px \'Roboto\', Arial, Helvetica, sans-serif; padding: 0px 20px 0px 20px;">
-																<font color="#848484">'. analytify__( 'Check out the following metrics and examine the growth of your online venture.' ) .'</font>
+																<font color="#848484">'. analytify__( 'Below please find your Google Analytics report for the noted period.' ) .'</font>
 															</td>
 														</tr>
 													</table>
 												</td>
 											</tr>';
 
-									$selectd_stats = ! empty(	$Analytify_Email->settings->get_option( 'analytify_email_stats', 'wp-analytify-email' ) ) ? $Analytify_Email->settings->get_option( 'analytify_email_stats', 'wp-analytify-email' ) : array( 'show-overall-general' );
-			
-									// General Stats.
-									if ( is_array( $selectd_stats ) &&  in_array( 'show-overall-general', $selectd_stats )  ) {
-										$stats = $Analytify_Email->pa_get_analytics_dashboard( 'ga:sessions,ga:users,ga:bounceRate,ga:avgTimeOnPage,ga:pageviewsPerSession,ga:pageviews,ga:percentNewSessions,ga:newUsers,ga:avgSessionDuration,ga:sessionDuration', $start_date, $end_date, false, false, false, false, 'analytify-email-general-stats' );
-										$old_stats = $Analytify_Email->pa_get_analytics_dashboard( 'ga:sessions,ga:users,ga:bounceRate,ga:avgTimeOnPage,ga:pageviewsPerSession,ga:pageviews,ga:percentNewSessions,ga:newUsers,ga:avgSessionDuration', $compare_start_date, $compare_end_date, false, false, false, false, 'analytify-email-general-compare-stats' );
+									$selected_stats = ! empty( $wp_analytify->settings->get_option( 'analytify_email_stats', 'wp-analytify-email' ) ) ? $wp_analytify->settings->get_option( 'analytify_email_stats', 'wp-analytify-email' ) : array( 'show-overall-general' );
 
-										if ( ! function_exists( 'pa_email_include_general' ) ) {
-											include ANALYTIFY_ROOT_PATH . '/views/email/general-stats.php';
+									// General Stats.
+									if ( is_array( $selected_stats ) && in_array( 'show-overall-general', $selected_stats, true )  ) {
+
+										if ( method_exists( 'WPANALYTIFY_Utils', 'get_ga_mode' ) && 'ga4' === WPANALYTIFY_Utils::get_ga_mode() ) {
+
+											$stats = $wp_analytify->get_reports(
+												'analytify-email-general-stats',
+												array(
+													'sessions',
+													'totalUsers',
+													'bounceRate',
+													'screenPageViewsPerSession',
+													'screenPageViews',
+													'engagedSessions',
+													'newUsers',
+													'averageSessionDuration',
+													'userEngagementDuration',
+												),
+												array(
+													'start' => $start_date,
+													'end' => $end_date,
+												),
+												array(
+													'date',
+												),
+												array(
+													'type'  => 'dimension',
+													'order' => 'desc',
+													'name'  => 'date',
+												),
+												array(),
+											);
+
+											$old_stats = $wp_analytify->get_reports(
+												'analytify-email-general-compare-stats',
+												array(
+													'sessions',
+													'totalUsers',
+													'bounceRate',
+													'screenPageViewsPerSession',
+													'screenPageViews',
+													'engagedSessions',
+													'newUsers',
+													'averageSessionDuration',
+													'userEngagementDuration',
+												),
+												array(
+													'start' => $compare_start_date,
+													'end' => $compare_end_date,
+												),
+												array(
+													'date',
+												),
+												array(
+													'type'  => 'dimension',
+													'order' => 'desc',
+													'name'  => 'date',
+												),
+												array(),
+											);
+
+											if ( ! function_exists( 'pa_email_include_general' ) ) {
+												include ANALYTIFY_ROOT_PATH . '/views/email/general-stats.php';
+											}
+
+											$message .= pa_email_include_general( $wp_analytify, $stats, $old_stats, $different );
+
+										} else {
+
+											$stats = $wp_analytify->pa_get_analytics_dashboard( 'ga:sessions,ga:users,ga:bounceRate,ga:avgTimeOnPage,ga:pageviewsPerSession,ga:pageviews,ga:percentNewSessions,ga:newUsers,ga:avgSessionDuration,ga:sessionDuration', $start_date, $end_date, false, false, false, false, 'analytify-email-general-stats' );
+											$old_stats = $wp_analytify->pa_get_analytics_dashboard( 'ga:sessions,ga:users,ga:bounceRate,ga:avgTimeOnPage,ga:pageviewsPerSession,ga:pageviews,ga:percentNewSessions,ga:newUsers,ga:avgSessionDuration', $compare_start_date, $compare_end_date, false, false, false, false, 'analytify-email-general-compare-stats' );
+											if ( ! function_exists( 'pa_email_include_general' ) ) {
+												include ANALYTIFY_ROOT_PATH . '/views/email/general-stats-deprecated.php';
+											}
+
+											$message .= pa_email_include_general( $wp_analytify, $stats, $old_stats, $different );
+
 										}
 
-										$message .= pa_email_include_general( $Analytify_Email, $stats, $old_stats, $different );
 									}
 
-									$dates = array( 'start_date' => $start_date, 'end_date' => $end_date ) ;
+									$dates = array( 'start_date' => $start_date, 'end_date' => $end_date );
 
 									// Get pro settings options.
-									$message = apply_filters( 'wp_analytify_email_on_cron_time', $message, $selectd_stats, $dates );
+									$message = apply_filters( 'wp_analytify_email_on_cron_time', $message, $selected_stats, $dates );
 
 									$message .= '
 																</table>
@@ -391,7 +459,7 @@ class Analytify_Email_Core {
 									</table>
 								</body>
 							</html>';
-
+							
 				wp_mail( $email_address, $subject, $message, $headers );
 			}
 		}
@@ -496,9 +564,9 @@ class Analytify_Email_Core {
 			$e_date = $end_date;
 		}
 
-		$Analytify_Email = $GLOBALS['WP_ANALYTIFY'];
+		$wp_analytify = $GLOBALS['WP_ANALYTIFY'];
 
-		$_logo_id  = $Analytify_Email->settings->get_option( 'analytify_email_logo','wp-analytify-email' );
+		$_logo_id  = $wp_analytify->settings->get_option( 'analytify_email_logo','wp-analytify-email' );
 		if ( $_logo_id ) {
 			$_logo_link_array =  wp_get_attachment_image_src( $_logo_id, array( 150, 150 ) );
 			$logo_link = $_logo_link_array[0];
@@ -506,7 +574,7 @@ class Analytify_Email_Core {
 			$logo_link = ANALYTIFY_IMAGES_PATH . "logo.png";
 		}
 
-		$emails = $Analytify_Email->settings->get_option( 'analytify_email_user_email','wp-analytify-email' );
+		$emails = $wp_analytify->settings->get_option( 'analytify_email_user_email','wp-analytify-email' );
 		$emails_array = [];
 		
 		if ( ! empty( $emails ) ) {
@@ -519,10 +587,10 @@ class Analytify_Email_Core {
 
 		$subject = 'Analytics for ' . get_the_title( $post_id ) ;
 
-		$_from_name  = $Analytify_Email->settings->get_option( 'analytiy_from_name', 'wp-analytify-email' );
+		$_from_name  = $wp_analytify->settings->get_option( 'analytiy_from_name', 'wp-analytify-email' );
 		$_from_name  = ! empty( $_from_name ) ? $_from_name : 'Analytify Notifications';
 
-		$_from_email = $Analytify_Email->settings->get_option( 'analytiy_from_email', 'wp-analytify-email' );
+		$_from_email = $wp_analytify->settings->get_option( 'analytiy_from_email', 'wp-analytify-email' );
 		$_from_email = ! empty( $_from_email ) ? $_from_email : 'no-reply@analytify.io';
 
 		foreach ( $emails_array as $email_group ) {
@@ -652,24 +720,55 @@ class Analytify_Email_Core {
 											</td>
 										</tr>';
 
-						$selectd_stats = ! empty(	$Analytify_Email->settings->get_option( 'analytify_email_stats', 'wp-analytify-email' ) ) ? $Analytify_Email->settings->get_option( 'analytify_email_stats', 'wp-analytify-email' ) : array( 'show-overall-general' );
+						$selected_stats = ! empty(	$wp_analytify->settings->get_option( 'analytify_email_stats', 'wp-analytify-email' ) ) ? $wp_analytify->settings->get_option( 'analytify_email_stats', 'wp-analytify-email' ) : array( 'show-overall-general' );
 
 						// General Stats.
-						if ( is_array( $selectd_stats ) &&  in_array( 'show-overall-general', $selectd_stats ) ) {
+						if ( is_array( $selected_stats ) &&  in_array( 'show-overall-general', $selected_stats ) ) {
 
-							$stats = $Analytify_Email->pa_get_analytics_dashboard( 'ga:sessions,ga:users,ga:pageviews,ga:avgSessionDuration,ga:bounceRate,ga:percentNewSessions,ga:newUsers,ga:avgTimeOnPage', $s_date, $e_date, false, false, $filter );
+							if ( method_exists( 'WPANALYTIFY_Utils', 'get_ga_mode' ) && 'ga4' === WPANALYTIFY_Utils::get_ga_mode() ) {
 
-							if ( ! function_exists( 'pa_email_include_single_general' ) ) {
-								include ANALYTIFY_ROOT_PATH . '/views/email/general-stats-single.php';
+								$report_obj = new Analytify_Report(
+									array(
+										'dashboard_type' => 'single_post',
+										'start_date'     => $s_date,
+										'end_date'       => $e_date,
+										'post_id'        => $post_id,
+									)
+								);
+
+								$stats = $report_obj->get_general_stats();
+
+								if ( ! function_exists( 'pa_email_include_general' ) ) {
+									include ANALYTIFY_ROOT_PATH . '/views/email/general-stats-single.php';
+								}
+
+								$message .= pa_email_include_single_general( $wp_analytify, $stats['boxes'], false, false);
+
+							} else {
+								$report_obj = new Analytify_Report(
+									array(
+										'dashboard_type' => 'single_post',
+										'start_date'     => $s_date,
+										'end_date'       => $e_date,
+										'post_id'        => $post_id,
+									)
+								);
+
+								$stats = $report_obj->get_general_stats();
+
+								if ( ! function_exists( 'pa_email_include_general' ) ) {
+									include ANALYTIFY_ROOT_PATH . '/views/email/general-stats-single.php';
+								}
+
+								$message .= pa_email_include_single_general( $wp_analytify, $stats['boxes'], false, false );
 							}
 
-							$message .= pa_email_include_single_general( $Analytify_Email, $stats, false, false );
 						}
 						
 						$dates = array( 'start_date' => $start_date, 'end_date' => $end_date ) ;
 	
 						// Get pro settings options.
-						$message = apply_filters( 'wp_analytify_single_email', $message, $selectd_stats, $dates );
+						$message = apply_filters( 'wp_analytify_single_email', $message, $selected_stats, $dates );
 
 						$message .= '			</table>
 															</td>

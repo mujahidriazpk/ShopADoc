@@ -15,7 +15,7 @@
 		  class="web-billing-address"
 		  align="left"
 		  style='font-size: 13px; line-height: 22px; word-break: break-word;
-		  <?php echo 'font-family: ' . wp_kses_post( $attrs['family'] ); ?>;
+		  <?php echo 'font-family: ' . wp_kses_post( str_replace( '"', '', $attrs['family'] ) ); ?>;
 		  <?php echo esc_attr( 'color: ' . $attrs['textColor'] ); ?>;
 		  <?php echo esc_attr( 'padding: ' . $attrs['paddingTop'] . 'px ' . $attrs['paddingRight'] . 'px ' . $attrs['paddingBottom'] . 'px ' . $attrs['paddingLeft'] . 'px;' ); ?>
 		  '
@@ -29,7 +29,7 @@
 				<table 
 				  style='width: 100%; color: inherit;
 				  <?php echo esc_attr( 'color: ' . $attrs['titleColor'] ); ?>;
-				  <?php echo esc_attr( 'font-family: ' . $attrs['family'] ); ?>;
+				  <?php echo esc_attr( 'font-family: ' . str_replace( '"', '', $attrs['family'] ) ); ?>;
 				  ' 
 				>
 				<?php echo wp_kses_post( $attrs['contentTitle'] ); ?>

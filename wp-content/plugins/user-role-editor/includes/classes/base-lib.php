@@ -88,7 +88,7 @@ class URE_Base_Lib {
     protected function init_options( $options_id ) {
         
         $this->options_id = $options_id;
-        $this->options = get_option( $options_id );
+        $this->options = get_option( $options_id, array() );
         
     }
     // end of init_options()
@@ -116,7 +116,7 @@ class URE_Base_Lib {
     /*
      * Replacer for FILTER_SANITIZE_STRING deprecated with PHP 8.1
      */
-    public static function filter_string_polyfill(string $string): string {
+    public static function filter_string_polyfill( $string ) {
         
         $str = preg_replace('/\x00|<[^>]*>?/', '', $string);
         return str_replace(["'", '"'], ['&#39;', '&#34;'], $str);
@@ -209,6 +209,9 @@ class URE_Base_Lib {
      */
     public function put_option( $option_name, $option_value, $flush_options = false ) {
 
+        if ( !is_array( $this->options ) ) {
+            $this->options = array();
+        }        
         $this->options[$option_name] = $option_value;
         if ( $flush_options ) {
             $this->flush_options();

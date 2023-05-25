@@ -191,7 +191,7 @@ if (!empty($removedOptions['content-copy-to-clipboard'])) {
 			<div class="subFormItem sgpb-display-flex sgpb-align-item-center sgpb-position-relative sgpb-margin-bottom-20">
 				<span class="subFormItem__title sgpb-margin-right-20"><?php esc_html_e('Type', SG_POPUP_TEXT_DOMAIN); ?>:</span>
 				<?php echo wp_kses(AdminHelper::createSelectBox($defaultData['openAnimationEfects'], $defaultAnimation, array('name' => 'sgpb-open-animation-effect', 'class'=>'js-sg-select2 sgpb-open-animation-effects select__select')), AdminHelper::allowed_html_tags()); ?>
-				<div class="sgpb-icons icons_blue sgpb-preview-animation sgpb-margin-x-20">A</div>
+				<div class="sgpb-icons icons_blue sgpb-preview-animation sgpb-margin-x-20 sgpb-preview-open-animation">A</div>
 				<div id="js-open-animation-effect" class="sgpb-js-open-animation-effect"></div>
 			</div>
 			<div class="subFormItem sgpb-display-flex sgpb-align-item-center">
@@ -325,7 +325,7 @@ if (!empty($removedOptions['content-copy-to-clipboard'])) {
 			<div class="question-mark">B</div>
 			<div class="sgpb-info-wrapper">
 				<span class="infoSelectRepeat samefontStyle sgpb-info-text" style="display: none;">
-					<?php esc_html_e('Select the priority number for your popup to appear on the page, along with other popups. The popup with a lower order number will be behind the others with a higher order number.', SG_POPUP_TEXT_DOMAIN); ?>
+					<?php esc_html_e('Select the priority number for your popup to appear on the page, along with other popups. The popup with a higher-order number will be behind the others with a lower-order number.', SG_POPUP_TEXT_DOMAIN); ?>
 				</span>
 			</div>
 		</div>

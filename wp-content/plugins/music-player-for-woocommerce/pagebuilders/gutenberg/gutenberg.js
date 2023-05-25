@@ -22,7 +22,7 @@
 			shortcode : {
 				type : 'string',
 				source : 'text',
-				default: '[wcmp-playlist products_ids="*" controls="track"]'
+				default: '[wcmp-playlist products_ids="*" controls="track" download_links="1"]'
 			}
 		},
 

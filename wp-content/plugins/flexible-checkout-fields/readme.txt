@@ -2,9 +2,9 @@
 Contributors: wpdesk,dyszczo,grola,piotrpo,marcinkolanko,mateuszgbiorczyk,sebastianpisula,bartj
 Donate link: https://www.wpdesk.net/flexible-checkout-fields-woocommerce/
 Tags: woocommerce checkout fields, woocommerce custom fields, woocommerce checkout manager, woocommerce checkout editor, woocommerce fields manager, woocommerce fields editor, woocommerce custom checkout fields, woocommerce checkout options, woocommerce checkout pro, woocommerce custom sections, woocommerce file upload
-Requires at least: 4.9
-Tested up to: 6.0
-Stable tag: 3.4.1
+Requires at least: 5.2
+Tested up to: 6.1
+Stable tag: 3.5.7
 Requires PHP: 7.0
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -13,7 +13,7 @@ The best WooCommerce checkout manager. Add, edit, remove WooCommerce checkout fi
 
 == Description ==
 
-We think WooCommerce is the best ecommerce plugin for WordPress. But it lacks some very basic features like customizing checkout fields with a checkout manager in an easy to use interface. You can do it by hooks and filters but why bother if you can do it by Flexible Checkout Fields for WooCommerce - WooCommerce Checkout Manager. With this single page checkout plugin you can edit the default fields (change labels, hide, delete) or add your own checkout fields. You can set your own fields order. There’s a lot of field types such as a checkbox field, a date field or a color picker field (some of them exclusively in the PRO version). Read on to see how easy it is to edit WooCommerce checkout fields with this plugin and how powerful it is.
+We think WooCommerce is the best ecommerce plugin for WordPress. But it lacks some very basic features like customizing checkout fields with a checkout manager in an easy to use interface. You can do it by hooks and filters but why bother if you can do it by Flexible Checkout Fields for WooCommerce - WooCommerce Checkout Manager. With this single page checkout plugin you can edit the default fields (change labels, hide, delete) or add your own checkout fields. You can set your own fields order. There"s a lot of field types such as a checkbox field, a date field or a color picker field (some of them exclusively in the PRO version). Read on to see how easy it is to edit WooCommerce checkout fields with this plugin and how powerful it is.
 
 [youtube https://www.youtube.com/watch?v=VTRnSU0OLV4]
 
@@ -21,8 +21,7 @@ We think WooCommerce is the best ecommerce plugin for WordPress. But it lacks so
 
 Flexible Checkout Fields beautifully integrates with the WordPress dashboard. It is probably the best looking checkout field editor for WooCommerce on the market. And you can do some powerful stuff with it too. [See some screenshots →](https://wordpress.org/plugins/flexible-checkout-fields/screenshots/)
 
-* [>>> Go to the FCF client area demo <<<](https://wpde.sk/fcf-demo-repo) - here you can test the product configured with the **Flexible Checkout Fields** plugin (no registration needed)
-* [>>> Go to the FCF admin demo <<<](https://demo.wpdesk.org/?utm_source=wordpress-repository&utm_medium=demo-link&utm_campaign=demo-flexible-checkout-fields) - here you can test the admin panel of all WP Desk plugins including **Flexible Checkout Fields**
+[>>> Go to the FCF admin demo <<<](https://demo.wpdesk.org/?utm_source=wordpress-repository&utm_medium=demo-link&utm_campaign=demo-flexible-checkout-fields) - here you can test the admin panel of all WP Desk plugins including **Flexible Checkout Fields**
 
 = Fields Order =
 
@@ -39,7 +38,7 @@ Want to give your customers a tip on how to fill a checkout field? You can do it
 You do not need a customer's phone number or second line address? Just hide the fields from the checkout and you're good to go. This is just one click away. Decide to show it later? Just another click and the field shows again. You can validate email too and hide WooCommerce price.
 
 = Display Checkout Fields on Other Pages =
-You can display the fields not only in the checkout page. Just mark a specific checkbox under the ‘Display On’ tab as checked. You have 4 different locations to use:
+You can display the fields not only in the checkout page. Just mark a specific checkbox under the "Display On" tab as checked. You have 4 different locations to use:
 * Thank You Page
 * My Account - address
 * My Account - order
@@ -72,9 +71,7 @@ Add WooCommerce additional fields to your checkout page with your new WooCommerc
 * [Image](https://www.wpdesk.net/docs/flexible-checkout-fields-pro-woocommerce-docs/#Image) (New feature)
 * [HTML](https://www.wpdesk.net/docs/flexible-checkout-fields-pro-woocommerce-docs/#HTML)
 
-
 **PRO**
-
 
 * [Multi-checkbox](https://www.wpdesk.net/docs/flexible-checkout-fields-pro-woocommerce-docs/#Multi-checkbox) (New feature)
 * [Select](https://www.wpdesk.net/docs/flexible-checkout-fields-pro-woocommerce-docs/#Select)
@@ -86,7 +83,6 @@ Add WooCommerce additional fields to your checkout page with your new WooCommerc
 * [Time](https://www.wpdesk.net/docs/flexible-checkout-fields-pro-woocommerce-docs/#Time)
 * [File Upload](https://www.wpdesk.net/docs/flexible-checkout-fields-pro-woocommerce-docs/#File_Upload)
 * [Hidden](https://www.wpdesk.net/docs/flexible-checkout-fields-pro-woocommerce-docs/#Hidden)
-
 
 = Multilanguage ready =
 
@@ -228,14 +224,50 @@ If you are upgrading from the old WooCommerce Checkout Fields version (1.1, wooc
 
 == Changelog ==
 
+= 3.5.7 - 2023-03-13 =
+* Added support for WooCommerce 7.5
+
+= 3.5.6 – 2023-02-27 =
+* Fixed missing stylesheets in frontend
+
+= 3.5.5 – 2023-02-21 =
+* Added support for WooCommerce 7.4.
+* Minor changes in readme description.
+
+= 3.5.4 – 2022-11-24 =
+* Removed notifications about promotions
+
+= 3.5.3 – 2022-11-15 =
+* Changed readme
+
+= 3.5.2 – 2022-11-14 =
+* Changed readme
+
+= 3.5.1 – 2022-11-09 =
+* Added promotion notices
+
+= 3.5.0 - 2022-11-04 =
+* Added support for WooCommerce 7.1
+* Added support for High-Performance Order Storage
+
+= 3.4.3 - 2022-10-13 =
+* Fixed settings for Number field
+* Added support for WordPress 6.1
+* Added support for WooCommerce 7.0
+
+= 3.4.2 - 2022-09-08 =
+* Added support for WooCommerce 6.9
+
 = 3.4.1 - 2022-08-01 =
 * Fixed data loading into widget in Admin Dashboard
+* Added support for WooCommerce 6.8
 
 = 3.4.0 - 2022-07-28 =
 * Fixed escaping of field label
 * Fixed translation for Select field
 * Fixed image refreshing for Image field
 * Added support for upload_mimes filter
+* Added support for WooCommerce 6.7
 
 = 3.3.0 - 2022-06-20 =
 * Added compatibility with FCF PRO 3.3.0
@@ -704,53 +736,53 @@ If you are upgrading from the old WooCommerce Checkout Fields version (1.1, wooc
 * Added Polish (pl_PL) translation
 * Prepared the code for plugin new versions
 
-= 1.0.2 – 2016-03-08 =
+= 1.0.2 - 2016-03-08 =
 * Fixed (again) required asterisk for not required fields
 
-= 1.0.1 – 2016-03-07 =
+= 1.0.1 - 2016-03-07 =
 * Fixed required asterisk for not required fields
 
-= 1.0 – 2016-01-26 =
+= 1.0 - 2016-01-26 =
 * Automatic updates and license system
 
-= 0.9.12 – 2015-04-14 =
+= 0.9.12 - 2015-04-14 =
 * Added possibility to add HTML to labels
 
-= 0.9.11 – 2015-02-27 =
+= 0.9.11 - 2015-02-27 =
 * Tweaked editing custom fields in order details
 * Added possibility to add HTML to additional checkboxes
 
-= 0.9.10 – 2015-02-27 =
+= 0.9.10 - 2015-02-27 =
 * Tweaked errors display for WooCommerce 2.3 compatibility
 
-= 0.9.9 – 2015-01-20 =
+= 0.9.9 - 2015-01-20 =
 * Fixed (again) additional checkboxes warnings
 
-= 0.9.8 – 2015-01-20 =
+= 0.9.8 - 2015-01-20 =
 * Fixed additional checkboxes warnings
 
-= 0.9.7 – 2015-01-20 =
+= 0.9.7 - 2015-01-20 =
 * Added additional checkboxes settings to display under payment details
 
-= 0.9.6 – 2014-12-19 =
+= 0.9.6 - 2014-12-19 =
 * Added new fields: select, radio, checkbox
 
-= 0.9.5 – 2014-12-04 =
+= 0.9.5 - 2014-12-04 =
 * Added e-mail and phone fields in order details
 * Tweaked label, placeholder and class fields not to be required
 
-= 0.9.4 – 2014-12-01 =
+= 0.9.4 - 2014-12-01 =
 * Fixed Shipping Address override when the checkbox is checked
 
-= 0.9.3 – 2014-11-26 =
+= 0.9.3 - 2014-11-26 =
 * Tweaked CSS files to load only on required pages
 * Added Settings tab and option to disable jQuery UI CSS
 
-= 0.9.2 – 2014-11-24 =
+= 0.9.2 - 2014-11-24 =
 * Fixed a bug preventing checkout registration
 
-= 0.9.1 – 2014-11-04 =
+= 0.9.1 - 2014-11-04 =
 * Fixed checkout fields CSS styles
 
-= 0.9 – 2014-11-04 =
+= 0.9 - 2014-11-04 =
 * Release!

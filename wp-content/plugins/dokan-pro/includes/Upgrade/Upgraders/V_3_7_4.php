@@ -89,7 +89,9 @@ class V_3_7_4 extends DokanProUpgrader {
     public static function remove_unfiltered_html_capability() {
         // remove cap from vendor_staff role
         $role = get_role( 'vendor_staff' );
-        $role->remove_cap( 'unfiltered_html' );
+        if ( $role ) {
+            $role->remove_cap( 'unfiltered_html' );
+        }
 
         // remove cap from individual users
         $users_query = new \WP_User_Query(

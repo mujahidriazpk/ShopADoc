@@ -171,7 +171,7 @@ $_unit_price_auto = get_post_meta( $post_id, '_unit_price_auto', true );
             ?>
 
             <div class="show_if_simple show_if_external">
-                <?php if ( WC_germanized()->is_pro() ) : ?>
+                <?php if ( function_exists( 'WC_germanized' ) && WC_germanized()->is_pro() ) : ?>
                     <div class="dokan-form-group">
                         <label>
                             <input type="checkbox" <?php checked( $_unit_price_auto, 'yes' ); ?>
@@ -221,7 +221,7 @@ $_unit_price_auto = get_post_meta( $post_id, '_unit_price_auto', true );
                 <hr />
             </div>
 
-            <?php if ( WC_trusted_shops()->trusted_shops->is_enabled() ) : ?>
+            <?php if ( function_exists( 'WC_trusted_shops' ) && WC_trusted_shops()->trusted_shops->is_enabled() ) : ?>
                 <div class="show_if_simple show_if_external show_if_variable">
 
                 <div class="dokan-form-group content-half-part">

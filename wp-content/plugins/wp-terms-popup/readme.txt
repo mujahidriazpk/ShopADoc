@@ -2,9 +2,9 @@
 Contributors: linksoftware, tentenbiz
 Tags: terms and conditions, terms of service, privacy policy, age verification, popup
 Requires at least: 5.0
-Tested up to: 5.9
+Tested up to: 6.0
 Requires PHP: 5.6
-Stable tag: 2.5.1
+Stable tag: 2.6.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -45,9 +45,7 @@ You can extend the feature set of WP Terms Popup with one of our premiums add-on
 * <strong>[WP Terms Popup Designer](https://termsplugin.com/designer?utm_source=readme&utm_medium=plugin-repository&utm_content=designer)</strong>
 Adjust the appearance of your popups without writing code or modifying your WordPress theme.
 * <strong>[WP Terms Popup Collector](https://termsplugin.com/collector?utm_source=readme&utm_medium=plugin-repository&utm_content=collector)</strong>
-Store information about your website’s visitors after they agree to your popups.
-* <strong>[WP Terms Popup Age Verification](https://termsplugin.com/age-verification?utm_source=readme&utm_medium=plugin-repository&utm_content=age)</strong>
-Confirm a visitor’s age before they can agree to your popup and view your site.
+Store information about your website's visitors after they agree to your popups.
 
 == Frequently Asked Questions ==
 
@@ -61,7 +59,7 @@ WP Terms Popup uses a cookie to monitor when a user has agreed to a popup. The o
 
 = Can you add an age verification drop down to a popup? =
 
-This feature is not available in the base plugin. We have an add-on called [WP Terms Popup Age Verification](https://termsplugin.com/age-verification?utm_source=readme&utm_medium=plugin-repository&utm_content=age) that gives you the ability to add age verification rules to each of your popups.
+Yes. This feature is now available in the base plugin as of version 2.6.0. You can set up age verification using the WP Terms Popup Settings meta box.
 
 = How do I use a single popup for my entire WordPress site? =
 
@@ -110,6 +108,9 @@ Yes, on the condition that you are not using the "Load popups with JavaScript" o
 5. Disable a Popup on an Individual Post/Page
 
 == Changelog ==
+
+= 2.6.0 =
+* Added Age Verificaton features.
 
 = 2.5.1 =
 * Bug fixes.

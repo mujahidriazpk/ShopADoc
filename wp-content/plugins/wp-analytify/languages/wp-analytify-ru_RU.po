@@ -1166,25 +1166,25 @@ msgstr "Знаете ли вы, что..."
 msgid "people landed at this page directly."
 msgstr "Статистика: люди, которые напрямую заходят на ваш сайт"
 
-#: views/default/admin/system-stats.php:20
+#: views/default/admin/tech-stats.php:20
 msgid "Browsers statistics"
 msgstr "Статистика браузеров"
 
-#: views/default/admin/system-stats.php:21
-#: views/default/admin/system-stats.php:53
-#: views/default/admin/system-stats.php:81
+#: views/default/admin/tech-stats.php:21
+#: views/default/admin/tech-stats.php:53
+#: views/default/admin/tech-stats.php:81
 msgid "Visits"
 msgstr "Посещения"
 
-#: views/default/admin/system-stats.php:52
+#: views/default/admin/tech-stats.php:52
 msgid "Operating system statistics"
 msgstr "Статистика операционных систем"
 
-#: views/default/admin/system-stats.php:80
+#: views/default/admin/tech-stats.php:80
 msgid "Mobile device statistics"
 msgstr "Статистика мобильных устройств"
 
-#: views/default/admin/system-stats.php:106
+#: views/default/admin/tech-stats.php:106
 msgid "Listing statistics of top Mobile, Browsers and Operating System Stats."
 msgstr "Листинг статистики: Мобильные, браузеры и операционные системы."
 

@@ -52,4 +52,4 @@
 
 #dws-notes-user .dws-notes-user-note blockquote + br { display: none; }
 
-#dws-notes-user .dws-notes-caption { padding: 0 0 0 8px; font-size: 10px; color: #999; }
+#dws-notes-user .dws-notes-caption { padding: 2px 0 12px 0; line-height: 16px; font-size: 12px; color: #777; }

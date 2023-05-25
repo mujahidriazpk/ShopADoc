@@ -2,6 +2,7 @@
 namespace WeDevs\DokanPro\Modules\Germanized\Dashboard;
 
 use WC_Germanized_Meta_Box_Product_Data;
+use WeDevs\DokanPro\Modules\Germanized\Helper;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly
@@ -88,19 +89,10 @@ class Product {
             return;
         }
 
-        $product = WC_Germanized_Meta_Box_Product_Data::save( $post_id );
+        $data['_ts_gtin'] = isset( $data['_ts_gtin'] ) ? wc_clean( wp_unslash( $_POST['_ts_gtin'] ) ) : '';
+        $data['_ts_mpn']  = isset( $data['_ts_mpn'] ) ? wc_clean( wp_unslash( $_POST['_ts_mpn'] ) ) : '';
 
-        if ( isset( $_POST['_ts_gtin'] ) ) {
-            $product = wc_ts_set_crud_data( $product, '_ts_gtin', wc_clean( wp_unslash( $_POST['_ts_gtin'] ) ) );
-        }
-
-        if ( isset( $_POST['_ts_mpn'] ) ) {
-            $product = wc_ts_set_crud_data( $product, '_ts_mpn', wc_clean( wp_unslash( $_POST['_ts_mpn'] ) ) );
-        }
-
-        if ( is_object( $product ) ) {
-            $product->save();
-        }
+        Helper::save_simple_product_eu_data( $post_id, $data );
     }
 
     /**
@@ -109,6 +101,7 @@ class Product {
      * @since 3.3.1
      * @param $variation_id
      * @param $i
+     *
      * @return void
      */
     public function save_variation_product_data( $variation_id, $i ) {
@@ -137,9 +130,6 @@ class Product {
             $data[ $k ] = ( isset( $_POST[ $data_k ][ $i ] ) ? wc_clean( wp_unslash( $_POST[ $data_k ][ $i ] ) ) : null );
         }
 
-        $product            = wc_get_product( $variation_id );
-        $product_parent     = wc_get_product( $product->get_parent_id() );
-
         // Check if parent has unit_base + unit otherwise ignore data
         if ( empty( $data['_parent_unit'] ) || empty( $data['_parent_unit_base'] ) ) {
             $data['_unit_price_auto']    = '';
@@ -152,36 +142,21 @@ class Product {
             $data['_unit_product'] = '';
         }
 
-        $data['product-type']           = $product_parent->get_type();
         $data['_sale_price_dates_from'] = isset( $_POST['variable_sale_price_dates_from'][ $i ] ) ? wc_clean( wp_unslash( $_POST['variable_sale_price_dates_from'][ $i ] ) ) : '';
         $data['_sale_price_dates_to']   = isset( $_POST['variable_sale_price_dates_to'][ $i ] ) ? wc_clean( wp_unslash( $_POST['variable_sale_price_dates_to'][ $i ] ) ) : '';
         $data['_sale_price']            = isset( $_POST['variable_sale_price'][ $i ] ) ? wc_clean( wp_unslash( $_POST['variable_sale_price'][ $i ] ) ) : '';
 
-        $product = WC_Germanized_Meta_Box_Product_Data::save_product_data( $product, $data, true );
-
         // store trusted shop data
-        $data = array(
+        $store_trusted_data = array(
             '_ts_gtin' => '',
             '_ts_mpn'  => '',
         );
 
-        foreach ( $data as $k => $v ) {
+        foreach ( $store_trusted_data as $k => $v ) {
             $data_k     = 'variable' . ( substr( $k, 0, 1 ) === '_' ? '' : '_' ) . $k;
-            $data[ $k ] = ( isset( $_POST[ $data_k ][ $i ] ) ? wc_clean( wp_unslash( $_POST[ $data_k ][ $i ] ) ) : null );
-        }
-        // get the product
-        $product = wc_get_product( $variation_id );
-
-        if ( ! $product ) {
-            return;
+            $store_trusted_data[ $k ] = ( isset( $_POST[ $data_k ][ $i ] ) ? wc_clean( wp_unslash( $_POST[ $data_k ][ $i ] ) ) : null );
         }
 
-        foreach ( $data as $key => $value ) {
-            $product = wc_ts_set_crud_data( $product, $key, $value );
-        }
-
-        if ( is_object( $product ) ) {
-            $product->save();
-        }
+        Helper::save_variable_products_variations_eu_data( $variation_id, $data, $store_trusted_data );
     }
 }

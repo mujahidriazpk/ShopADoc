@@ -59,9 +59,6 @@ class Wp_Terms_Popup_Admin
         add_submenu_page('edit.php?post_type=termpopup', __('WP Terms Popup Settings', $this->plugin_name), __('Settings', $this->plugin_name), 'manage_options', $this->plugin_name.'-settings', [$this, 'settings']);
         add_submenu_page('edit.php?post_type=termpopup', __('WP Terms Popup Designer', $this->plugin_name), __('Designer', $this->plugin_name), 'manage_options', $this->plugin_name.'-designer', [$this, 'designer']);
         add_submenu_page('edit.php?post_type=termpopup', __('WP Terms Popup Collector', $this->plugin_name), __('Collector', $this->plugin_name), 'manage_options', $this->plugin_name.'-collector', [$this, 'collector']);
-        if (!is_plugin_active('wp-terms-popup-age/wp-terms-popup-age.php')) {
-            add_submenu_page('edit.php?post_type=termpopup', __('WP Terms Popup Age Verification', $this->plugin_name), __('Age Verification', $this->plugin_name), 'manage_options', $this->plugin_name.'-age', [$this, 'age']);
-        }
 
         do_action('wptp_menu');
     }
@@ -223,11 +220,17 @@ class Wp_Terms_Popup_Admin
         $post_terms_disagreetxt = get_post_meta($object->ID, 'terms_disagreetxt', true);
         $post_terms_redirecturl = get_post_meta($object->ID, 'terms_redirecturl', true);
         $post_terms_buttons_always_visible = get_post_meta($object->ID, 'terms_buttons_always_visible', true);
+        $post_terms_age_on = get_post_meta($object->ID, 'terms_age_on', true);
+        $post_terms_age_requirement = get_post_meta($object->ID, 'terms_age_requirement', true);
+        $post_terms_age_date_format = get_post_meta($object->ID, 'terms_age_date_format', true);
 
         $meta_terms_agreetxt = '';
         $meta_terms_disagreetxt = '';
         $meta_terms_redirecturl = '';
         $meta_terms_buttons_always_visible = 0;
+        $meta_terms_age_on = 0;
+        $meta_terms_age_requirement = '';
+        $meta_terms_age_date_format = '';
 
         // Agree Button Text
         if (strlen($post_terms_agreetxt) == 0) {
@@ -257,6 +260,21 @@ class Wp_Terms_Popup_Admin
             $meta_terms_buttons_always_visible = $post_terms_buttons_always_visible;
         }
 
+        // Turn Age Verification On?
+        if (strlen($post_terms_age_on) != 0) {
+            $meta_terms_age_on = $post_terms_age_on;
+        }
+
+        // Minimum Age Requirement?
+        if (strlen($post_terms_age_requirement) != 0) {
+            $meta_terms_age_requirement = $post_terms_age_requirement;
+        }
+
+        // Date Format?
+        if (strlen($post_terms_age_date_format) != 0) {
+            $meta_terms_age_date_format = $post_terms_age_date_format;
+        }
+
         include 'partials/wp-terms-popup-admin-post-type-meta-boxes.php';
 
         do_action('wptp_after_meta_boxes_post_type', $object, $box);
@@ -279,7 +297,7 @@ class Wp_Terms_Popup_Admin
             return $post_id;
         }
 
-        $meta_keys = ['terms_agreetxt', 'terms_disagreetxt', 'terms_redirecturl', 'terms_buttons_always_visible'];
+        $meta_keys = ['terms_agreetxt', 'terms_disagreetxt', 'terms_redirecturl', 'terms_buttons_always_visible', 'terms_age_on', 'terms_age_requirement', 'terms_age_date_format'];
 
         foreach ($meta_keys as $meta_key) {
             $meta_value = get_post_meta($post_id, $meta_key, true);
@@ -437,9 +455,7 @@ class Wp_Terms_Popup_Admin
         <a href="<?php echo add_query_arg(['post_type' => 'termpopup', 'page' => $this->plugin_name.'-settings'], admin_url('edit.php')); ?>" class="nav-tab<?php echo($_GET['page'] == $this->plugin_name.'-settings' ? '  nav-tab-active' : ''); ?>"><?php _e('Settings', $this->plugin_name); ?></a>
 		<a href="<?php echo add_query_arg(['post_type' => 'termpopup', 'page' => $this->plugin_name.'-designer'], admin_url('edit.php')); ?>" class="nav-tab<?php echo($_GET['page'] == $this->plugin_name.'-designer' ? '  nav-tab-active' : ''); ?>"><?php _e('Designer', $this->plugin_name); ?></a>
 		<a href="<?php echo add_query_arg(['post_type' => 'termpopup', 'page' => $this->plugin_name.'-collector'], admin_url('edit.php')); ?>" class="nav-tab<?php echo($_GET['page'] == $this->plugin_name.'-collector' ? '  nav-tab-active' : ''); ?>"><?php _e('Collector', $this->plugin_name); ?></a>
-        <?php if (!is_plugin_active('wp-terms-popup-age/wp-terms-popup-age.php')) : ?>
-		<a href="<?php echo add_query_arg(['post_type' => 'termpopup', 'page' => $this->plugin_name.'-age'], admin_url('edit.php')); ?>" class="nav-tab<?php echo($_GET['page'] == $this->plugin_name.'-age' ? '  nav-tab-active' : ''); ?>"><?php _e('Age Verification', $this->plugin_name); ?></a>
-        <?php endif;
+        <?php
     }
 
     /**
@@ -460,15 +476,5 @@ class Wp_Terms_Popup_Admin
     public function collector()
     {
         include 'partials/wp-terms-popup-admin-collector.php';
-    }
-
-    /**
-     * Age Verification.
-     *
-     * @since    2.3.1
-     */
-    public function age()
-    {
-        include 'partials/wp-terms-popup-admin-age.php';
     }
 }

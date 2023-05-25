@@ -110,7 +110,7 @@ class StoreSeo {
      */
     public function add_sellers_sitemap() {
 
-        if ( WPSEO_VERSION < 3.2 ) {
+        if ( version_compare( WPSEO_VERSION, '3.2', '<' ) ) {
             $base_url = wpseo_xml_sitemaps_base_url( 'dokan_sellers-sitemap.xml' );
         } else {
             $base_url = WPSEO_Sitemaps_Router::get_base_url( 'dokan_sellers-sitemap.xml' );

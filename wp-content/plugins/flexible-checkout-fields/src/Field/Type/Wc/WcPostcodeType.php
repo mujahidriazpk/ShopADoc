@@ -8,6 +8,7 @@ use WPDesk\FCF\Free\Settings\Option\DisplayOnOption;
 use WPDesk\FCF\Free\Settings\Option\EnabledOption;
 use WPDesk\FCF\Free\Settings\Option\FormattingWcOption;
 use WPDesk\FCF\Free\Settings\Option\LabelOption;
+use WPDesk\FCF\Free\Settings\Option\LogicAdvOption;
 use WPDesk\FCF\Free\Settings\Option\NameOption;
 use WPDesk\FCF\Free\Settings\Option\OptionInterface;
 use WPDesk\FCF\Free\Settings\Option\PlaceholderOption;
@@ -19,6 +20,7 @@ use WPDesk\FCF\Free\Settings\Tab\AdvancedTab;
 use WPDesk\FCF\Free\Settings\Tab\AppearanceTab;
 use WPDesk\FCF\Free\Settings\Tab\DisplayTab;
 use WPDesk\FCF\Free\Settings\Tab\GeneralTab;
+use WPDesk\FCF\Free\Settings\Tab\LogicTab;
 
 /**
  * {@inheritdoc}
@@ -90,6 +92,9 @@ class WcPostcodeType extends TypeAbstract {
 			DisplayTab::TAB_NAME    => [
 				DisplayOnOption::FIELD_NAME    => new DisplayOnOption(),
 				FormattingWcOption::FIELD_NAME => new FormattingWcOption(),
+			],
+			LogicTab::TAB_NAME      => [
+				LogicAdvOption::FIELD_NAME => new LogicAdvOption(),
 			],
 		];
 	}

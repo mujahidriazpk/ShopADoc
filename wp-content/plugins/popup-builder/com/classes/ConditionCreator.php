@@ -363,6 +363,13 @@ class ConditionCreator
 		return self::createElementHeader($ruleElementData);
 	}
 
+	private static function isAssociativeArrayOrEmptyString($args)
+	{
+		if (gettype($args) === 'string') return true;
+	    if (array() === $args) return false;
+	    return array_keys($args) !== range(0, count($args) - 1);
+	}
+
 	public static function createRuleField($ruleElementData)
 	{
 		$attr = array();
@@ -387,11 +394,29 @@ class ConditionCreator
 				$savedData = $ruleElementData['saved'];
 
 				if (empty($ruleElementData['data'])) {
-					$ruleElementData['data'] = $ruleElementData['saved'];
-					$savedData = array();
+					// this check is for current version update!
+					// the old value was a simple array!
+					// after update we need to convert them all to a associative array
+					// this check will resolve UI issues and also prevent bugs after update-ing the existing popup
+					// this change is for post_category and post_tags!
+					if (self::isAssociativeArrayOrEmptyString($ruleElementData['saved'])){
+						$ruleElementData['data'] = $ruleElementData['saved'];
+						$savedData = array();
 
-					if (!empty($ruleElementData['saved'])) {
-						$savedData = array_keys($ruleElementData['saved']);
+						if (!empty($ruleElementData['saved'])) {
+							$savedData = array_keys($ruleElementData['saved']);
+						}
+					} else {
+						$ruleElementData['data'] = $ruleElementData['saved'];
+
+						if (!empty($ruleElementData['saved'])) {
+							if (isset($attr['isPostCategory'])){
+								$ruleElementData['data'] = \ConfigDataHelper::getTermsByIds($ruleElementData['saved']);
+							} elseif(isset($attr['isPostTag'])) {
+								$ruleElementData['data'] = \ConfigDataHelper::getTagsByIds($ruleElementData['saved']);
+							}
+							$savedData = $ruleElementData['saved'];
+						}
 					}
 				}
 
@@ -558,7 +583,7 @@ class ConditionCreator
 						</div>
 						<?php if (!empty($hiddenOptionsView)): ?>
 							<div class="col-md-4">
-								<?php echo wp_kses($hiddenOptionsView, 'post'); ?>
+								<?php echo wp_kses($hiddenOptionsView, AdminHelper::allowed_html_tags()); ?>
 							</div>
 						<?php endif; ?>
 					</div>

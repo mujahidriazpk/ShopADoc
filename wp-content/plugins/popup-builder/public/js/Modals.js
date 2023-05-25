@@ -131,7 +131,7 @@ SGPBModals.prototype.modalContent = function (targetId, header = '', body = '', 
 	});
 };
 
-// this action is to pass already opened modal new content for each part of source code
+/*this action is to pass already opened modal new content for each part of source code*/
 SGPBModals.prototype.changeModalContentAdvanced = function (modal, header = '', body = '', confirmBtn = '', oldTargetId, newTargetId)
 {
 	if (!modal)

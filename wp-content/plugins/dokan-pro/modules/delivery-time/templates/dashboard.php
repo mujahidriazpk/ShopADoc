@@ -49,7 +49,7 @@ wp_add_inline_script( 'dokan-delivery-time-vendor-script', 'let dokan_delivery_t
                             <option <?php selected( $selected_filter, 'delivery' ); ?> value="delivery"><?php esc_html_e( 'Delivery', 'dokan' ); ?></option>
                             <option <?php selected( $selected_filter, 'store-pickup' ); ?> value="store-pickup"><?php esc_html_e( 'Store Pickup', 'dokan' ); ?></option>
                         </select>
-                        <button class="dokan-btn dokan-btn-sm dokan-btn-danger dokan-btn-theme" type="submit"><?php esc_html_e( 'Filter', 'dokan' ); ?></button>
+                        <button class="dokan-btn dokan-btn-sm" type="submit"><?php esc_html_e( 'Filter', 'dokan' ); ?></button>
                     </form>
                 </div>
                 <div id='delivery-time-calendar'></div>

@@ -31,27 +31,11 @@ trait LocalCodeceptionTrait
         $this->executeWpCliAndOutput('config set WP_DEBUG true --raw', $output, $apache_document_root);
         $this->executeWpCliAndOutput('config set WP_DEBUG_LOG true --raw', $output, $apache_document_root);
         $this->executeWpCliAndOutput('config set WP_DEBUG_DISPLAY false --raw', $output, $apache_document_root);
-        $this->executeWpCliAndOutput('config set WP_HOME ' . $configuration->getWptestsUrl(), $output, $apache_document_root);
-        $this->executeWpCliAndOutput('config set WP_SITEURL ' . $configuration->getWptestsUrl(), $output, $apache_document_root);
+        $this->executeWpCliAndOutput('config set WP_HOME http://' . $configuration->getWptestsIp(), $output, $apache_document_root);
+        $this->executeWpCliAndOutput('config set WP_SITEURL http://' . $configuration->getWptestsIp(), $output, $apache_document_root);
         $this->executeWpCliAndOutput('config set WP_AUTO_UPDATE_CORE false --raw', $output, $apache_document_root);
         $this->executeWpCliAndOutput('config set AUTOMATIC_UPDATER_DISABLED false --raw', $output, $apache_document_root);
         $this->executeWpCliAndOutput('rewrite structure \'/%postname%/\'', $output, $apache_document_root);
-        $this->replace_in_file($apache_document_root . '/wp-config.php', 'if ( isset( $_SERVER[\'HTTP_X_FORWARDED_PROTO\'] ) && \'https\' === $_SERVER[\'HTTP_X_FORWARDED_PROTO\'] ) { $_SERVER[\'HTTPS\'] = \'on\'; }', '');
-        $this->replace_in_file($apache_document_root . '/wp-config.php', '<?php', '<?php if ( isset( $_SERVER[\'HTTP_X_FORWARDED_PROTO\'] ) && \'https\' === $_SERVER[\'HTTP_X_FORWARDED_PROTO\'] ) { $_SERVER[\'HTTPS\'] = \'on\'; }');
-    }
-    /**
-     * @param string $filename
-     * @param string $string_to_replace
-     * @param string $replace_with
-     *
-     * @return void
-     */
-    private function replace_in_file($filename, $string_to_replace, $replace_with)
-    {
-        $content = \file_get_contents($filename);
-        $content_chunks = \explode($string_to_replace, $content);
-        $content = \implode($replace_with, $content_chunks);
-        \file_put_contents($filename, $content);
     }
     /**
      * @param OutputInterface $output
@@ -176,7 +160,7 @@ trait LocalCodeceptionTrait
      */
     private function prepareWcOptionsCommands()
     {
-        return array('option update woocommerce_admin_notices \'{}\'', 'option update storefront_nux_dismissed 1', 'option set woocommerce_store_address "al. Jana Pawła 12"', 'option set woocommerce_store_address_2 ""', 'option set woocommerce_store_city "Warszawa"', 'option set woocommerce_default_country "PL"', 'option set woocommerce_store_postalcode "22-100"', 'option set woocommerce_currency "PLN"', 'option set woocommerce_currency_pos "right_space"', 'option set woocommerce_product_type "physical"', 'option set woocommerce_allow_tracking "no"', 'option set --format=json woocommerce_stripe_settings \'{"enabled":"no","create_account":false,"email":false}\'', 'option set --format=json woocommerce_ppec_paypal_settings \'{"reroute_requests":false,"email":false}\'', 'option set --format=json woocommerce_cheque_settings \'{"enabled":"no"}\'', 'option set --format=json woocommerce_bacs_settings \'{"enabled":"no"}\'', 'option set --format=json woocommerce_cod_settings \'{"enabled":"yes"}\'', 'option set --format=json woocommerce_onboarding_profile \'{"skipped":true}\'', 'option set --format=json wc-admin-onboarding-profiler-reminder \'{"skipped":true}\'', 'option get  woocommerce_onboarding_profile', 'option set woocommerce_task_list_hidden "yes"', 'option set woocommerce_task_list_hidden "yes"', 'option set woocommerce_show_marketplace_suggestions "no"');
+        return array('option update woocommerce_admin_notices \'{}\'', 'option update storefront_nux_dismissed 1', 'option set woocommerce_store_address "al. Jana Pawła 12"', 'option set woocommerce_store_address_2 ""', 'option set woocommerce_store_city "Warszawa"', 'option set woocommerce_default_country "PL"', 'option set woocommerce_store_postalcode "22-100"', 'option set woocommerce_currency "PLN"', 'option set woocommerce_currency_pos "right_space"', 'option set woocommerce_product_type "physical"', 'option set woocommerce_allow_tracking "no"', 'option set --format=json woocommerce_stripe_settings \'{"enabled":"no","create_account":false,"email":false}\'', 'option set --format=json woocommerce_ppec_paypal_settings \'{"reroute_requests":false,"email":false}\'', 'option set --format=json woocommerce_cheque_settings \'{"enabled":"no"}\'', 'option set --format=json woocommerce_bacs_settings \'{"enabled":"no"}\'', 'option set --format=json woocommerce_cod_settings \'{"enabled":"yes"}\'', 'option set --format=json woocommerce_onboarding_profile \'{"skipped":true}\'', 'option set --format=json wc-admin-onboarding-profiler-reminder \'{"skipped":true}\'', 'option get  woocommerce_onboarding_profile', 'option set woocommerce_task_list_hidden "yes"');
     }
     /**
      * @return string[]

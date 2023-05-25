@@ -12,7 +12,7 @@ $enable_store_pickup = isset( $enable_store_pickup ) ? $enable_store_pickup : 'n
 
 <div class="dokan-form-group">
     <label>
-        <input name="enable-store-location-pickup" type="hidden" value="no">
-        <input type="checkbox" name="enable-store-location-pickup" id="enable-store-location-pickup" value="yes" <?php checked( 'yes', $enable_store_pickup ); ?>> <?php esc_html_e( 'Store Pickup', 'dokan' ); ?>
+        <input name="store-pickup" type="hidden" value="no">
+        <input type="checkbox" name="store-pickup" id="enable-store-location-pickup" value="yes" <?php checked( 'yes', $enable_store_pickup ); ?>> <?php esc_html_e( 'Store Pickup', 'dokan' ); ?>
     </label>
 </div>

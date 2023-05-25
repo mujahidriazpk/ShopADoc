@@ -110,7 +110,7 @@
 	<div class="analytify_compair_inner">
 		<div class="analytify_features analytify_go_pro_features">
 			<div class="analytify_compair_logo_wraper">
-				<img src="<?php echo plugins_url( 'assets/images/logo_pro_section.png',dirname( __FILE__ )) ?>">
+				<img src="<?php echo plugins_url( 'assets/img/logo_pro_section.png',dirname( __FILE__ )) ?>">
 			</div>
 			<ul class="analytify_compair_features">
 				<li><?php _e( 'Dashboards (Advanced)', 'wp-analytify' ) ?></li>
@@ -152,7 +152,7 @@
 
 				<div class="analytify_features">
 			<div class="analytify_compair_logo_wraper">
-				<img src="<?php echo plugins_url( 'assets/images/logo_free_section.png',dirname( __FILE__ )) ?>">
+				<img src="<?php echo plugins_url( 'assets/img/logo_free_section.png',dirname( __FILE__ )) ?>">
 			</div>
 			<ul class="analytify_compair_features">
 				<li><?php _e( 'Dashboards' , 'wp-analytify' ) ?></li>

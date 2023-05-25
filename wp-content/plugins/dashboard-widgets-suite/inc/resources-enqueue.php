@@ -44,11 +44,9 @@ function dashboard_widgets_suite_enqueue_resources_frontend() {
 
 function dashboard_widgets_suite_enqueue_resources_admin() {
 	
-	$screen = get_current_screen();
+	$screen_id = dashboard_widgets_suite_get_current_screen_id();
 	
-	if (!property_exists($screen, 'id')) return;
-	
-	if ($screen->id === 'settings_page_dashboard_widgets_suite') {
+	if ($screen_id === 'settings_page_dashboard_widgets_suite') {
 		
 		wp_enqueue_style('dws-font-icons', DWS_URL .'css/styles-font-icons.css', array(), DWS_VERSION);
 		
@@ -64,7 +62,7 @@ function dashboard_widgets_suite_enqueue_resources_admin() {
 		
 		wp_localize_script('dws-settings', 'dws_settings', $data);
 		
-	} elseif ($screen->id === 'dashboard') {
+	} elseif ($screen_id === 'dashboard') {
 		
 		wp_enqueue_style('dws-dashboard', DWS_URL .'css/styles-dashboard.css', array(), DWS_VERSION);
 		
@@ -351,5 +349,17 @@ function dashboard_widgets_suite_display_user_notes_frontend() {
 	}
 	
 	return ($display_notes_user) ? true : false;
+	
+}
+
+function dashboard_widgets_suite_get_current_screen_id() {
+	
+	if (!function_exists('get_current_screen')) require_once ABSPATH .'/wp-admin/includes/screen.php';
+	
+	$screen = get_current_screen();
+	
+	if ($screen && property_exists($screen, 'id')) return $screen->id;
+	
+	return false;
 	
 }

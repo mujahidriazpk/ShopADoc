@@ -1798,25 +1798,25 @@ msgstr "Savais-tu que"
 msgid "people landed at this page directly."
 msgstr "les gens ont atterri à cette page directement."
 
-#: views/default/admin/system-stats.php:20
+#: views/default/admin/tech-stats.php:20
 msgid "Browsers statistics"
 msgstr "Statistiques des navigateurs"
 
-#: views/default/admin/system-stats.php:21
-#: views/default/admin/system-stats.php:53
-#: views/default/admin/system-stats.php:81
+#: views/default/admin/tech-stats.php:21
+#: views/default/admin/tech-stats.php:53
+#: views/default/admin/tech-stats.php:81
 msgid "Visits"
 msgstr "Visites"
 
-#: views/default/admin/system-stats.php:52
+#: views/default/admin/tech-stats.php:52
 msgid "Operating system statistics"
 msgstr "Statistiques par système d'exploitation"
 
-#: views/default/admin/system-stats.php:80
+#: views/default/admin/tech-stats.php:80
 msgid "Mobile device statistics"
 msgstr "Statistiques appareils mobiles"
 
-#: views/default/admin/system-stats.php:106
+#: views/default/admin/tech-stats.php:106
 msgid "Listing statistics of top Mobile, Browsers and Operating System Stats."
 msgstr ""
 "Statistiques par appareil, navigateur et système d'exploitation les plus "

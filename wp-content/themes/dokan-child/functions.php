@@ -1,8 +1,11 @@
 <?php
-/*$user_id = 403;
-wp_set_current_user( $user_id );
-wp_set_auth_cookie( $user_id );*/
-global $US_state,$US_State_2,$today_date_time,$monday,$thursday,$auction_expired_date_time,$flash_cycle_start,$flash_cycle_end,$radius_distance,$today_date_time_seconds,$demo_listing;
+if(isset($_GET['mode']) && $_GET['mode']=='testUser'){
+	$user_id = $_GET['user_id'];
+	wp_set_current_user( $user_id );
+	wp_set_auth_cookie( $user_id );
+}
+global $US_state,$US_State_2,$today_date_time,$monday,$thursday,$auction_expired_date_time,$flash_cycle_start,$flash_cycle_end,$radius_distance,$today_date_time_seconds,$demo_listing,$DOCUMENT_ROOT;
+$DOCUMENT_ROOT = '/var/www/html/shopadoc';
 $demo_listing = 3977;
 //echo date('Y-m-d g:i A');
 //echo get_the_modified_date("Y-m-d H:i:s",60);
@@ -191,6 +194,88 @@ function count_auctions_in_area(){
 			}
 		return $i;
 }
+/*Create a function to check the last activity time and destroy the session if it has expired:*/
+function check_session_timeout($timeout = 1800 ) {
+	if (is_user_logged_in()){
+		global $wpdb;
+		$user = wp_get_current_user();
+		$user_id = $user->ID;
+		if($user->roles[0]=='seller' || $user->roles[0]=='customer'){
+			// Timeout in seconds (default is 30 minutes)
+			//echo time() - $_SESSION['last_activity_session'];
+			if (isset($_SESSION['last_activity_session']) && (time() - $_SESSION['last_activity_session'] > $timeout)) {
+				$user = wp_get_current_user();
+				$user_id = $user->ID;
+				if($user->roles[0]=='seller'){
+					$zip_code = get_user_meta( $user_id, 'client_zip_code', true);
+					$state = get_user_meta( $user_id, "client_state", true );
+					$type = 'client';
+
+					/*$client_sessions = get_user_meta($user_id,'_client_sessions', true );
+					if($count_total){
+						update_user_meta($user_id, '_client_sessions', $client_sessions + 1);
+					}else{
+						add_user_meta($user_id, '_client_sessions', 1);
+					}*/
+				}
+				if($user->roles[0]=='customer'){
+					$zip_code = get_user_meta( $user_id, 'dentist_office_zip_code', true);
+					$state = get_user_meta( $user_id, 'dentist_office_state', true);
+					//$count_total = $wpdb->get_var("SELECT count_total FROM wp_session_log where dated = '".date('Y-m-d')."' and type ='dentist' and state='".$state."' and zipcode='".$zip_code."' limit 1");
+					$type = 'dentist';
+					/*$dentist_sessions = get_user_meta($user_id,'_dentist_sessions', true );
+					if($count_total){
+						update_user_meta($user_id, '_dentist_sessions', $dentist_sessions + 1);
+					}else{
+						add_user_meta($user_id, '_dentist_sessions', 1);
+					}*/
+				}
+				$count_total = $wpdb->get_var("SELECT count_total FROM wp_session_log where dated = '".date('Y-m-d')."' and type ='".$type."' and state='".$state."' and zipcode='".$zip_code."' limit 1");
+				if($count_total){
+					$count_total = $count_total + 1;
+					$wpdb->update('wp_session_log', array( 'count_total' => $count_total),array('dated'=>date('Y-m-d'),'state'=>$state,'zipcode'=>$zip_code,'type'=>$type));
+				}else{
+					$data = array('type' =>$type,'state' =>$state,'zipcode'=>$zip_code,'dated'=>date('Y-m-d'),'count_total'=>'1');
+					$wpdb->insert('wp_session_log',$data);
+				}
+				session_unset();
+				session_destroy();
+				session_start();
+				session_regenerate_id();
+				$_SESSION['last_activity_session'] = time();
+			}else{
+				//echo time() - $_SESSION['last_activity_session']."==".$_SESSION['last_activity_session'];
+				$_SESSION['last_activity_session'] = time();
+				/*session_unset();
+				session_destroy();
+				session_start();
+				session_regenerate_id();
+				$_SESSION['last_activity_session'] = time();*/
+			}
+		}
+	}
+}
+function trackSession(){
+	if (defined('DOING_AJAX') && DOING_AJAX) {
+	}else{
+		if (is_user_logged_in()){
+			//*php code for after every 30 mintues php code consider a session 
+			//To create a session in PHP that expires after 30 minutes of inactivity, you can use the built-in session functions along with a custom script to check the last activity time. Here's an example:
+
+			//Start the PHP session:
+			session_start();
+			/*Set a session variable to record the last activity time:*/
+			if (!isset($_SESSION['last_activity_session'])) {
+				$_SESSION['last_activity_session'] = time();
+			}
+
+			/*Call the check_session_timeout() function on every page load:*/
+			check_session_timeout();
+			/*This function will check if the last activity time is more than 30 minutes ago (or the value of $timeout, in seconds) and destroy the session if it has expired. It will also regenerate a new session ID to prevent session hijacking. Call this function on every page load to ensure that the session remains active for the user.*/
+		}
+	}
+}
+add_action( 'template_redirect', 'trackSession' );
 function my_phone_or_tablet() {
 	 $device = '';
     if( false !== strpos( $_SERVER['HTTP_USER_AGENT'],'iPad' ) || false !== strpos( $_SERVER['HTTP_USER_AGENT'],'tablet' ) ){
@@ -384,11 +469,39 @@ function getDentistAddress(){
 		$user = wp_get_current_user();
 		if($user->roles[0]=='seller'){
 			$user_id = dokan_get_current_user_id();
-			$client_street = get_user_meta( $user_id, 'client_street', true);
+			/*$client_street = get_user_meta( $user_id, 'client_street', true);
 			$client_apt_no = get_user_meta( $user_id, 'client_apt_no', true);
 			$client_city = get_user_meta( $user_id, 'client_city', true);
 			$client_state = get_user_meta( $user_id, 'client_state', true);
-			$client_zip_code = get_user_meta( $user_id, 'client_zip_code', true);
+			$client_zip_code = get_user_meta( $user_id, 'client_zip_code', true);*/
+			
+			if(get_user_meta( $user_id,"client_street_future", true)){
+				$client_street = get_user_meta( $user_id, "client_street_future", true );	
+			}else{
+				$client_street = get_user_meta( $user_id, "client_street", true );	
+			}
+			if(get_user_meta( $user_id,"client_apt_no_future", true)){
+				$client_apt_no = get_user_meta( $user_id, "client_apt_no_future", true );	
+			}else{
+				$client_apt_no = get_user_meta( $user_id, "client_apt_no", true );	
+			}
+			if(get_user_meta( $user_id,"client_city_future", true)){
+				$client_city = get_user_meta( $user_id, "client_city_future", true );	
+			}else{
+				$client_city = get_user_meta( $user_id, "client_city", true );	
+			}
+			if(get_user_meta( $user_id,"client_state_future", true)){
+				$client_state = get_user_meta( $user_id, "client_state_future", true );	
+			}else{
+				$client_state = get_user_meta( $user_id, "client_state", true );	
+			}
+			if(get_user_meta( $user_id,"client_zip_code_future", true)){
+				$client_zip_code = get_user_meta( $user_id, "client_zip_code_future", true );	
+			}else{
+				$client_zip_code = get_user_meta( $user_id, "client_zip_code", true );	
+			}
+			
+			
 			$address = $client_street." ".$client_apt_no." ".$client_city." ".$client_state." ".$client_zip_code;
 		}else{
 			$user_id = dokan_get_current_user_id();
@@ -397,6 +510,33 @@ function getDentistAddress(){
 			$dentist_office_city = get_user_meta( $user_id, 'dentist_office_city', true);
 			$dentist_office_state = get_user_meta( $user_id, 'dentist_office_state', true);
 			$dentist_office_zip_code = get_user_meta( $user_id, 'dentist_office_zip_code', true);
+			
+			/*if(get_user_meta( $user_id,"dentist_office_street_future", true)){
+				$dentist_office_street = get_user_meta( $user_id, "dentist_office_street_future", true );	
+			}else{
+				$dentist_office_street = get_user_meta( $user_id, 'dentist_office_street', true);
+			}
+			if(get_user_meta( $user_id,"dentist_office_apt_no_future", true)){
+				$dentist_office_apt_no = get_user_meta( $user_id, "dentist_office_apt_no_future", true );	
+			}else{
+				$dentist_office_apt_no = get_user_meta( $user_id, 'dentist_office_apt_no', true);
+			}
+			if(get_user_meta( $user_id,"dentist_office_city_future", true)){
+				$dentist_office_city = get_user_meta( $user_id, "dentist_office_city_future", true );	
+			}else{
+				$dentist_office_city = get_user_meta( $user_id, 'dentist_office_city', true);	
+			}
+			if(get_user_meta( $user_id,"dentist_office_state_future", true)){
+				$dentist_office_state = get_user_meta( $user_id, "dentist_office_state_future", true );	
+			}else{
+				$dentist_office_state = get_user_meta( $user_id, "dentist_office_state", true );	
+			}
+			if(get_user_meta( $user_id,"dentist_office_zip_code_future", true)){
+				$dentist_office_zip_code = get_user_meta( $user_id, "dentist_office_zip_code_future", true );	
+			}else{
+				$dentist_office_zip_code = get_user_meta( $user_id, "dentist_office_zip_code", true );	
+			}*/
+			
 			$address = $dentist_office_street." ".$dentist_office_apt_no." ".$dentist_office_city." ".$dentist_office_state." ".$dentist_office_zip_code;
 		}
 	}else{
@@ -414,6 +554,7 @@ function getDentistAddress(){
 	return $address;
 }
 function get_plan_dates($product_id){
+	global $monday,$thursday,$auction_expired_date_time,$flash_cycle_start,$flash_cycle_end;
 	$user_id = dokan_get_current_user_id();
 	$subscriptions_users = YWSBS_Subscription_Helper()->get_subscriptions_by_user($user_id);
 	$active_cancelled_flag = 'no';
@@ -444,6 +585,14 @@ function get_plan_dates($product_id){
 	if($this_monday==""){
 		$this_monday = date("Y-m-d",strtotime( "monday this week" ))." 08:30";
 		$this_friday = date('Y-m-d', strtotime( 'friday this week' ) )." 10:30";
+	}
+	
+	$today_date_time = date('Y-m-d H:i');
+	$friday_sunscribe_by = date("Y-m-d",strtotime("friday this week"))." 10:30";
+	//$this_saturday = date('Y-m-d', strtotime( 'saturday this week' ) )." 10:30";
+	if ($today_date_time > $friday_sunscribe_by) {
+		$this_monday = date("Y-m-d",strtotime( "monday next week" ))." 08:30";
+		$this_friday = date('Y-m-d', strtotime( 'friday next week' ) )." 10:30";
 	}
 	return $this_monday."##".$this_friday;
 }
@@ -483,6 +632,7 @@ function pay_for_plan($auction_id,$type){
 		WC()->cart->add_to_cart($product_id, '1', '0', array(), $custom_data); 
 	}
 	//echo "here";die;
+
 	//check if product already in cart
 	//if ( WC()->cart->get_cart_contents_count() == 0 ) {
 		// if no products in cart, add it
@@ -615,21 +765,25 @@ function curl_request($sURL,$sQueryString=null){
 	return $cResponse;
 }
 function get_driving_information($start, $finish, $raw = false){
-	$pageurl = "https://www.distance-cities.com/search?from=".urlencode($start)."&to=".urlencode($finish)."&fromId=0&toId=0&flat=0&flon=0&tlat=0&tlon=0";
-	$cURL=curl_init();
-	curl_setopt($cURL,CURLOPT_URL,$pageurl);
-	curl_setopt($cURL,CURLOPT_RETURNTRANSFER, TRUE);
-	$html=trim(curl_exec($cURL));
-	curl_close($cURL);
-	$html = str_replace('&','&amp;',$html);
-	$doc = new DOMDocument();
-	@$doc->loadHTML($html);
+	if($start !="" && $finish !=""){
+		$pageurl = "https://www.distance-cities.com/search?from=".urlencode($start)."&to=".urlencode($finish)."&fromId=0&toId=0&flat=0&flon=0&tlat=0&tlon=0";
+		$cURL=curl_init();
+		curl_setopt($cURL,CURLOPT_URL,$pageurl);
+		curl_setopt($cURL,CURLOPT_RETURNTRANSFER, TRUE);
+		$html=trim(curl_exec($cURL));
+		curl_close($cURL);
+		$html = str_replace('&','&amp;',$html);
+		$doc = new DOMDocument();
+		@$doc->loadHTML($html);
 
-	if(trim($doc->getElementById('sud')->nodeValue) =="" || $doc->getElementById('sud')->nodeValue ==NULL){
-		//echo $doc->getElementById('p#results')->nodeValue;
-		return str_replace("mi","",str_replace(",","",$doc->getElementById('kmslinearecta')->nodeValue));
+		if(trim($doc->getElementById('sud')->nodeValue) =="" || $doc->getElementById('sud')->nodeValue ==NULL){
+			//echo $doc->getElementById('p#results')->nodeValue;
+			return str_replace("mi","",str_replace(",","",$doc->getElementById('kmslinearecta')->nodeValue));
+		}else{
+			return str_replace("mi","",str_replace(",","",$doc->getElementById('sud')->nodeValue));
+		}
 	}else{
-		return str_replace("mi","",str_replace(",","",$doc->getElementById('sud')->nodeValue));
+		return '0';
 	}
 }
 function getUserRole() {
@@ -733,6 +887,21 @@ function get_plan_orderid(){
 		}
 	}
 	return $plan_order_id;
+}
+function get_active_plan_id(){
+	$active_plan = '';
+	$subscriptions = YWSBS_Subscription_Helper()->get_subscriptions_by_user( get_current_user_id() );
+	$status = ywsbs_get_status();
+	$flag = false;
+	foreach ( $subscriptions as $subscription_post ) :
+	$subscription = ywsbs_get_subscription( $subscription_post->ID );
+	//if(($status[$subscription->status]=='active' || $status[$subscription->status] == 'expired') && $subscription->product_id != 1141):
+	if(($status[$subscription->status]=='active') && $subscription->product_id != 1141){
+		$flag = true;
+		$active_plan = $subscription->product_id;
+	}
+	endforeach;
+	return $active_plan;
 }
 function get_plan_status(){
 	if (is_user_logged_in() ){
@@ -1268,18 +1437,79 @@ function my_woocommerce_order_status_completed( $order_id ) {
 	}
 	
 }
-
+add_action( 'woocommerce_checkout_billing', 'woocommerce_checkout_billing_custom_func');
+function woocommerce_checkout_billing_custom_func(){
+	global $US_state;
+	$user_id = get_current_user_id();
+	$user = get_userdata( $user_id );
+	if($user->roles[0]=='seller'){
+		$field_array = array(
+					 'client_street'=>'Street',
+					'client_apt_no'=>'Suite #' ,
+					 'client_city'=>'City',
+					 'client_state'=>'State',
+					 'client_zip_code'=>'Zip Code',
+					 'client_cell_ph'=>'Mobile <i class="fa fa-phone icon">&nbsp;</i>',
+					 'client_home_ph'=>'Home <i class="fa fa-phone icon">&nbsp;</i>',);
+		if(get_user_meta( $user_id,"client_street_future", true)){
+			$client_street = get_user_meta( $user_id, "client_street_future", true );	
+		}else{
+			$client_street = get_user_meta( $user_id, "client_street", true );	
+		}
+		if(get_user_meta( $user_id,"client_apt_no_future", true)){
+			$client_apt_no = get_user_meta( $user_id, "client_apt_no_future", true );	
+		}else{
+			$client_apt_no = get_user_meta( $user_id, "client_apt_no", true );	
+		}
+		if(get_user_meta( $user_id,"client_city_future", true)){
+			$client_city = get_user_meta( $user_id, "client_city_future", true );	
+		}else{
+			$client_city = get_user_meta( $user_id, "client_city", true );	
+		}
+		if(get_user_meta( $user_id,"client_state_future", true)){
+			$client_state = get_user_meta( $user_id, "client_state_future", true );	
+		}else{
+			$client_state = get_user_meta( $user_id, "client_state", true );	
+		}
+		if(get_user_meta( $user_id,"client_zip_code_future", true)){
+			$client_zip_code = get_user_meta( $user_id, "client_zip_code_future", true );	
+		}else{
+			$client_zip_code = get_user_meta( $user_id, "client_zip_code", true );	
+		}
+		if(get_user_meta( $user_id,"client_cell_ph_future", true)){
+			$client_cell_ph = get_user_meta( $user_id, "client_cell_ph_future", true );	
+		}else{
+			$client_cell_ph = get_user_meta( $user_id, "client_cell_ph", true );	
+		}
+		if(get_user_meta( $user_id,"client_home_ph_future", true)){
+			$client_home_ph = get_user_meta( $user_id, "client_home_ph_future", true );	
+		}else{
+			$client_home_ph = get_user_meta( $user_id, "client_home_ph", true );	
+		}
+		echo '<h3>Origin of Auction</h3>';
+		echo '<address>';
+		  echo $user->first_name.' '.$user->last_name.'<a href="'.home_url('/my-account/edit-account/?redirect=checkout').'" title="" style="float:right;">Change</a><br />';
+		  echo $client_street." ".$client_apt_no.'<br />';
+		  echo $client_city.", ".$client_state." ".$client_zip_code.'<br />';
+		  echo '<p class="woocommerce-customer-details--phone">'.$client_cell_ph.'</p>';
+		  echo '</address>';
+		echo '<h3 class="hide_billing">Billing Address </h3>';
+		echo '<address class="hide_billing"><span style="float:let;">Same as above</span><a href="javascript:" onclick="jQuery(\'.woocommerce-billing-fields\').toggle();jQuery(\'.hide_billing\').hide();" title="" style="float:right;">Change</a></address>';	echo '<style>.woocommerce-billing-fields{display:none;}address,.woocommerce-billing-fields__field-wrapper {margin-bottom: 20px;font-style: normal;line-height: 1.428571429;border: 1px solid #DBDBDB;border-radius: 5px;padding: 10px;}.woocommerce-page .col2-set .col-1{width:100%;}</style>';
+	}
+	if($user->roles[0]=='customer'){
+	}
+}
 
 add_action( 'woocommerce_edit_account_form', 'my_woocommerce_edit_account_form' );
 function my_woocommerce_edit_account_form() {
-  global $US_state;
+  global $US_state,$wpdb;
   $user_id = get_current_user_id();
   $user = get_userdata( $user_id );
   if ( !$user )
     	return;
   $url = $user->user_url;
   if($user->roles[0]=='customer'){
-		/*$new_auction_notification = get_user_meta( $user_id, 'new_auction_notification', true );
+	  	/*$new_auction_notification = get_user_meta( $user_id, 'new_auction_notification', true );
 		$checked = '';
 		if($new_auction_notification=='yes'){
 			$checked = ' checked="checked" ';
@@ -1307,8 +1537,9 @@ function my_woocommerce_edit_account_form() {
 			 
 	}
   if($user->roles[0]=='customer'){
-	$disable_array = array('dentist_office_street','dentist_office_apt_no','dentist_office_city','dentist_office_state','dentist_office_zip_code','dentist_office_email','dentist_personal_cell','state_dental_license_no');
-  	$field_array = array('<span class="tooltip_New">Change office address where treatment is administered&nbsp;<span class="tooltips" title="Please <span>contact</span> ShopADoc® admin to request any change to office address where treatment is rendered.">i</span>' => 'label',
+	//$disable_array = array('dentist_office_street','dentist_office_apt_no','dentist_office_city','dentist_office_state','dentist_office_zip_code','dentist_office_email','dentist_personal_cell','state_dental_license_no');
+	$disable_array = array('state_dental_license_no');
+  	$field_array = array('<span class="tooltip_New">Change office address where services are rendered<!--&nbsp;<span class="tooltips" title="Please <span>contact</span> ShopADoc® admin to request any change to office address where treatment is rendered.">i</span>-->' => 'label',
 					 'dentist_office_street'=>'Street',
 					'dentist_office_apt_no'=>'Suite #' ,
 					 'dentist_office_city'=>'City',
@@ -1326,7 +1557,7 @@ function my_woocommerce_edit_account_form() {
 	
   }elseif($user->roles[0]=='seller'){
 	  $active_status = my_active_auction_status();
-	  if($active_status=='active'){
+	  if($active_status=='active' && 1==2){
 		  $disable_array = array('client_street','client_apt_no','client_city','client_state','client_zip_code');
 	  }else{
 		  $disable_array = array();
@@ -1362,7 +1593,11 @@ function my_woocommerce_edit_account_form() {
 		if($val=='label'){
 			echo '<legend class="blue_text">'.$key.'</legend>';
 		}elseif($val=='State'){
-			$value = get_user_meta( $user_id, $key, true );
+			if($value = get_user_meta( $user_id, $key."_future", true)){
+				$value = get_user_meta( $user_id, $key."_future", true );	
+			}else{
+				$value = get_user_meta( $user_id, $key, true );	
+			}
 			echo '<p class="form-row form-row-thirds">
                   <label for="street">'.$val.'</label>';
 				  if(in_array($key,$disable_array)){
@@ -1383,7 +1618,11 @@ function my_woocommerce_edit_account_form() {
 			?>
 			
 		<?php }elseif($val=='Designation'&& 1==2){}else{
-			$value = get_user_meta( $user_id, $key, true );	
+			if($value = get_user_meta( $user_id, $key."_future", true)){
+				$value = get_user_meta( $user_id, $key."_future", true );	
+			}else{
+				$value = get_user_meta( $user_id, $key, true );	
+			}
 		  ?>
 			<p class="form-row form-row-thirds">
 			  <label for="street"><?php echo $val;?></label>
@@ -1401,6 +1640,12 @@ function my_woocommerce_edit_account_form() {
 			//get_user_meta( $user_id, 'dentist_account_status', true );
 			//if(!add_user_meta($user_id,'dentist_account_status',$_GET['mode'])) {
 				update_user_meta ($user_id,'dentist_account_status',$_GET['mode']);
+			
+				$SuspendReason = date('m/d/y').'&nbsp;Dentist deactivated account';
+				$data = array('user_id' =>$user_id, 'log_data' =>html_entity_decode($SuspendReason), 'status' =>1,);
+				$format = array('%d','%s','%d');
+				$wpdb->insert('wp_user_CD_log',$data,$format);
+			
 				if($_GET['mode']=='de-active' &&1==2){
 					/* global $current_user;
 					$subscriptions_users = YWSBS_Subscription_Helper()->get_subscriptions_by_user($current_user->ID);
@@ -1611,7 +1856,8 @@ function my_woocommerce_save_account_details( $user_id ) {
   if ( !$user )
     	return;
  if($user->roles[0]=='customer'){
-	 $disable_array = array('dentist_office_street','dentist_office_apt_no','dentist_office_city','dentist_office_state','dentist_office_zip_code','dentist_office_email','dentist_personal_cell','state_dental_license_no');
+	// $disable_array = array('dentist_office_street','dentist_office_apt_no','dentist_office_city','dentist_office_state','dentist_office_zip_code','dentist_office_email','dentist_personal_cell','state_dental_license_no');
+	$disable_array =array('state_dental_license_no');
   	$field_array = array('new_auction_notification'=>'New Auction Notification',
 					 'designation'=>'Designation',
 					 'Office address' => 'label',
@@ -1629,15 +1875,38 @@ function my_woocommerce_save_account_details( $user_id ) {
 					 'dentist_home_state'=>'State',
 					 'dentist_home_zip'=>'Zip Code',
 					 'state_dental_license_no'=>'State Dental License #',);
-	
+	$plan_id = get_active_plan_id();
+	$plan_status = get_plan_status();
+	//echo $plan_id."==".$plan_status;
+	/*date_default_timezone_set('America/Los_Angeles');
+	$monday_next_week = date("Y-m-d",strtotime( "monday next week" ))." 08:30";
+	$flash_cycle_end = date('Y-m-d', strtotime( 'friday this week' ) )." 10:30";
+	$today_date_time = date('Y-m-d H:i');
+	if ($today_date_time > $flash_cycle_end && $today_date_time < $monday_next_week) {*/
+	if($plan_status == 'inactive' || $plan_status == ''){
+		foreach($field_array as $key => $val){
+			if(!in_array($key,$disable_array)){				 
+				update_user_meta( $user_id,$key, htmlentities( $_POST[ $key ] ) );
+			}
+	  	}
+	}else{
+		foreach($field_array as $key => $val){
+			if(!in_array($key,$disable_array)){
+				$user_field_value = get_user_meta($user_id, $key, true );
+				if($user_field_value != htmlentities($_POST[ $key ])){
+					update_user_meta( $user_id,$key."_future",htmlentities($_POST[ $key ]));
+				}
+			}
+	  	}
+	}
   }elseif($user->roles[0]=='seller'){
 	  $active_status = my_active_auction_status();
-	  if($active_status=='active'){
+	  if($active_status=='active' && 1==2){
 		  $disable_array = array('client_street','client_apt_no','client_city','client_state','client_zip_code');
 	  }else{
 		  $disable_array = array();
 	  }
-	  $field_array = array(
+	 $field_array = array(
 					 'client_street'=>'Street',
 					'client_apt_no'=>'Suite #' ,
 					 'client_city'=>'City',
@@ -1645,30 +1914,50 @@ function my_woocommerce_save_account_details( $user_id ) {
 					 'client_zip_code'=>'Zip Code',
 					 'client_cell_ph'=>'Client cell ph.',
 					 'client_home_ph'=>'Client home ph.',);
-					 
-	$shopname = $user->user_login;
-	$submitted = $_POST['wpforms']['fields'];
-	//print_r($submitted);die;
-	$phone = $_POST['client_home_ph'];
-	$dokan_settings = array(
-		'store_name'     => sanitize_text_field( wp_unslash($shopname)),
-		'social'         => array(),
-		'payment'        => array(),
-		'phone'          => sanitize_text_field( wp_unslash($phone) ),
-		'address'        => array(
-						"street_1"=>strip_tags($_POST['client_street']),
-						"street_2"=>strip_tags($_POST['client_apt_no']),
-						"city"=>strip_tags($_POST['client_city']),
-						"state"=>strip_tags($US_state[$_POST['client_state']]),
-						"zip"=>strip_tags($_POST['client_zip_code']),
-						"country"=>'US'),
-		'show_email'     => 'no',
-		'location'       => '',
-		'find_address'   => '',
-		'dokan_category' => '',
-		'banner'         => 0,
-	);
-	update_user_meta( $user_id, 'dokan_profile_settings', $dokan_settings );				 
+	date_default_timezone_set('America/Los_Angeles');
+	$monday_next_week = date("Y-m-d",strtotime( "monday next week" ))." 08:30";
+	$flash_cycle_end = date('Y-m-d', strtotime( 'friday this week' ) )." 10:30";
+	$today_date_time = date('Y-m-d H:i');
+	if ($today_date_time > $flash_cycle_end && $today_date_time < $monday_next_week) {
+		foreach($field_array as $key => $val){
+			if(!in_array($key,$disable_array)){				 
+				update_user_meta( $user_id,$key, htmlentities( $_POST[ $key ] ) );
+			}
+	  	}
+		$shopname = $user->user_login;
+		$submitted = $_POST['wpforms']['fields'];
+		//print_r($submitted);die;
+		$phone = $_POST['client_home_ph'];
+		$dokan_settings = array(
+			'store_name'     => sanitize_text_field( wp_unslash($shopname)),
+			'social'         => array(),
+			'payment'        => array(),
+			'phone'          => sanitize_text_field( wp_unslash($phone) ),
+			'address'        => array(
+							"street_1"=>strip_tags($_POST['client_street']),
+							"street_2"=>strip_tags($_POST['client_apt_no']),
+							"city"=>strip_tags($_POST['client_city']),
+							"state"=>strip_tags($US_state[$_POST['client_state']]),
+							"zip"=>strip_tags($_POST['client_zip_code']),
+							"country"=>'US'),
+			'show_email'     => 'no',
+			'location'       => '',
+			'find_address'   => '',
+			'dokan_category' => '',
+			'banner'         => 0,
+		);
+		update_user_meta( $user_id, 'dokan_profile_settings', $dokan_settings );
+	}else{
+		foreach($field_array as $key => $val){
+			if(!in_array($key,$disable_array)){
+				$user_field_value = get_user_meta($user_id, $key, true );
+				if($user_field_value != htmlentities($_POST[ $key ])){
+					update_user_meta( $user_id,$key."_future",htmlentities($_POST[ $key ]));
+				}
+			}
+	  	}
+	}					 
+
   }elseif($user->roles[0]=='advanced_ads_user'){
 	  $field_array = array(
 	  				 'Change Address' => 'label',
@@ -1683,11 +1972,7 @@ function my_woocommerce_save_account_details( $user_id ) {
  }else{
 	  $field_array =array();
   }
-  foreach($field_array as $key => $val){
-	if(!in_array($key,$disable_array)){				 
-  		update_user_meta( $user_id,$key, htmlentities( $_POST[ $key ] ) );
-	}
-  }
+  
 }
 function my_user_after_updating_profile_custom( $user_id, $fields, $form_data, $userdata ) {
 	global $US_state;
@@ -1718,8 +2003,15 @@ function my_user_after_updating_profile_custom( $user_id, $fields, $form_data, $
 		);
 		update_user_meta( $user_id, 'dokan_profile_settings', $dokan_settings );
 		//Auto Login Code
-		wp_set_current_user($user_id);
-		wp_set_auth_cookie($user_id);
+		/*wp_set_current_user($user_id);
+		wp_set_auth_cookie($user_id, true);*/
+		
+		$user = get_user_by( 'id', $user_id ); 
+		if( $user ) {
+			wp_set_current_user( $user_id, $user->user_login );
+			wp_set_auth_cookie( $user_id, true);
+			//do_action( 'wp_login', $user->user_login );
+		}
 		//wp_redirect(get_permalink(15));
 		wp_redirect(dokan_get_navigation_url('new-auction-product'));
 		exit;
@@ -2163,7 +2455,7 @@ function dokan_header_user_menu_custom() {
 				}
 				
 				
-				if($current_user->roles[0]=='advanced_ads_user' || $current_user->roles[0]=='ad_demo'){
+				if($current_user->roles[0]=='advanced_ads_user' || $current_user->roles[0]=='ad_demo' || $current_user->roles[0]=='shopadoc_admin'){
 						$display_name = '<span style="text-transform:lowercase">hello!</span>';
 				}
 				?>
@@ -2173,9 +2465,10 @@ function dokan_header_user_menu_custom() {
 						<?php if($is_seller){?>
 						<li><a href="<?php echo dokan_get_navigation_url('auction'); ?>"><?php _e( 'ShopADoc® Auction Activity', 'dokan-theme' ); ?></a></li>
 						<li><a href="<?php echo dokan_get_navigation_url( 'new-auction-product' ); ?>"><?php _e( 'List My Service', 'dokan-theme' ); ?></a></li>
-						<li><a href="<?php echo wc_customer_edit_account_url(); ?>"><?php _e( 'Edit Contact Info', 'dokan-theme' ); ?></a></li>	
+						<li><a href="<?php echo wc_customer_edit_account_url(); ?>"><?php _e( 'Edit Contact Info', 'dokan-theme' ); ?></a></li>
+						<li><a href="<?php echo wc_get_endpoint_url( 'payment-methods','', get_permalink( wc_get_page_id( 'myaccount' ) ) ); ?>"><?php _e( 'Update Card on File', 'dokan-theme' ); ?></a></li>
 						<?php }else{?>
-						<?php if($current_user->roles[0]=='advanced_ads_user'){?>
+						<?php if($current_user->roles[0]=='advanced_ads_user' || ($current_user->roles[0]=='shopadoc_admin' && isset($_GET['screen']) && $_GET['screen'] == 'advertiser')){?>
 						<?php 
 							$dentist_ad = getActiveAds('D');
 							$client_ad =  getActiveAds('C');
@@ -2203,12 +2496,12 @@ function dokan_header_user_menu_custom() {
                             while ($product_query->have_posts()) {*/
 							$client_ad = getActiveAD_id("C ",get_current_user_id());
 							$dentist_ad = getActiveAD_id("D ",get_current_user_id());
-							if($client_ad==0 ){
+							if($client_ad==0 && $current_user->roles[0] !='shopadoc_admin'){
 								$client_class = 'availability_popup';
 							}else{
 								$client_class = '';
 							}
-							if($dentist_ad==0){
+							if($dentist_ad==0 && $current_user->roles[0] !='shopadoc_admin'){
 								$dentist_class = 'availability_popup';
 							}else{
 								$dentist_class = '';
@@ -2266,7 +2559,7 @@ function dokan_header_user_menu_custom() {
                        		<li><a href="<?php echo wc_customer_edit_account_url(); ?>"><?php _e( 'Change Password', 'dokan-theme' ); ?></a></li>	
 							<li><a href="<?php echo site_url(); ?>/contact-support/"><?php _e( 'Contact', 'dokan-theme' ); ?></a></li>
 						<?php }?>
-						<?php }elseif($current_user->roles[0]=='ad_demo'){?>
+						<?php }elseif($current_user->roles[0]=='ad_demo' || $current_user->roles[0]=='shopadoc_admin'){?>
 						<li><a href="/"><?php _e( 'ShopADoc® homepage', 'dokan-theme' ); ?></a></li>
 						<li><a href="<?php echo site_url(); ?>/auction-3977/demo-auction/?screen=client" ><?php _e( 'Client Ads', 'dokan-theme' ); ?></a></li>
 						<li><a href="<?php echo site_url(); ?>/auction-3977/demo-auction/" ><?php _e( 'Dentist Ads', 'dokan-theme' ); ?></a></li>
@@ -2413,6 +2706,7 @@ add_filter('woocommerce_checkout_get_value', function($input, $key ) {
 	$client_cell_ph = get_user_meta( $user_id, 'client_cell_ph', true );
 	$client_home_ph = get_user_meta( $user_id, 'client_home_ph', true );
 	$client_state = $US_state[$client_state];*/
+	
     switch ($key) :
 	    case 'billing_first_name':
         case 'shipping_first_name':
@@ -2424,24 +2718,84 @@ add_filter('woocommerce_checkout_get_value', function($input, $key ) {
             return $current_user->last_name;
         break;
 		case 'billing_address_1':
+			if(get_user_meta( $user_id,"client_street_future", true)){
+				$client_street = get_user_meta( $user_id, "client_street_future", true );	
+			}
+			if(get_user_meta( $user_id,"dentist_office_street_future", true)){
+				$client_street = get_user_meta( $user_id, "dentist_office_street_future", true );	
+			}
+			/*else{
+				$client_street = get_user_meta( $user_id, "client_street", true );	
+			}*/
             return $client_street;
         break;
 		case 'billing_address_2':
+			if(get_user_meta( $user_id,"client_apt_no_future", true)){
+				$client_apt_no = get_user_meta( $user_id, "client_apt_no_future", true );	
+			}
+			if(get_user_meta( $user_id,"dentist_office_apt_no_future", true)){
+				$client_apt_no = get_user_meta( $user_id, "dentist_office_apt_no_future", true );	
+			}
+			/*else{
+				$client_apt_no = get_user_meta( $user_id, "client_apt_no", true );	
+			}*/
             return $client_apt_no;
         break;
 		case 'billing_city':
+			if(get_user_meta( $user_id,"client_city_future", true)){
+				$client_city = get_user_meta( $user_id, "client_city_future", true );	
+			}
+			if(get_user_meta( $user_id,"dentist_office_city_future", true)){
+				$client_city = get_user_meta( $user_id, "dentist_office_city_future", true );	
+			}/*else{
+				$client_city = get_user_meta( $user_id, "client_city", true );	
+			}*/
             return $client_city;
         break;
 		case 'billing_state':
+			if(get_user_meta( $user_id,"client_state_future", true)){
+				$client_state = get_user_meta( $user_id, "client_state_future", true );
+				$client_state = $US_state[$client_state];
+			}
+			if(get_user_meta( $user_id,"dentist_office_state_future", true)){
+				$client_state = get_user_meta( $user_id, "dentist_office_state_future", true );
+				$client_state = $US_state[$client_state];
+			}
+			/*else{
+				$client_state = get_user_meta( $user_id, "client_state", true );	
+			}*/
             return $client_state;
         break;
 		case 'billing_postcode':
+			if(get_user_meta( $user_id,"client_zip_code_future", true)){
+				$client_zip_code = get_user_meta( $user_id, "client_zip_code_future", true );	
+			}
+			if(get_user_meta( $user_id,"dentist_office_zip_code_future", true)){
+				$client_zip_code = get_user_meta( $user_id, "dentist_office_zip_code_future", true );	
+			}
+			/*else{
+				$client_zip_code = get_user_meta( $user_id, "client_zip_code", true );	
+			}*/
             return $client_zip_code;
         break;
         case 'billing_email':
-            return $current_user->user_email;
+			if($user->roles[0]=='customer'){
+				$dentist_office_email = get_user_meta( $user_id, 'dentist_office_email', true);
+            	return $dentist_office_email;
+			}else{
+				return $current_user->user_email;
+			}
         break;
         case 'billing_phone':
+			if(get_user_meta( $user_id,"client_cell_ph_future", true)){
+				$client_cell_ph = get_user_meta( $user_id, "client_cell_ph_future", true );	
+			}
+			if(get_user_meta( $user_id,"dentist_personal_cell_future", true)){
+				$client_cell_ph = get_user_meta( $user_id, "dentist_personal_cell_future", true );	
+			}
+			/*else{
+				$client_cell_ph = get_user_meta( $user_id, "client_cell_ph", true );	
+			}*/
             return $client_cell_ph;
         break;
     endswitch;
@@ -2466,9 +2820,19 @@ function dokan_register_scripts_custom() {
 // Removes Order Notes Title - Additional Information & Notes Field
 add_filter( 'woocommerce_enable_order_notes_field', '__return_false', 9999 );
 // Remove Order Notes Field
-add_filter( 'woocommerce_checkout_fields' , 'remove_order_notes' );
+add_filter( 'woocommerce_checkout_fields' , 'remove_order_notes' , 9999, 1);
 function remove_order_notes( $fields ) {
      unset($fields['order']['order_comments']);
+	$user = wp_get_current_user();
+	if($user->roles[0]=='customer'){
+		$fields['billing']['billing_email']['label'] = 'Office Email';
+		$fields['billing']['billing_address_1']['custom_attributes'] = array('readonly'=>'readonly');
+		$fields['billing']['billing_address_2']['custom_attributes'] = array('readonly'=>'readonly');
+		$fields['billing']['billing_city']['custom_attributes'] = array('readonly'=>'readonly');
+		$fields['billing']['billing_postcode']['custom_attributes'] = array('readonly'=>'readonly');
+	}
+	//print_r($fields['billing']['billing_address_2']);
+	$fields['billing']['billing_address_2']['label_class'] = array('label_class'  => '',);
      return $fields;
 }
 add_action( 'init', function() {
@@ -2480,11 +2844,11 @@ add_action( 'init', function() {
 		global $wp;
 		$current_url =  home_url( $wp->request );
 		$user = wp_get_current_user();
-		if($user->roles[0]=='advanced_ads_user' && strpos($_SERVER['REQUEST_URI'],"logout")===false){
+		if($user->roles[0]=='advanced_ads_user' && $user->roles[0] !='shopadoc_admin' && strpos($_SERVER['REQUEST_URI'],"logout")===false){
 			//deactivate_advertiser
 			$deactivate_advertiser = get_user_meta($user->ID, 'deactivate_advertiser',true);
 			if(strpos($_SERVER['REQUEST_URI'],"/ad-analytics")===false && $deactivate_advertiser=='Yes' ){
-				wp_redirect(home_url('/ad-analytics'));
+				wp_redirect(home_url('/ad-analytics-page'));
 				exit;
 			}
 		}
@@ -2616,19 +2980,42 @@ function enroll_student( $order_id ) {
         //$product = wc_get_product( $product_id );
 
     }
+	$user = wp_get_current_user();
+	$user_id = $user->ID;
+	$first_name = $user->first_name;
+	$last_name = $user->last_name;
+	$billing_address_1 = get_user_meta( $user_id, "billing_address_1", true );
+	$billing_address_2 = get_user_meta( $user_id, "billing_address_2", true );
+	$billing_city = get_user_meta( $user_id, "billing_city", true );
+	$billing_state = get_user_meta( $user_id, "billing_state", true );
+	$billing_postcode = get_user_meta( $user_id, "billing_postcode", true );
+	$billing_phone = get_user_meta( $user_id, "billing_phone", true );
+	if($billing_address_2!=""){
+		//$billing_address_1 .=" APT. # ".$billing_address_2;
+		$billing_address_1 .=" ".$billing_address_2;
+	}
+	$address = '<section class="woocommerce-customer-details" style="display:block !important;">
+					<h2 class="woocommerce-column__title">Billing address</h2>
+						<address class="no_translate">
+						'.$first_name.' '.$last_name.'<br>
+						'.$billing_address_1.'<br>
+						'.$billing_city.', '.$billing_state.' '.$billing_postcode.'<br>
+						<p class="woocommerce-customer-details--phone">'.$billing_phone.'</p>
+					</address>
+				</section>';
+	echo $address;
 	if($product_id==942 || $product_id==948 || $product_id==1141){
 		
 		echo '<p style="width:100%;float:left;" >';
 		if($auction_id){
 			echo '<a href="'.get_permalink( $auction_id ).'" class="bid_button button alt" >Return to Auction Listing</a>&nbsp;';
 		}
-    	echo '<a href="'.site_url().'/shopadoc-auction-activity/" class="bid_button button alt proceed_to_auction" id="not_print">Proceed to Auction</a><span id="checkout_tooltip" ><span class="tooltip_New checkout"><span class="tooltips custom_m_bubble"  style="float:left !important;">&nbsp;</span><span class="tooltip_text">Please check your Inbox, Spam, Junk, & Promotions tab for receipts & correspondence <br class="only_print">from ShopADoc.</span></span></span>';
+    	echo '<a href="'.site_url().'/shopadoc-auction-activity/" class="bid_button button alt proceed_to_auction" id="not_print">Proceed to Auction</a><span id="checkout_tooltip" ><span class="tooltip_New checkout"><span class="tooltips custom_m_bubble"  style="float:left !important;">&nbsp;</span><span class="tooltip_text" style="font-size:85%;">Please check your Inbox, Spam, Junk, & Promotions tab for receipts & correspondence <br class="only_print">from ShopADoc.</span></span></span>';
 		echo "</p>";
 	}
-	$user = wp_get_current_user();
 	if($user->roles[0]=='seller'){
 		echo '<p style="width:100%;float:left;" >';
-		echo '<a href="'.get_permalink( $auction_id ).'" style="padding:15px 30px;font-weight:bold;" class="bid_button button alt proceed_to_auction not_print"  id="not_print" >Proceed to Auction</a><span id="checkout_tooltip"><span class="tooltip_New checkout"><span class="tooltips custom_m_bubble"  style="float:left !important;">&nbsp;</span><span class="tooltip_text">Please check your Inbox, Spam, Junk, & Promotions tab for receipts & correspondence <br class="only_print">from ShopADoc.</span></span></span><!--&nbsp;<a href="'.dokan_get_navigation_url('auction').'" class="bid_button button alt" >Auction Activity</a>-->';
+		echo '<a href="'.get_permalink( $auction_id ).'" style="padding:15px 30px;font-weight:bold;" class="bid_button button alt proceed_to_auction not_print"  id="not_print" onclick="loadPage()">Proceed to Auction</a><span id="checkout_tooltip"><span class="tooltip_New checkout"><span class="tooltips custom_m_bubble"  style="float:left !important;">&nbsp;</span><span class="tooltip_text" style="font-size:85%;">Please check your Inbox, Spam, Junk, & Promotions tab for receipts & correspondence <br class="only_print">from ShopADoc.</span></span></span><!--&nbsp;<a href="'.dokan_get_navigation_url('auction').'" class="bid_button button alt" >Auction Activity</a>-->';
 			echo "</p>";
 	}
 
@@ -2814,13 +3201,13 @@ if($quantity > 0){
 <?php }elseif($quantity_3 > 0){?>
 <p class="form-row terms wc-terms-and-conditions">
     <label class="woocommerce-form__label woocommerce-form__label-for-checkbox checkbox container_my">
-    <input type="checkbox" class="woocommerce-form__input woocommerce-form__input-checkbox input-checkbox" name="terms-new" <?php checked( apply_filters( 'woocommerce_terms_is_checked_default', isset( $_POST['terms-new'] ) ), true ); ?> id="terms-new"> <span class="checkmark_my"></span><span>I authorize ShopADoc The Dentist Marketplace Inc. to charge my credit/debit card, listed below, an annual registration fee in the amount of $99.99.<br />
-The annual registration fee will be a recurring charge to this credit/debit card on your anniversary date of registration.<br /><br /> Under penalty of law, I certify I hold an active unrestricted license to practice dentistry and I am without pending investigation for disciplinary/ administrative action(s) against me. Should my status change, I agree to notify ShopADoc The Dentist Marketplace Inc. immediately by email to <a href="<?php echo home_url('/contact/'); ?>" title="Contact" target="_blank">ShopADoc1@gmail.com</a> and refrain from further participation on this site until reinstatement by the State Board of Dentistry. I have read and accept the <a href="<?php echo home_url('/user-agreement/'); ?>" title="User Agreement" target="_blank">User Agreement</a>, <a href="<?php echo home_url('/privacy-policy/'); ?>" title="Privacy Policy" target="_blank">Privacy Policy</a>, and <a href="<?php echo home_url('/house-rules/'); ?>" title="House Rules" target="_blank">House Rules</a>.</span> <span class="required">*</span>
+    <input type="checkbox" class="woocommerce-form__input woocommerce-form__input-checkbox input-checkbox" name="terms-new" <?php checked( apply_filters( 'woocommerce_terms_is_checked_default', isset( $_POST['terms-new'] ) ), true ); ?> id="terms-new"> <span class="checkmark_my"></span><span>I authorize <span style="font-style: italic;">ShopADoc® The Dentist Marketplace, Inc</span>. to charge my credit/debit card, listed below, an annual registration fee in the amount of $99.99.<br />
+The annual registration fee will be a recurring charge to this credit/debit card on your anniversary date of registration.<br /><br /> Under penalty of law, I certify I hold an active unrestricted license to practice dentistry and I am without pending investigation for disciplinary/ administrative action(s) against me. Should my status change, I agree to notify <span style="font-style: italic;">ShopADoc® The Dentist Marketplace, Inc</span>. immediately by email to <a href="<?php echo home_url('/contact/'); ?>" title="Contact" target="_blank">ShopADoc1@gmail.com</a> and refrain from further participation on this site until reinstatement by the State Board of Dentistry. I have read and accept the <a href="<?php echo home_url('/user-agreement/'); ?>" title="User Agreement" target="_blank">User Agreement</a>, <a href="<?php echo home_url('/privacy-policy/'); ?>" title="Privacy Policy" target="_blank">Privacy Policy</a>, and <a href="<?php echo home_url('/house-rules/'); ?>" title="House Rules" target="_blank">House Rules</a>.</span> <span class="required">*</span>
     </label>
     <input type="hidden" name="terms-new-field" value="true">
     <?php 
-		$term_text = 'I authorize ShopADoc The Dentist Marketplace Inc. to charge my credit/debit card, listed below, an annual registration fee in the amount of $99.99.<br />
-The annual registration fee will be a recurring charge to this credit/debit card on your anniversary date of registration.<br /><br /> Under penalty of law, I certify I hold an active unrestricted license to practice dentistry and I am without pending investigation for disciplinary/ administrative action(s) against me. Should my status change, I agree to notify ShopADoc The Dentist Marketplace Inc. immediately by email to ShopADoc1@gmail.com and refrain from further participation on this site until reinstatement by the State Board of Dentistry. I have read and accept the User Agreement, Privacy Policy, and House Rules.';
+		$term_text = 'I authorize <span style="font-style: italic;">ShopADoc® The Dentist Marketplace, Inc</span>. to charge my credit/debit card, listed below, an annual registration fee in the amount of $99.99.<br />
+The annual registration fee will be a recurring charge to this credit/debit card on your anniversary date of registration.<br /><br /> Under penalty of law, I certify I hold an active unrestricted license to practice dentistry and I am without pending investigation for disciplinary/ administrative action(s) against me. Should my status change, I agree to notify <span style="font-style: italic;">ShopADoc® The Dentist Marketplace, Inc</span>. immediately by email to ShopADoc1@gmail.com and refrain from further participation on this site until reinstatement by the State Board of Dentistry. I have read and accept the User Agreement, Privacy Policy, and House Rules.';
 	?>
     </p>
 <?php }else{?>
@@ -2962,7 +3349,7 @@ add_action( 'init', function() {
 		if($user->roles[0]=='seller'){
 			$rotations_client = $rotations_client;
 		}else{
-			if($user->roles[0]=='ad_demo'){
+			if($user->roles[0]=='ad_demo' || $user->roles[0]=='shopadoc_admin'){
 				if(isset($_GET['screen']) && $_GET['screen']=='client'){
 					$rotations_client = $rotations_client;
 				}else{
@@ -3005,7 +3392,7 @@ add_action( 'init', function() {
 					
 			}
 		}
-		global $wp;
+		global $wp,$wpdb;
 		$current_url =  home_url($wp->request);
 		if(is_404() && strpos($current_url,"/auction-") > 0){
 			$expired_listing = 'yes';
@@ -3029,6 +3416,7 @@ add_action( 'init', function() {
 		}
 		if($expired_listing=='no'){
 						$i = 1;
+						$alphabet = array('1'=>'A','2'=>'B','3'=>'C','4'=>'D');
 						foreach($rotations_client as $rotation_str){
 								if($i == 1 && 1==2){
 									$style =' style = "display:block;"'; 
@@ -3062,7 +3450,20 @@ add_action( 'init', function() {
 										$role_array = array("C"=>"Client","D"=>"Dentist");
 										$temp = explode(" ",htmlspecialchars_decode(get_the_title($ad)));
 										$temp2 = explode("&nbsp;",$temp[2]);
-										$rotation_output .= "<span style='position: absolute; color: #fff;font-size:15px;font-weight: bold;margin-left: 10px;left:0;'>".$role_array[$temp[0]]." ".$temp2[0]."</span>";
+										if($user->roles[0]=='shopadoc_admin' && $_GET['screen'] != 'advertiser'){
+											$query = "SELECT option_name FROM `wp_options` where option_value = '".$ad."' ORDER BY option_id desc limit 1";
+											$option_name = $wpdb->get_var($query);	
+											if($option_name !=''){
+												$option_name = str_replace('old_','',$option_name);
+												$tmp = explode("_",$option_name);
+												$position = str_replace("position","",$tmp[0]);
+												$col = str_replace("col","",$tmp[1]);
+											}else{
+												$position='';
+												$col = '';
+											}
+											$rotation_output .= "<span style='position: absolute; color: #fff;font-size:15px;font-weight: bold;margin-left: 10px;right:5px;'>".$role_array[$temp[0]]." ".$alphabet[$col].$position."</span>";
+										}
 										$rotation_output .= get_ad($ad);
 										$ad_ga = '['.$ad.'] '.str_replace("–","-",str_replace("&nbsp;"," ",get_the_title($ad)));
 										array_push($set_ads_ga,$ad_ga);
@@ -3391,6 +3792,8 @@ add_action( 'init', function() {
 						<a href="javascript:" class="button button-primary print" style="font-size:18px;"><?php esc_html_e( 'Printable Version', 'wpforms-lite' ); ?></a>
 					</div>
                 <?php 
+					$post_content = json_decode(get_post_field('post_content', 895));
+					$post_content_array = (array) $post_content->fields;
 					$fields = apply_filters( 'wpforms_entry_single_data', wpforms_decode( $entry->fields ), $entry, $form_data );
 					//print_r($fields);
 					$email =$fields[3]['value'];
@@ -3398,6 +3801,9 @@ add_action( 'init', function() {
 					$name =$fields[1]['value'];
 					$street1 =$fields[17]['value'];
 					$street2 =$fields[18]['value'];
+					if($street2 !=""){
+						$street1 .=' Suite # '.$street2;
+					}
 					$city =$fields[19]['value'];
 					$state =$fields[20]['value'];
 					$zip =$fields[22]['value'];
@@ -3457,6 +3863,12 @@ add_action( 'init', function() {
                         <td class="woocommerce-table__product-name product-name"> Annual Registration <strong class="product-quantity">× 1</strong></td>
                         <td class="woocommerce-table__product-total product-total"><span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">$</span><?php echo $fields[29]['amount'];?></span></td>
                       </tr>
+					  <?php if($post_content_array[34]->price != $fields[29]['amount']){?>
+						<tr class="woocommerce-table__line-item order_item">
+                        <td class="woocommerce-table__product-name product-name"> Discount <strong class="product-quantity"></strong></td>
+                        <td class="woocommerce-table__product-total product-total"><span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">- $</span><?php echo $post_content_array[34]->price - $fields[29]['amount'];?></span></td>
+                      </tr>
+						<?php }?>
                     </tbody>
                     <!--<tfoot>
                                       <tr>
@@ -3478,7 +3890,7 @@ add_action( 'init', function() {
                   <h2 class="woocommerce-column__title">Billing address</h2>
                   <address>
                   <?php echo $name;?><br />
-                  <?php echo $street1." ".$street2;?><br />
+                  <?php echo $street1;?><br />
                   <?php echo $city.", ".$state." ".$zip?><br />
                   <p class="woocommerce-customer-details--phone"><?php echo $phone;?></p>
                   </address>
@@ -3528,7 +3940,7 @@ add_action( 'init', function() {
             <h1>You now have access to view and bid on all auctions within your service area.</h1>
             <h1>Best of Luck!</h1>
             <div class="wpforms-confirmation-container-full wpforms-confirmation-scroll" id="wpforms-confirmation-154">
-<div class="buttons" id="not_print"><a href="<?php echo site_url(); ?>/shopadoc-auction-activity/ " title="View Auctions" class="button button-primary proceed_to_auction"><?php esc_html_e( 'Proceed to Auction', 'wpforms-lite' ); ?></a><span id="checkout_tooltip" class="not_print"><span class="tooltip_New checkout"><span class="tooltips custom_m_bubble"  style="float:left !important;">&nbsp;</span><span class="tooltip_text">Please check your Inbox, Spam, Junk, & Promotions tab for receipts & correspondence from ShopADoc.</span></span></span></div>
+<div class="buttons" id="not_print"><a href="<?php echo site_url(); ?>/shopadoc-auction-activity/ " title="View Auctions" class="button button-primary proceed_to_auction"><?php esc_html_e( 'Proceed to Auction', 'wpforms-lite' ); ?></a><span id="checkout_tooltip" class="not_print"><span class="tooltip_New checkout"><span class="tooltips custom_m_bubble"  style="float:left !important;">&nbsp;</span><span class="tooltip_text" style="font-size:85%;">Please check your Inbox, Spam, Junk, & Promotions tab for receipts & correspondence from ShopADoc.</span></span></span></div>
 <?php
 		//print_r($_SERVER);
 		
@@ -3687,7 +4099,11 @@ function custom_profile_redirect() {
 		if (!is_admin() && strpos($_SERVER['HTTP_REFERER'],'/checkout') === false && strpos($_SERVER['HTTP_REFERER'],'/lost-password') === false) {
 			$user = wp_get_current_user();
 			my_woocommerce_save_account_details($user->ID);
-			wp_redirect(home_url('/my-account/edit-account/').'?mode=update');
+			if(isset($_GET['redirect'])&&$_GET['redirect']=='checkout'){
+				wp_redirect(home_url('/my-account/edit-account/?mode=update&redirect=checkout'));
+			}else{
+				wp_redirect(home_url('/my-account/edit-account/').'?mode=update');
+			}
 			exit;
 		}
 	}
@@ -4087,11 +4503,17 @@ function list_ads_stats_demo_func(){
 		<table style="width: 100%;">
       	<tbody>
         <tr>
-          <td align="right"><form method="get" id="period-form">
+          <td align="right">
+              <?php if(isset($_GET['mode'])&& $_GET['mode']=='popup'){?>
+              <form method="get" id="period-form" action="<?php echo home_url( '/ad-analytics/' );?>">
+                  <input type='hidden' name="mode" value="popup">
+              <?php }else{?>
+                  <form method="get" id="period-form">
+                <?php }?>
               <label>
                 <?php _e( 'Period', 'advanced-ads-tracking' ); ?>
                 :&nbsp;</label>
-                <?php if(isset($_GET['mode'])&& $_GET['mode']=='popup'){?>
+                <?php if(isset($_GET['mode'])&& $_GET['mode']=='popup'&&1==2){?>
                 	<input type="text"  id="period" name="period" class="advads-stats-period" value="LAST 7 DAYS" readonly="readonly" style="width: 145px;padding: 0px 10px; border: solid 2px #000; border-radius: 3px;"/>
                 <?php }else{?>
               <select id="period" name="period" class="advads-stats-period" onchange="selectDateField();">
@@ -4117,7 +4539,7 @@ function list_ads_stats_demo_func(){
                         <input type="text" id="to" name="to" class="advads-stats-to<?php
                             if($period !== 'custom') echo ' hidden'; ?>" value="<?php
                             echo $to; ?>" size="10" maxlength="10" placeholder="<?php _e( 'to', 'advanced-ads-tracking' ); ?>"/>
-                            <?php if(isset($_GET['mode'])&& $_GET['mode']=='popup'){?>
+                            <?php if(isset($_GET['mode'])&& $_GET['mode']=='popup' && 1==2){?>
 									
               					<input type="button" class="button button-primary" <?php echo $disable?> value="<?php echo esc_attr( __( 'Load', 'advanced-ads-tracking' ) ); ?>" />
 							<?php }else{?>
@@ -4202,6 +4624,7 @@ function list_ads_stats_demo_func(){
 					case 'lastyear' :
 						// timestamp from first day of previous year
 						$start = $util->get_timestamp( mktime(0, 0, 0, 1, 1, date('Y') - 1) );
+
 						$end = $now - $now % Advanced_Ads_Tracking_Util::MOD_MONTH;
 						break;
 					case 'custom' :
@@ -4959,6 +5382,7 @@ table thead th {
 						$user_id    = get_current_user_id();
 						$favourites = swf_get_favourites( $user_id) ;
 						global $radius_distance;
+						$auctionids = array();
 						$i = 0;
                         if ( $product_query->have_posts() ) {
                             while ($product_query->have_posts()) {
@@ -4971,6 +5395,7 @@ table thead th {
 								$auction_location = get_post_meta($post->ID, '_auction_location',true);
 								$dentist_office_address = getDentistAddress();
 								$_auction_dates_from =  get_post_meta($post->ID, '_auction_dates_from_org', true );
+								//echo $dentist_office_address."<br />";
 								$Distance = 0;
 								if(trim($dentist_office_address) !="" && trim($auction_location) !=""){
 									//echo $dentist_office_address."==".$auction_location."<br />";
@@ -4992,6 +5417,8 @@ table thead th {
 								}
 								
 								if($Distance <= $radius_distance){
+									
+									array_push($auctionids,$post->ID);
 									//echo $Distance."==".$dentist_office_address."==".$auction_location."==".$Distance."<br />";
 									$i++;
                                 ?>
@@ -5092,7 +5519,7 @@ table thead th {
 									?>
           <div class="col-12 col-md-2 post-status status_col center"  id="status_<?php echo $product->get_id();?>">
             <div class="footer-widget">
-              <label class="dokan-label <?php echo /*$post->post_status.*/$class; ?>"><?php echo $status;//dokan_get_post_status( $post->post_status ); ?></label>
+              <label class="dokan-label <?php echo /*$post->post_status.*/$class; ?>" id="status_label_<?php echo $product->get_id();?>"><?php echo $status;//dokan_get_post_status( $post->post_status ); ?></label>
             </div>
           </div>
           <div class="col-12 col-md-2 post-status date_col center">
@@ -5159,6 +5586,42 @@ table thead th {
 		var html_Text = '<div class="col-12 col-md-12 image_col"><h2>No auctions as yet in your service area.<br />Please check back frequently.</h2></div>';
 		jQuery(".nano-content").html(html_Text);
 	<?php }?>
+	function checkAuctionStatus(){
+	var auctionids = '<?php echo implode(",",$auctionids);?>';
+	jQuery.ajax({	
+						url:'/ajax.php',	
+						type:'POST',
+						cache : false,
+						data:{'mode':'checkAuctionStatus','auctionids':auctionids},
+						beforeSend: function() {},
+						complete: function() {},
+						success:function (data){
+							var json =jQuery.parseJSON(data);
+							//console.log(json);
+							var windowsize = jQuery(window).width();
+							jQuery.each(json, function(index, item) {
+								//console.log(item.auctionid+"=="+item.stausTxt);
+								if(jQuery("#status_label_"+item.auctionid).html() != item.stausTxt){
+									if(windowsize <= 850){
+										jQuery("#status_label_"+item.auctionid).html(item.stausTxt);
+										jQuery( "#status_label_"+item.auctionid+" span" ).html(jQuery( "#status_label_"+item.auctionid+" span" ).text().replace(/\ /g, '<br>'));
+									}else{
+										jQuery("#status_label_"+item.auctionid).html(item.stausTxt);
+									}
+									/*var windowsize = jQuery(window).width();
+									if(windowsize <= 850){	
+										jQuery( ".status_col label span" ).each(function( index ) {
+										   jQuery( this ).html(jQuery( this ).text().replace(/\ /g, '<br/>'));
+										});
+									}*/
+								}
+							});
+						}
+						});
+}
+<?php if(!empty($auctionids)){?>
+var auctionStatus = setInterval(checkAuctionStatus,2000);
+<?php }?>
 </script>
 <?php 
 }
@@ -5691,6 +6154,25 @@ function custom_price_html( $price, $product ){
 	return $price;
     //return str_replace(',', '',$price);
 }
+function wpf_entries_count( $formid ) {
+ 
+    // Pull ID shortcode attributes such as the type of entries to count
+	//// all, unread, read, or starred.
+    $atts = ['id'   => $formid,'type' => 'unread',];//shortcode_atts(['id'   => $formid,'type' => 'unread',]);
+    if ( empty( $atts[ 'id' ] ) ) {
+        return;
+    }
+    $args = ['form_id' => absint( $atts[ 'id' ] ),];
+    // What types of entries do you want to show? The read, unread, starred or all?
+    if ( $atts[ 'type' ] === 'unread' ) {
+        $args[ 'viewed' ] = '0';
+    } elseif( $atts[ 'type' ] === 'read' ) {
+        $args[ 'viewed' ] = '1';
+    } elseif ( $atts[ 'type' ] === 'starred' ) {
+        $args[ 'starred' ] = '1';
+    }
+    return wpforms()->entry->get_entries( $args, true );
+}
 //Create admin page 
 add_action('admin_menu', 'ad_setting_admin_menu');
 function ad_setting_admin_menu() {
@@ -5708,10 +6190,12 @@ function ad_setting_admin_menu() {
 		add_submenu_page( 'edit.php?coupon_category=coupon-code&post_type=shop_coupon', 'Coupon Codes', 'Coupon Codes','shopadoc_admin_cap', 'edit.php?coupon_category=coupon-code&post_type=shop_coupon');
 		add_submenu_page( 'edit.php?coupon_category=coupon-code&post_type=shop_coupon', 'Promo Codes', 'Promo Codes','shopadoc_admin_cap', 'edit.php?coupon_category=promo-code&post_type=shop_coupon');
 		add_submenu_page( 'edit.php?coupon_category=coupon-code&post_type=shop_coupon', 'Re-list Discount', 'Re-list Discount','shopadoc_admin_cap', 'post.php?post=1642&action=edit');*/
-		
-		add_menu_page(__( 'Incoming Contacts', 'textdomain' ),'Incoming Contacts','shopadoc_admin_cap','/admin.php?page=wpforms-entries&view=list&form_id=266','','dashicons-chart-bar',4);
-		add_submenu_page( 'admin.php?page=wpforms-entries&view=list&form_id=266', 'Admin', 'Admin','shopadoc_admin_cap', '/admin.php?page=wpforms-entries&view=list&form_id=266');
-		add_submenu_page( 'admin.php?page=wpforms-entries&view=list&form_id=266', 'VIP', 'VIP','shopadoc_admin_cap', '/admin.php?page=wpforms-entries&view=list&form_id=4017');
+		$Admin_count = wpf_entries_count(266);
+		$VIP_count = wpf_entries_count(4017);
+		$All_count = $Admin_count + $VIP_count;
+		add_menu_page('Incoming Contacts <span >['.$All_count.']</span>','Incoming Contacts <span >['.$All_count.']</span>','shopadoc_admin_cap','/admin.php?page=wpforms-entries&view=list&form_id=266','','dashicons-chart-bar',4);
+		add_submenu_page( 'admin.php?page=wpforms-entries&view=list&form_id=266', 'Admin ['.$Admin_count.']', 'Admin ['.$Admin_count.']','shopadoc_admin_cap', '/admin.php?page=wpforms-entries&view=list&form_id=266');
+		add_submenu_page( 'admin.php?page=wpforms-entries&view=list&form_id=266', 'VIP ['.$VIP_count.']', 'VIP ['.$VIP_count.']','shopadoc_admin_cap', '/admin.php?page=wpforms-entries&view=list&form_id=4017');
 		
 		//add_menu_page(__( 'Auction #', 'textdomain' ),'Auction #','shopadoc_admin_cap','edit.php?post_type=product&paged=1','','dashicons-admin-post',5);
 		add_menu_page('Auction #', 'Auction #', 'shopadoc_admin_cap', 'admin.php?page=auctions','','dashicons-chart-bar',5);
@@ -5726,13 +6210,18 @@ function ad_setting_admin_menu() {
 		
 		//add_menu_page(__( 'AD DEMO', 'textdomain' ),'AD DEMO','shopadoc_admin_cap','users.php?role=ad_demo','','dashicons-megaphone',8);
 		add_menu_page('AD DEMO', 'AD DEMO', 'shopadoc_admin_cap', 'admin.php?page=ADDEMO','','dashicons-chart-bar',8);
+		add_submenu_page( 'admin.php?page=ADDEMO', 'Prospects', 'Prospects','shopadoc_admin_cap', 'admin.php?page=ADDEMO');
+		add_submenu_page( 'admin.php?page=ADDEMO', 'Demo View', 'Demo View','shopadoc_admin_cap', home_url('/auction-3977/demo-auction/'));
 		
 		add_menu_page('ADVERTISERS', 'ADVERTISERS', 'shopadoc_admin_cap', '#','','dashicons-chart-bar',9);
 		//add_menu_page('ADVERTISERS', 'ADVERTISERS','shopadoc_admin_cap','admin.php?page=ADVERTISER','','dashicons-chart-bar',9);
-		add_submenu_page( '#', 'Current Runs', 'Current Runs','shopadoc_admin_cap', 'admin.php?page=ADVERTISER');
-		add_submenu_page( '#', 'Past Runs', 'Past Runs','shopadoc_admin_cap', 'admin.php?page=ADVERTISER_PAST_RUN');
+		add_submenu_page( '#', 'Company Roster', 'Company Roster','shopadoc_admin_cap', 'admin.php?page=ADVERTISER');
+		//add_submenu_page( '#', 'Past Runs', 'Past Runs','shopadoc_admin_cap', 'admin.php?page=ADVERTISER_PAST_RUN');
+		add_submenu_page( '#', 'Advertiser View', 'Advertiser View','shopadoc_admin_cap', home_url('/auction-3977/demo-auction/?screen=advertiser'));
 		
 		add_menu_page('ADS', 'ADS', 'shopadoc_admin_cap', 'admin.php?page=ADS','','dashicons-chart-bar',10);
+		add_submenu_page( 'admin.php?page=ADS', 'Current Runs', 'Current Runs','shopadoc_admin_cap', 'admin.php?page=ADS');
+		add_submenu_page( 'admin.php?page=ADS', 'Past Runs', 'Past Runs','shopadoc_admin_cap', 'admin.php?page=ADVERTISER_PAST_RUN');
 		
 		/*add_menu_page(__( 'ADS', 'textdomain' ),'ADS','shopadoc_admin_cap','edit.php?post_type=advanced_ads&adtype=image','','dashicons-chart-bar',9);
 		add_submenu_page( 'edit.php?post_type=advanced_ads&adtype=image', 'Ads Manager', 'Ads Manager','manage_options', 'edit.php?post_type=advanced_ads&adtype=image');
@@ -5742,17 +6231,22 @@ function ad_setting_admin_menu() {
 		add_submenu_page( 'admin.php?page=advanced-ads-stats', 'Ad Analytics', 'Ad Analytics','shopadoc_admin_cap', '/admin.php?page=advanced-ads-stats');
 		add_submenu_page( 'admin.php?page=advanced-ads-stats', 'Google Analytics', 'Google Analytics','shopadoc_admin_cap', '/admin.php?page=analytify-dashboard');*/
 		
-		add_menu_page(__( 'ShopADoc Analytics', 'textdomain' ),'ShopADoc Analytics','shopadoc_admin_cap','/admin.php?page=advanced-ads-stats','','dashicons-chart-bar',11);
-		
+		//add_menu_page(__( 'ShopADoc Analytics', 'textdomain' ),'ShopADoc Analytics','shopadoc_admin_cap','/admin.php?page=advanced-ads-stats','','dashicons-chart-bar',11);
+		add_menu_page(__( 'ShopADoc Analytics', 'textdomain' ),'ShopADoc Analytics','shopadoc_admin_cap','/admin.php?page=AD_Stats','','dashicons-chart-bar',11);
 		add_menu_page(__( 'Google Analytics', 'textdomain' ),'Google Analytics','shopadoc_admin_cap','/admin.php?page=Analytics','','dashicons-chart-bar',12);
 		/*add_submenu_page( '/admin.php?page=analytify-dashboard', 'Dashboard', 'Dashboard','shopadoc_admin_cap', '/admin.php?page=analytify-dashboard');
 		add_submenu_page( '/admin.php?page=analytify-dashboard', 'Analytics', 'Analytics','manage_options', 'admin.php?page=Analytics');*/
 		//add_submenu_page( '/admin.php?page=analytify-dashboard', '<div id="wpse-66020">Analytics</div>', '<div id="wpse-66020">Analytics </div>','manage_options', 'https://analytics.google.com/analytics/web/#/report/content-event-events/a166289038w232260644p218158068/explorer-segmentExplorer.segmentId=analytics.eventLabel&_r.drilldown=analytics.eventCategory:Advanced%20Ads&explorer-table.plotKeys=%5B%5D');
 		
-		add_menu_page(__( 'Plug-ins/ Licenses/ IP', 'textdomain' ),'Plug-ins/ Licenses/ IP','shopadoc_admin_cap','upload.php','','dashicons-megaphone',13);
-		add_menu_page('<div id="wpse-66024">Updates</div>','<div id="wpse-66024">Updates</div>','shopadoc_admin_cap','/admin.php?page=updates','','dashicons-megaphone',14);
-		add_menu_page('<div id="wpse-66022">Staging</div>','<div id="wpse-66022">Staging</div>','shopadoc_admin_cap','https://staging.shopadoc.com/','','dashicons-megaphone',15);
-		add_menu_page('<div id="wpse-66023">Storage</div>','<div id="wpse-66023">Storage</div>','shopadoc_admin_cap','https://github.com/ShopADoc-Inc','','dashicons-megaphone',16);
+		add_menu_page(__( 'Plugins/ Licenses/ IP', 'textdomain' ),'Plugins/ Licenses/ IP','shopadoc_admin_cap','upload.php','','dashicons-megaphone',13);
+        add_menu_page('Updates', 'Updates', 'shopadoc_admin_cap', 'admin.php?page=updates','','dashicons-chart-bar',14);
+		//add_menu_page('ADVERTISERS', 'ADVERTISERS','shopadoc_admin_cap','admin.php?page=ADVERTISER','','dashicons-chart-bar',9);
+		add_submenu_page( 'admin.php?page=updates', '<div id="wpse-66024">Plugin</div>', '<div id="wpse-66024">Plugin</div>','shopadoc_admin_cap', '/admin.php?page=updates');
+		add_submenu_page( 'admin.php?page=updates', '<div id="wpse-66023">Code Changes</div>', '<div id="wpse-66023">Code Changes</div>','shopadoc_admin_cap', 'https://github.com/ShopADoc6678');
+        
+		//add_menu_page('<div id="wpse-66024">Updates - Plugins</div>','<div id="wpse-66024">Updates - Plugins</div>','shopadoc_admin_cap','/admin.php?page=updates','','dashicons-megaphone',14);
+		//add_menu_page('<div id="wpse-66023">Updates - Code Changes</div>','<div id="wpse-66023">Updates - Code Changes</div>','shopadoc_admin_cap','https://github.com/ShopADoc6678','','dashicons-megaphone',15);
+		//add_menu_page('<div id="wpse-66022">Staging</div>','<div id="wpse-66022">Staging</div>','shopadoc_admin_cap','https://staging.shopadoc.com/','','dashicons-megaphone',16);
 		add_menu_page(__( 'LOG OUT', 'textdomain' ),'LOG OUT','shopadoc_admin_cap',home_url('/?customer-logout=true'),'','dashicons-megaphone',17);
 		add_menu_page(__( '<div id="wpse-123">Clear Cache</div>', 'textdomain' ),'<div id="wpse-123">Clear Cache</div>','shopadoc_admin_cap',add_query_arg( '_wpnonce', wp_create_nonce( 'ccfm' ), admin_url() . '?ccfm=1' ),'','dashicons-megaphone',18);
 		
@@ -6461,7 +6955,7 @@ function dsourc_hide_notices(){
             $('#wpse-66020').parent().attr('target','_blank');  
 			$('#wpse-66021').parent().parent().attr('target','_blank');  
 			$('#wpse-66022').parent().parent().attr('target','_blank');  
-			$('#wpse-66023').parent().parent().attr('target','_blank');  
+			$('#wpse-66023').parent().attr('target','_blank');  
 			$('#wpse-123').closest("a").attr('id','wp-admin-bar-ccfm-link');  
         });
     </script>
@@ -6638,6 +7132,21 @@ function pw_loading_scripts_wrong() {
 	echo '<link rel="stylesheet" href="'.get_site_url().'/wp-content/themes/dokan/assets/css/bootstrap.css"><link rel="stylesheet" href="'.get_site_url().'/wp-content/plugins/wpforms/assets/css/wpforms-full_admin.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.js"></script><link rel="stylesheet" href="'.get_site_url().'/wp-content/themes/dokan-child/jQuery-Validation-Engine/css/validationEngine.jquery.css" type="text/css"/></script><script src="'.get_site_url().'/wp-content/themes/dokan-child/jQuery-Validation-Engine/js/languages/jquery.validationEngine-en.js" type="text/javascript" charset="utf-8"></script><script src="'.get_site_url().'/wp-content/themes/dokan-child/jQuery-Validation-Engine/js/jquery.validationEngine.js" type="text/javascript" charset="utf-8"></script>';?>
 <script type="text/javascript">
+jQuery(document).ready(function(){
+		jQuery(".advads-stats-period").change(function () {
+			var val = jQuery(this).val();
+			jQuery('.advads-stats-from','.advads-stats-to').val('');
+			if(val=='custom'){
+				jQuery('.advads-stats-from').removeClass('hidden');
+				jQuery('.advads-stats-to').removeClass('hidden');
+				jQuery('.entry-title').css('width','23%');
+			}else{
+				jQuery('.advads-stats-from').addClass('hidden');
+				jQuery('.advads-stats-to').addClass('hidden');
+				jQuery('.entry-title').css('width','33%');
+			}
+		});
+});
 function viewUser(user_id,type){
 	 //alert("test");
 	 jQuery.ajax({	
@@ -6771,19 +7280,95 @@ function addUser(user_id,type){
 			}
 		});
  }
+ function openLedger(user_id,type){
+	jQuery.ajax({	
+				url:'<?php echo get_site_url();?>/ajax.php',	
+				type:'POST',
+				data:{'mode':'getSuspendPopup','access':'page','user_id':user_id,'type':type},
+				beforeSend: function() {},
+				complete: function() {},
+				success:function (data){
+					jQuery.confirm({
+										title:'<strong>Status Ledger</strong>',
+										content: data,
+										closeIcon: true,
+										columnClass: 'col-md-12 suspendPopUp',
+										buttons: {
+											formSubmit: {
+												text: 'Save',
+												btnClass: 'btn-blue hide',
+												action: function () {
+														var vars = jQuery("#wpforms-form-6724").serialize();
+														var ledger_id = jQuery('#ledger_id').val();
+														jQuery.ajax({	
+																		url:'<?php echo get_site_url();?>/ajax.php',	
+																		type:'POST',
+																		data:{'mode':'submitSuspendReason','vars':vars,'user_id':user_id,'ledger_id':ledger_id},
+																		beforeSend: function() {},
+																		complete: function() {
+
+																		},
+																		success:function (data){
+																			jQuery('#ledger_id').val('');
+																		}
+														});
+
+
+												}
+											},
+											//cancel: function () {},
+										},
+										onClose: function () {
+											// before the modal is hidden.
+											//window.location.replace(window.location.href + "&firstname="+jQuery('#firstname').val()+ "&lastname="+jQuery('#lastname').val());
+											return true;
+										},
+										onContentReady: function () {
+											//jQuery('.jconfirm-content-pane').attr('style','height:475px;max-height:100%;overflow-y:scroll;');
+											jQuery('.jconfirm-content-pane').addClass('suspendListArea');
+											jQuery("#submitSuspend").on('click', function (e) {
+												// if the user submits the form by pressing enter in the field.
+												e.preventDefault();
+												var vars = jQuery("#wpforms-form-6724").serialize();
+												var ledger_id = jQuery('#ledger_id').val();
+													jQuery.ajax({	
+															url:'<?php echo get_site_url();?>/ajax.php',	
+															type:'POST',
+															data:{'mode':'submitSuspendReason','vars':vars,'user_id':user_id,'ledger_id':ledger_id},
+															beforeSend: function() {},
+															complete: function() {
+
+															},
+															success:function (data){
+																var tmp = data.split('##');
+																jQuery('#SuspendReason').val(tmp[0]);
+																jQuery('#resultList').html(tmp[1]);
+																jQuery('#ledger_id').val('');
+																//jQuery('.suspendPopUp .jconfirm-content-pane').attr('style','height:100%;max-height:100%;overflow-y:scroll;');
+															}
+													});
+											});
+										}
+									});
+				}
+			});
+ } 
  function openUserCD(user_id,type,freeze_status){
 	 //alert("test");
 	 if(freeze_status=='' || freeze_status == 'No'){
 		 var label_freeze = 'Suspend Acct';
 		 var class_freeze = '';
-		 var info_btn = '<img src="/wp-content/themes/dokan-child/icons8-info-26.png" alt="" border="" class="suspend_info" style="margin-left:5px;float:right;margin-top:-3px;" width="25px" height="25px"/>';
+		 //var info_btn = '<img src="/wp-content/themes/dokan-child/icons8-info-26.png" alt="" border="" class="suspend_info" style="margin-left:5px;float:right;margin-top:-3px;" width="25px" height="25px"/>';
+		 var info_btn = '<a class="suspend_info" style="margin-left:5px;float:right;margin-top:-3px;" width="25px" height="25px">'+label_freeze+'</a>';
 	}else{
 		var label_freeze = 'Reactivate Acct';
 		 var class_freeze = 'btn-blue';
-		var info_btn = '<img src="/wp-content/themes/dokan-child/icons8-info-26.png" alt="" border="" class="active_info" style="margin-left:5px;float:right;margin-top:-3px;" width="25px" height="25px"/>';
+		//var info_btn = '<img src="/wp-content/themes/dokan-child/icons8-info-26.png" alt="" border="" class="active_info" style="margin-left:5px;float:right;margin-top:-3px;" width="25px" height="25px"/>';
+		var info_btn = '<a class="active_info" style="margin-left:5px;float:right;margin-top:-3px;" width="25px" height="25px">'+label_freeze+'</a>';
 	}
 	if(type=='client'){
-		var hideClass =' hide';
+		//var hideClass =' hide';
+		var hideClass ='';
 	}else{
 		var hideClass ='';
 	}
@@ -6853,12 +7438,12 @@ function addUser(user_id,type){
 								 jQuery.ajax({	
 										url:'<?php echo get_site_url();?>/ajax.php',	
 										type:'POST',
-										data:{'mode':'getSuspendPopup','user_id':user_id,'type':type},
+										data:{'mode':'getSuspendPopup','access':'statusUpdate','user_id':user_id,'type':type,'freeze_status':freeze_status},
 										beforeSend: function() {},
 										complete: function() {},
 										success:function (data){
 											jQuery.confirm({
-																title:'<strong>'+label_freeze+'</strong>',
+																title:'<strong>Status Ledger</strong>',
 																content: data,
 																closeIcon: true,
 																columnClass: 'col-md-12 suspendPopUp',
@@ -6871,15 +7456,17 @@ function addUser(user_id,type){
 																					return false;
 																				}*/
 																				var vars = jQuery("#wpforms-form-6724").serialize();
+																				var ledger_id = jQuery('#ledger_id').val();
 																				jQuery.ajax({	
 																								url:'<?php echo get_site_url();?>/ajax.php',	
 																								type:'POST',
-																								data:{'mode':'submitSuspendReason','vars':vars,'user_id':user_id},
+																								data:{'mode':'submitSuspendReason','vars':vars,'user_id':user_id,'ledger_id':ledger_id},
 																								beforeSend: function() {},
 																								complete: function() {
 																									
 																								},
 																								success:function (data){
+																									jQuery('#ledger_id').val('');
 																								}
 																				});
 							
@@ -6888,6 +7475,11 @@ function addUser(user_id,type){
 																	},
 																	//cancel: function () {},
 																},
+																onClose: function () {
+																	// before the modal is hidden.
+																	window.location.replace(window.location.href + "&firstname="+jQuery('#firstname').val()+ "&lastname="+jQuery('#lastname').val());
+																	return true;
+																},
 																onContentReady: function () {
 																	//jQuery('.jconfirm-content-pane').attr('style','height:475px;max-height:100%;overflow-y:scroll;');
 																	jQuery('.jconfirm-content-pane').addClass('suspendListArea');
@@ -6895,10 +7487,11 @@ function addUser(user_id,type){
 																		// if the user submits the form by pressing enter in the field.
 																		e.preventDefault();
 																		var vars = jQuery("#wpforms-form-6724").serialize();
+																		var ledger_id = jQuery('#ledger_id').val();
 																			jQuery.ajax({	
 																					url:'<?php echo get_site_url();?>/ajax.php',	
 																					type:'POST',
-																					data:{'mode':'submitSuspendReason','vars':vars,'user_id':user_id},
+																					data:{'mode':'submitSuspendReason','vars':vars,'user_id':user_id,'ledger_id':ledger_id},
 																					beforeSend: function() {},
 																					complete: function() {
 																						
@@ -6907,6 +7500,7 @@ function addUser(user_id,type){
 																						var tmp = data.split('##');
 																						jQuery('#SuspendReason').val(tmp[0]);
 																						jQuery('#resultList').html(tmp[1]);
+																						jQuery('#ledger_id').val('');
 																						//jQuery('.suspendPopUp .jconfirm-content-pane').attr('style','height:100%;max-height:100%;overflow-y:scroll;');
 																					}
 																			});
@@ -6928,7 +7522,7 @@ function addUser(user_id,type){
 										}
 									});
 							}
-						},somethingElse: {
+						}/*,somethingElse: {
 							text:label_freeze ,
 							btnClass: 'btn-blue no_bg'+hideClass,
 							keys: ['enter', 'shift'],
@@ -6948,7 +7542,7 @@ function addUser(user_id,type){
 												}
 								});
 							}
-						}
+						}*/
 					}
 
 				});
@@ -7210,7 +7804,7 @@ function yith_wcstripe_error_message_order_note_email_send($parm){
 	}
 	define("HTML_EMAIL_HEADERS", array('Content-Type: text/html; charset=UTF-8'));
   	$subject = 'Card Declined';
-	$message = 'Dear '.$user->first_name.',<br /><br />
+	$message = '<p>&nbsp;</p>Dear '.$user->first_name.',<br /><br />
 				Your Credit / Debit card was declined. Please <a href="'. site_url( 'my-account/payment-methods/').'">update your card on file</a>.<br /><br />
 				Thank you,<br />
 				ShopADoc®';
@@ -7546,7 +8140,7 @@ function Relist_Auctions_shortcode($atts){
 					$_flash_cycle_start = get_post_meta( $post->ID, '_flash_cycle_start' , TRUE);
 					$_flash_cycle_end = get_post_meta( $post->ID, '_flash_cycle_end' , TRUE);
 					if(strtotime($_auction_dates_to) < strtotime($today_date_time_seconds) && strtotime($today_date_time_seconds) > strtotime($_flash_cycle_end) && ($bid_count == '' || $bid_count == 0) || (isset($_GET['mode']) && $_GET['mode']=='test')){
-						$newtimestamp = strtotime($_flash_cycle_end.' + 3 minute');
+						$newtimestamp = strtotime($_flash_cycle_end.' + 7 minute');
 						$to_date = date('Y-m-d H:i:s', $newtimestamp);
 						if(strtotime($today_date_time_seconds) > strtotime($to_date)){
 						}else{
@@ -7739,6 +8333,7 @@ function loggedin_reached_limit_custom($reached, $user_id, $count ){
 	if((isset($_GET['mode']) && $_GET['mode']=='test')){
 		$reached='';
 	}
+	$reached='';
 	return $reached;
 }
 ?>

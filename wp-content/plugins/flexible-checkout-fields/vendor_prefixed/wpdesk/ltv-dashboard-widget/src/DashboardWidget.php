@@ -15,7 +15,7 @@ final class DashboardWidget
     }
     public function add_widget()
     {
-        \wp_add_dashboard_widget(self::ID, \__('Expand your business with WP Desk', 'flexible-checkout-fields'), [$this, 'widget_output'], null, null, 'normal', 'high');
+        \wp_add_dashboard_widget(self::ID, \__('Grow your business with WP Desk', 'flexible-checkout-fields'), [$this, 'widget_output'], null, null, 'normal', 'high');
     }
     private function get_all_plugins_dirs() : array
     {

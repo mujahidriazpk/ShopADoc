@@ -116,7 +116,7 @@ class SGPBNotificationCenter
 		$extensions = AdminHelper::getAllExtensions();
 		$extensionsKeys = wp_list_pluck($extensions['active'], 'key');
 		foreach ($notifications as $notification) {
-			$id = @$notification['id'];
+			$id = isset($notification['id']) ? $notification['id'] : '';
 
 			if (isset($notification['hideFor'])) {
 				$hideForExtensions = explode(',', $notification['hideFor']);

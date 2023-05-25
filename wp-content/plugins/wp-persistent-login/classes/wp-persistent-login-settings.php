@@ -204,6 +204,9 @@ class WP_Persistent_Login_Settings {
 
 		// update user preferences for active logins
 		$this->update_limit_active_logins($post_data);
+
+		// update the logic when login limit is reached
+        $this->update_limit_reached_logic($post_data);
 		
 	}
 
@@ -344,6 +347,48 @@ class WP_Persistent_Login_Settings {
 
 
 
+	/**
+     * get_limit_reached_logic
+     *
+     * @return string
+     */
+    public function get_limit_reached_logic() {
+        
+        $options = $this->get_persistent_login_options();
+        if( isset( $options['activeLoginLogic'] ) ) {
+            $active_login_logic = $options['activeLoginLogic'];
+        } else {
+            $active_login_logic = 'automatic';
+        }
+
+        return $active_login_logic;
+
+    }
+
+
+
+    /**
+     * update_limit_reached_logic
+     *
+     * @param  array $post_data
+     * @return bool
+     */
+    private function update_limit_reached_logic($post_data) {
+
+        if( isset($post_data['activeLoginLogic']) ) : 
+							    
+            $logic = $post_data['activeLoginLogic'];
+            $options = $this->get_persistent_login_options();
+            $options['activeLoginLogic'] = $logic;
+
+			return update_option('persistent_login_options', $options);
+
+        endif;
+
+    }
+
+
+
     /**
 	 * output_login_count_meta_box
 	 *
@@ -360,7 +405,7 @@ class WP_Persistent_Login_Settings {
 				<div class="postbox" style="margin-bottom: 1rem;">
 					<div class="inside">
 						
-						<h3><?php _e('Usage', WPPL_TEXT_DOMAIN); ?></h3>
+						<h3><?php _e('Usage', 'wp-persistent-login' ); ?></h3>
 
 						<?php
 							$count = new WP_Persistent_Login_User_Count();
@@ -371,7 +416,7 @@ class WP_Persistent_Login_Settings {
 						?>
 						
 						<strong style="margin-bottom: 5px; display: block;">
-							<?php _e('Usage Breakdown:', WPPL_TEXT_DOMAIN); ?>
+							<?php _e('Usage Breakdown:', 'wp-persistent-login' ); ?>
 						</strong>
 						<?php echo $count->output_user_count_breakdown(); ?>
 						
@@ -380,9 +425,7 @@ class WP_Persistent_Login_Settings {
 								<small>
 									<?php 
 										_e(
-											'Did you know you can control which user roles are kept logged in by upgrading?',
-											WPPL_TEXT_DOMAIN
-										); 
+											'Did you know you can control which user roles are kept logged in by upgrading?', 'wp-persistent-login' ); 
 									?>
 								</small>
 							</p>
@@ -406,8 +449,7 @@ class WP_Persistent_Login_Settings {
 							<?php 
 								_e(
 									'If you end all sessions, all users will be logged out of the website (including you).', 
-									WPPL_TEXT_DOMAIN
-								); 
+									 'wp-persistent-login' ); 
 							?>
 						</small>
 					</p>
@@ -441,7 +483,7 @@ class WP_Persistent_Login_Settings {
 			
 			// updated db version
 			if( $_GET['view'] == 'update' ) {
-				$message = __('WordPress Persistent Login has been updated to the latest database version!', WPPL_TEXT_DOMAIN);
+				$message = __('WordPress Persistent Login has been updated to the latest database version!', 'wp-persistent-login' );
 				$class = 'notice updated';
 				printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) ); 
 			}
@@ -454,19 +496,19 @@ class WP_Persistent_Login_Settings {
 	
 		<div class="wrap">
 			
-			<h1><?php _e('WordPress Persistent Login', WPPL_TEXT_DOMAIN); ?></h1>
-			<h2 style="float: left; margin-top: 0;"><?php _e('Free Forever Plan', WPPL_TEXT_DOMAIN); ?></h2>
+			<h1><?php _e('WordPress Persistent Login', 'wp-persistent-login' ); ?></h1>
+			<h2 style="float: left; margin-top: 0;"><?php _e('Free Forever Plan', 'wp-persistent-login' ); ?></h2>
 			
 			<div style="float: right;">
 				<p>
 					<a href="<?php echo WPPL_ACCOUNT_PAGE; ?>" class="button">
-						<?php _e('My Account', WPPL_TEXT_DOMAIN); ?>
+						<?php _e('My Account', 'wp-persistent-login' ); ?>
 					</a>
 					<a href="<?php echo WPPL_UPGRADE_PAGE; ?>" class="button">
-						<?php _e('Manage my plan', WPPL_TEXT_DOMAIN); ?>
+						<?php _e('Manage my plan', 'wp-persistent-login' ); ?>
 					</a>
 					<a href="<?php echo WPPL_SUPPORT_PAGE; ?>" class="button">
-						<?php _e('Support', WPPL_TEXT_DOMAIN); ?>
+						<?php _e('Support', 'wp-persistent-login' ); ?>
 					</a>
 				</p>
 			</div>
@@ -483,19 +525,19 @@ class WP_Persistent_Login_Settings {
 						href="<?php echo WPPL_SETTINGS_PAGE; ?>" 
 						class="nav-tab <?php echo ( $tab === NULL ) ? 'nav-tab-active' : ''; ?>"
 					>
-						<?php _e('Dashboard', WPPL_TEXT_DOMAIN); ?>
+						<?php _e('Dashboard', 'wp-persistent-login' ); ?>
 					</a>
 					<a 
 						href="<?php echo WPPL_SETTINGS_PAGE; ?>&tab=persistent-login" 
 						class="nav-tab <?php echo ( $tab === 'persistent-login' ) ? 'nav-tab-active' : ''; ?>"
 					>
-						<?php _e('Persistent Login', WPPL_TEXT_DOMAIN); ?>
+						<?php _e('Persistent Login', 'wp-persistent-login' ); ?>
 					</a>
 					<a 
 						href="<?php echo WPPL_SETTINGS_PAGE; ?>&tab=active-logins" 
 						class="nav-tab <?php echo ( $tab === 'active-logins' ) ? 'nav-tab-active' : ''; ?>"
 					>
-						<?php _e('Active Logins', WPPL_TEXT_DOMAIN); ?>
+						<?php _e('Active Logins', 'wp-persistent-login' ); ?>
 					</a>
 				</nav>
 
@@ -507,8 +549,7 @@ class WP_Persistent_Login_Settings {
 							<?php 
 								_e(
 									'Persistent login will keep all users logged in automatically. For free. Forever.', 
-									WPPL_TEXT_DOMAIN
-								); 
+									 'wp-persistent-login' ); 
 							?>
 						</p>
 						<?php $this->output_login_count_meta_box(); ?>
@@ -520,16 +561,14 @@ class WP_Persistent_Login_Settings {
 							<?php 
 								_e(
 									'Persistent Login Settings', 
-									WPPL_TEXT_DOMAIN
-								); 
+									 'wp-persistent-login' ); 
 							?>
 						</h1>
 						<p>
 							<?php 
 								_e(
 									'Control how users are kept logged into your website over time.', 
-									WPPL_TEXT_DOMAIN
-								); 
+									 'wp-persistent-login' ); 
 							?>
 						</p>
 						<form method="POST">
@@ -544,13 +583,13 @@ class WP_Persistent_Login_Settings {
 									<tr style="border-bottom: 1px solid #dfdfdf;">
 									
 										<th>
-											<?php _e('Keep users logged in for', WPPL_TEXT_DOMAIN); ?>
+											<?php _e('Keep users logged in for', 'wp-persistent-login' ); ?>
 										</th>
 										<td>
-											<?php _e('365 days', WPPL_TEXT_DOMAIN); ?>
+											<?php _e('365 days', 'wp-persistent-login' ); ?>
 											<p class="description">
 												<small>
-													<?php _e('To change the remember me duration and which roles it applies to, please consider upgrading.', WPPL_TEXT_DOMAIN); ?>
+													<?php _e('To change the remember me duration and which roles it applies to, please consider upgrading.', 'wp-persistent-login' ); ?>
 												</small>
 											</p>
 										</td>
@@ -562,7 +601,7 @@ class WP_Persistent_Login_Settings {
 									<tr style="border-bottom: 1px solid #dfdfdf;">
 									
 										<th><br/>
-											<?php _e('Dashboard panel options', WPPL_TEXT_DOMAIN); ?><br/>
+											<?php _e('Dashboard panel options', 'wp-persistent-login' ); ?><br/>
 										</th>
 										<td>
 											<br/>
@@ -572,7 +611,7 @@ class WP_Persistent_Login_Settings {
 													name="hidedashboardstats" id="hidedashboardstats" type="checkbox" value="1" 
 													class="regular-checkbox" <?php echo ($hide_dashboard_stats !== '0') ? 'checked' : ''; ?>
 												/> 
-												<?php _e('Hide \'At a glance\' dashboard stats', WPPL_TEXT_DOMAIN); ?>
+												<?php _e('Hide \'At a glance\' dashboard stats', 'wp-persistent-login' ); ?>
 											</label><br/>
 											<br/>
 										</td>
@@ -584,7 +623,7 @@ class WP_Persistent_Login_Settings {
 									<tr style="border-bottom: 1px solid #dfdfdf;">
 										<th>
 											<br/> 
-											<?php _e('Duplicate sessions', WPPL_TEXT_DOMAIN); ?><br/>
+											<?php _e('Duplicate sessions', 'wp-persistent-login' ); ?><br/>
 										</th>
 										<td>
 											<br/>
@@ -593,11 +632,11 @@ class WP_Persistent_Login_Settings {
 													name="duplicateSessions" id="duplicateSessions" type="checkbox" value="1" 
 													class="regular-checkbox" <?php echo ($duplicate_sessions === '0' || $duplicate_sessions === NULL ) ? '' : 'checked'; ?>
 												/>
-												<?php _e('Allow duplicate sessions', WPPL_TEXT_DOMAIN); ?>
+												<?php _e('Allow duplicate sessions', 'wp-persistent-login' ); ?>
 											</label><br/>
 											<p class="description">
 												<small>
-													<?php _e('(select if you\'re having trouble staying logged in on multiple devices)', WPPL_TEXT_DOMAIN); ?>
+													<?php _e('(select if you\'re having trouble staying logged in on multiple devices)', 'wp-persistent-login' ); ?>
 												</small>
 											</p>
 										</td> 
@@ -609,7 +648,7 @@ class WP_Persistent_Login_Settings {
 							<p class="submit">
 								<input 
 									type="submit" name="submit" id="submit" class="button button-primary" 
-									value="<?php _e('Save Persistent Login Settings', WPPL_TEXT_DOMAIN); ?>"
+									value="<?php _e('Save Persistent Login Settings', 'wp-persistent-login' ); ?>"
 								>
 							</p>
 						</form>
@@ -620,16 +659,14 @@ class WP_Persistent_Login_Settings {
 							<?php 
 								_e(
 									'Active Login Settings', 
-									WPPL_TEXT_DOMAIN
-								); 
+									 'wp-persistent-login' ); 
 							?>
 						</h1>
 						<p>
 							<?php 
 								_e(
 									'Control how many active logins users can have at any one time.', 
-									WPPL_TEXT_DOMAIN
-								); 
+									 'wp-persistent-login' ); 
 							?>
 						</p>
 
@@ -645,7 +682,7 @@ class WP_Persistent_Login_Settings {
 									<?php $limit_active_logins = $this->get_limit_active_logins(); ?> 
 									<tr style="border-bottom: 1px solid #dfdfdf;">
 										<th>
-											<?php _e('Limit active logins', WPPL_TEXT_DOMAIN); ?><br/>
+											<?php _e('Limit active logins', 'wp-persistent-login' ); ?><br/>
 										</th>
 										<td>
 											<label style="width: auto; display: inline-block;">
@@ -653,15 +690,15 @@ class WP_Persistent_Login_Settings {
 													name="limitActiveLogins" id="limitActiveLogins" type="checkbox" value="1" 
 													class="regular-checkbox" <?php echo ($limit_active_logins === '0' || $limit_active_logins === NULL ) ? '' : 'checked'; ?>
 												/>
-												<?php _e('Limit users to <strong>1 active login</strong>', WPPL_TEXT_DOMAIN); ?>
+												<?php _e('Limit users to <strong>1 active login</strong>', 'wp-persistent-login' ); ?>
 											</label><br/>
 											<p style="padding-top: 0.5rem;">
-												<?php _e('When a user reaches the active login limit, they will automatically be logged out from their oldest session.', WPPL_TEXT_DOMAIN); ?>
+												<?php _e('When a user reaches the active login limit, they will automatically be logged out from their oldest session.', 'wp-persistent-login' ); ?>
 											</p>
 											<br/>
 											<p class="description">
 												<small>
-													<?php _e('To change the active logins limit, which roles it applies to and let users select which session to end, please consider upgrading.', WPPL_TEXT_DOMAIN); ?>
+													<?php _e('To change the active logins limit, which roles it applies to and let users select which session to end, please consider upgrading.', 'wp-persistent-login' ); ?>
 												</small>
 											</p>
 											
@@ -669,29 +706,65 @@ class WP_Persistent_Login_Settings {
 									</tr>
 									<!-- END enable active login limit -->
 
+									<!-- limit reached -->
+                                    <?php 
+                                        $limit_reached_logic = $this->get_limit_reached_logic(); 
+                                        $limit_reached_options = array(
+                                            array(
+                                                'label' => __('Automatically end the oldest active login for the user.', 'wp-persistent-login' ),
+                                                'value' => 'automatic'
+                                            ),
+                                            array(
+                                                'label' => __( 'Block new logins if active login limit reached.', 'wp-persistent-login' ),
+                                                'value' => 'block'
+                                            )
+                                        );
+                                    ?>
+                                    <tr style="border-bottom: 1px solid #dfdfdf;">
+                                        <th>
+                                            <?php _e('Limit reached logic', 'wp-persistent-login' ); ?><br/>
+                                        </th>
+                                        <td>
+                                            <?php foreach( $limit_reached_options as $option ) : ?>
+                                                <label style="width: auto; display: inline-block; margin-bottom: 10px;">
+                                                    <input 
+                                                        name="activeLoginLogic" 
+                                                        id="<?php echo $option['value']; ?>" 
+                                                        type="radio" 
+                                                        value="<?php echo $option['value']; ?>" 
+                                                        class="regular-radio js-maximum-logins-logic" 
+                                                        <?php echo ( $limit_reached_logic === $option['value'] ) ? ' checked' : ''; ?>
+                                                    /> 
+                                                    <?php echo $option['label']; ?>
+                                                </label><br/>
+                                            <?php endforeach; ?>
+                                        </td>
+                                    </tr>
+                                    <!-- END limit reached -->
+
 									<!-- manage active logins -->
 									<tr style="border-bottom: 1px solid #dfdfdf;">
 										<th>
-											<?php _e('Manage Active Logins', WPPL_TEXT_DOMAIN); ?><br/>
+											<?php _e('Manage Active Logins', 'wp-persistent-login' ); ?><br/>
 										</th>
 										<td>
 											<p>
-												<?php _e('You can manage your own active logins from your profile page in the dashboard.', WPPL_TEXT_DOMAIN); ?>
+												<?php _e('You can manage your own active logins from your profile page in the dashboard.', 'wp-persistent-login' ); ?>
 											</p>
 											<br/>
 											<p>
 												<a href="<?php echo admin_url(); ?>profile.php#sessions" class="button button-primary">
-													<?php _e('Manage your active logins', WPPL_TEXT_DOMAIN); ?>
+													<?php _e('Manage your active logins', 'wp-persistent-login' ); ?>
 												</a>
-												&nbsp;<?php _e('or', WPPL_TEXT_DOMAIN); ?>&nbsp;
+												&nbsp;<?php _e('or', 'wp-persistent-login' ); ?>&nbsp;
 												<a href="<?php echo persistent_login()->get_upgrade_url(); ?>&trial=true" class="button ">
-													<?php _e('Upgrade', WPPL_TEXT_DOMAIN); ?>
+													<?php _e('Upgrade', 'wp-persistent-login' ); ?>
 												</a>
 											</p>
 											<br/>
 											<p class="description">
 												<small>
-													<?php _e('To manage all active logins & allow users to manage their own active logins from the front-end, please consider upgrading.', WPPL_TEXT_DOMAIN); ?>
+													<?php _e('To manage all active logins & allow users to manage their own active logins from the front-end, please consider upgrading.', 'wp-persistent-login' ); ?>
 												</small>
 											</p>
 										</td>
@@ -703,7 +776,7 @@ class WP_Persistent_Login_Settings {
 							<p class="submit">
 								<input 
 									type="submit" name="submit" id="submit" class="button button-primary" 
-									value="<?php _e('Save Active Login Settings', WPPL_TEXT_DOMAIN); ?>"
+									value="<?php _e('Save Active Login Settings', 'wp-persistent-login' ); ?>"
 								>
 							</p>
 						</form>

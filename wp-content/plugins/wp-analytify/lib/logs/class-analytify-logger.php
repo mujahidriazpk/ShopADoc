@@ -270,7 +270,7 @@ class ANALYTIFY_Logger implements ANALYTIFY_Logger_Interface {
 	 * @since 3.4.0
 	 */
 	public function clear_expired_logs() {
-		$days      = absint( apply_filters( 'analytify_logger_days_to_retain_logs', 30 ) );
+		$days      = absint( apply_filters( 'analytify_logger_days_to_retain_logs', 1 ) );
 		$timestamp = strtotime( "-{$days} days" );
 
 		foreach ( $this->handlers as $handler ) {

@@ -18,6 +18,7 @@ class Ajax {
         add_action( 'wp_ajax_regen_sync_table', array( $this, 'regen_sync_order_table' ) );
         add_action( 'wp_ajax_check_duplicate_suborders', array( $this, 'check_duplicate_suborders' ) );
         add_action( 'wp_ajax_dokan-toggle-module', array( $this, 'toggle_module' ), 10 );
+        add_action( 'wp_ajax_rewrite_product_variations_author', [ $this, 'rewrite_product_variations_author' ] );
     }
 
     /**
@@ -211,5 +212,39 @@ class Ajax {
         }
 
         wp_send_json_success( $message );
+    }
+
+    /**
+     * Rewrite product variations author via ajax.
+     *
+     * @since 3.7.13
+     *
+     * @return void
+     */
+    public function rewrite_product_variations_author() {
+        if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'dokan_admin' ) ) {
+            return wp_send_json_error( __( 'Nonce verification failed', 'dokan' ), 403 );
+        }
+
+        if ( ! current_user_can( 'manage_woocommerce' ) ) {
+            return wp_send_json_error( __( 'You don\'t have enough permission', 'dokan' ), 403 );
+        }
+
+        $page         = ! empty( $_POST['page'] ) ? absint( wp_unslash( $_POST['page'] ) ) : 1;
+        $bg_processor = dokan()->bg_process->rewrite_variable_products_author;
+
+        $args = [
+            'updating' => 'dokan_update_variable_product_variations_author_ids',
+            'page'     => $page,
+        ];
+
+        $bg_processor->push_to_queue( $args )->save()->dispatch();
+
+        wp_send_json_success(
+            [
+                'process' => 'running',
+                'message' => __( 'Variable product variations author ids rewriting queued successfully', 'dokan' ),
+            ]
+        );
     }
 }

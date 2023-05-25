@@ -309,7 +309,7 @@
 		</div>
 		<div class="sgpb-width-30">
 			<div class="sgpb-position-sticky sgpb-overflow-auto">
-				<div class="livePreview livePreview_centered sgpb-margin-auto sgpb-align-item-center sgpb-btn sgpb-btn-gray-light sgpb-btn--rounded sgpb-display-flex sgpb-justify-content-center">
+				<div class="livePreview livePreview_centered sgpb-margin-auto sgpb-align-item-center sgpb-btn sgpb-btn-gray-light sgpb-btn--rounded sgpb-display-flex sgpb-justify-content-center sgpb-no-hover sgpb-cursor-default">
 					<img class="sgpb-margin-right-10" src="<?php echo esc_attr(SG_POPUP_PUBLIC_URL.'icons/Black/eye.svg'); ?>" alt="Eye icon">
 					<span class="livePreview__text"><?php esc_html_e('Live Preview', SG_POPUP_TEXT_DOMAIN)?></span>
 				</div>

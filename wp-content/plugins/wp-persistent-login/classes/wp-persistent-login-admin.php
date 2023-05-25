@@ -41,7 +41,7 @@ class WP_Persistent_Login_Admin {
 	 */
 	public function add_settings_link( $links ) {
 
-		$settings_link = '<a href="'.WPPL_SETTINGS_PAGE.'">' . __('Settings', WPPL_TEXT_DOMAIN) . '</a>';
+		$settings_link = '<a href="'.WPPL_SETTINGS_PAGE.'">' . __('Settings', 'wp-persistent-login' ) . '</a>';
 		array_unshift($links, $settings_link);
 		
 		return $links;

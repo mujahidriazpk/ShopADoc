@@ -72,15 +72,7 @@ if ( ! class_exists( 'Checkout_Countdown_Main' ) ) :
 		}
 
 		public function admin_menu() {
-
-			$page_title = 'Checkout Countdown for WooCommerce';
-			$menu_title = 'Countdown';
-			$capability = 'manage_options';
-			$slug       = $this->setup['admin_page'];
-			$callback   = array( $this, 'plugin_page' );
-			$icon       = 'dashicons-clock';
-			$position   = 100;
-			add_menu_page( $page_title, $menu_title, $capability, $slug, $callback, $icon, $position );
+			add_submenu_page( 'woocommerce', __( 'Checkout Countdown', 'checkout-countdown-for-woocommerce' ), __( 'Checkout Countdown', 'checkout-countdown-for-woocommerce' ), 'manage_options', $this->setup['admin_page'], array( $this, 'plugin_page' ) );
 
 		}
 

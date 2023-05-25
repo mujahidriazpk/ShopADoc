@@ -100,6 +100,22 @@ add_filter( 'um_profile_field_filter_hook__vimeo_video', 'um_profile_field_filte
 
 
 /**
+ * Outputs a phone link
+ *
+ * @param $value
+ * @param $data
+ *
+ * @return int|string
+ */
+function um_profile_field_filter_hook__phone( $value, $data ) {
+	$value = '<a href="tel:' . esc_attr( $value ) . '" rel="nofollow" title="' . esc_attr( $data['title'] ) . '">' . esc_html( $value ) . '</a>';
+	return $value;
+}
+add_filter( 'um_profile_field_filter_hook__phone_number', 'um_profile_field_filter_hook__phone', 99, 2 );
+add_filter( 'um_profile_field_filter_hook__mobile_number', 'um_profile_field_filter_hook__phone', 99, 2 );
+
+
+/**
  * Outputs a viber link
  *
  * @param $value
@@ -416,9 +432,10 @@ function um_profile_field_filter_hook__( $value, $data, $type = '' ) {
 				if ( $data['validate'] == 'facebook_url' ) 		$value = 'https://facebook.com/' . $value;
 				if ( $data['validate'] == 'twitter_url' ) 		$value = 'https://twitter.com/' . $value;
 				if ( $data['validate'] == 'linkedin_url' ) 		$value = 'https://linkedin.com/' . $value;
-				if ( $data['validate'] == 'googleplus_url' ) 	$value = 'https://plus.google.com/' . $value;
 				if ( $data['validate'] == 'instagram_url' ) 	$value = 'https://instagram.com/' . $value;
-				if ( $data['validate'] == 'vk_url' ) 			$value = 'https://vk.com/' . $value;
+				if ( $data['validate'] == 'tiktok_url' ) 		$value = 'https://tiktok.com/' . $value;
+				if ( $data['validate'] == 'twitch_url' ) 		$value = 'https://twitch.tv/' . $value;
+				if ( $data['validate'] == 'reddit_url' ) 		$value = 'https://www.reddit.com/user/' . $value;
 			}
 
 			if ( strpos( $value, 'http://' ) !== 0 ) {
@@ -678,6 +695,9 @@ add_filter( 'um_field_non_utf8_value', 'um_field_non_utf8_value' );
  */
 function um_select_dropdown_dynamic_callback_options( $options, $data ) {
 	if ( ! empty( $data['custom_dropdown_options_source'] ) && function_exists( $data['custom_dropdown_options_source'] ) ) {
+		if ( UM()->fields()->is_source_blacklisted( $data['custom_dropdown_options_source'] ) ) {
+			return $options;
+		}
 		$options = call_user_func( $data['custom_dropdown_options_source'] );
 	}
 

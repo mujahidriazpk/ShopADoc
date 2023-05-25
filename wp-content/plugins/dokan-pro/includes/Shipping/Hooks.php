@@ -2,7 +2,9 @@
 
 namespace WeDevs\DokanPro\Shipping;
 
+use Automattic\WooCommerce\Utilities\NumberUtil;
 use WC_Countries;
+use WC_Coupon;
 use WeDevs\DokanPro\Shipping\Methods\ProductShipping;
 use WeDevs\DokanPro\Shipping\Methods\VendorShipping;
 use WeDevs\DokanPro\Shipping\ShippingZone;
@@ -31,6 +33,7 @@ class Hooks {
         add_filter( 'woocommerce_shipping_packages', array( $this, 'filter_packages' ) );
         add_action( 'woocommerce_delete_shipping_zone', array( $this, 'delete_shipping_zone_data' ), 35, 1 );
         add_action( 'woocommerce_after_shipping_zone_object_save', array( $this, 'vendor_zone_data_sync' ), 10, 2 );
+        add_filter( 'woocommerce_shipping_free_shipping_is_available', array( $this, 'handle_free_shipping_validity' ), 10, 3 );
     }
 
     /**
@@ -88,11 +91,11 @@ class Hooks {
         $shipping_method = WC()->session->get( 'chosen_shipping_methods' );
 
         // per product shipping was not chosen
-        if ( ! is_array( $shipping_method ) || ! in_array( 'dokan_product_shipping', $shipping_method ) ) {
+        if ( ! is_array( $shipping_method ) || ! in_array( 'dokan_product_shipping', $shipping_method, true ) ) {
             return;
         }
 
-        if ( isset( $posted['ship_to_different_address'] ) && $posted['ship_to_different_address'] == '1' ) {
+        if ( isset( $posted['ship_to_different_address'] ) && $posted['ship_to_different_address'] === '1' ) {
             $shipping_country = $posted['shipping_country'];
         } else {
             $shipping_country = $posted['billing_country'];
@@ -154,10 +157,8 @@ class Hooks {
                     } else {
                         $has_found = true;
                     }
-                } else {
-                    if ( array_key_exists( 'everywhere', $dps_country ) ) {
+                } elseif ( array_key_exists( 'everywhere', $dps_country ) ) {
                         $has_found = true;
-                    }
                 }
 
                 if ( ! $has_found ) {
@@ -167,9 +168,11 @@ class Hooks {
         }
 
         if ( $errors ) {
-            if ( count( $errors ) == 1 ) {
+            if ( count( $errors ) === 1 ) {
+                // translators: Error message.
                 $message = sprintf( __( 'This product does not ship to your chosen location: %s', 'dokan' ), implode( ', ', $errors ) );
             } else {
+                // translators: Error message.
                 $message = sprintf( __( 'These products do not ship to your chosen location.: %s', 'dokan' ), implode( ', ', $errors ) );
             }
 
@@ -193,7 +196,7 @@ class Hooks {
             return;
         }
 
-        if ( isset( $_POST['dokan_update_shipping_options'] ) && wp_verify_nonce( $_POST['dokan_shipping_form_field_nonce'], 'dokan_shipping_form_field' ) ) {
+        if ( isset( $_POST['dokan_update_shipping_options'] ) && isset( $_POST['dokan_shipping_form_field_nonce'] ) && wp_verify_nonce( sanitize_key( wp_unslash( $_POST['dokan_shipping_form_field_nonce'] ) ), 'dokan_shipping_form_field' ) ) {
             if ( ! current_user_can( 'dokan_view_store_shipping_menu' ) ) {
                 wp_die( __( 'You have no access to save this shipping options', 'dokan' ) );
             }
@@ -301,15 +304,15 @@ class Hooks {
 
         global $post;
 
-        if ( get_post_meta( $post->ID, '_disable_shipping', true ) == 'yes' ) {
+        if ( get_post_meta( $post->ID, '_disable_shipping', true ) === 'yes' ) {
             return $tabs;
         }
 
-        if ( get_post_meta( $post->ID, '_downloadable', true ) == 'yes' ) {
+        if ( get_post_meta( $post->ID, '_downloadable', true ) === 'yes' ) {
             return $tabs;
         }
 
-        if ( 'yes' != get_option( 'woocommerce_calc_shipping' ) ) {
+        if ( 'yes' !== get_option( 'woocommerce_calc_shipping' ) ) {
             return $tabs;
         }
 
@@ -623,5 +626,87 @@ class Hooks {
         }
 
         dokan_pro()->bg_sync_vendor_zone_data->save()->dispatch();
+    }
+
+    /**
+     * Handle free shipping availability for vendors.
+     *
+     * @since 3.7.16
+     *
+     * @param bool $is_available Is available.
+     * @param array $package Package to check with.
+     * @param \WC_Shipping_Free_Shipping $shipping_instance Shipping instance.
+     *
+     * @return bool
+     */
+    public function handle_free_shipping_validity( bool $is_available, array $package, \WC_Shipping_Free_Shipping $shipping_instance ): bool {
+        if ( ! $is_available ) {
+            return false;
+        }
+
+        $has_coupon         = false;
+        $has_met_min_amount = false;
+
+        if ( in_array( $shipping_instance->requires, array( 'coupon', 'either', 'both' ), true ) ) {
+            $coupons = $package['applied_coupons'];
+
+            if ( $coupons ) {
+                foreach ( $coupons as $code ) {
+                    $coupon = new WC_Coupon( $code );
+                    $discounts = new \WC_Discounts( WC()->cart );
+                    $valid     = $discounts->is_coupon_valid( $coupon );
+                    if ( ! is_wp_error( $valid ) && $valid && $coupon->get_free_shipping() ) {
+                        $has_coupon = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if ( in_array( $shipping_instance->requires, array( 'min_amount', 'either', 'both' ), true ) ) {
+            $total          = 0.0;
+            $discount_total = 0.0;
+            $discount_tax   = 0.0;
+
+            foreach ( $package['contents'] as $line_item ) {
+                $total          += WC()->cart->display_prices_including_tax() ? ( $line_item['line_subtotal'] + $line_item['line_subtotal_tax'] ) : $line_item['line_subtotal'];
+                $discount_total += ( $line_item['line_subtotal'] - $line_item['line_total'] );
+                $discount_tax   += ( $line_item['line_subtotal_tax'] - $line_item['line_tax'] );
+            }
+
+            if ( WC()->cart->display_prices_including_tax() ) {
+                $total = $total - $discount_tax;
+            }
+
+            if ( 'no' === $shipping_instance->ignore_discounts ) {
+                $total = $total - $discount_total;
+            }
+
+            $total = NumberUtil::round( $total, wc_get_price_decimals() );
+
+            if ( $total >= $shipping_instance->min_amount ) {
+                $has_met_min_amount = true;
+            }
+        }
+
+        switch ( $shipping_instance->requires ) {
+            case 'min_amount':
+                $is_available = $has_met_min_amount;
+                break;
+            case 'coupon':
+                $is_available = $has_coupon;
+                break;
+            case 'both':
+                $is_available = $has_met_min_amount && $has_coupon;
+                break;
+            case 'either':
+                $is_available = $has_met_min_amount || $has_coupon;
+                break;
+            default:
+                $is_available = true;
+                break;
+        }
+
+        return $is_available;
     }
 }

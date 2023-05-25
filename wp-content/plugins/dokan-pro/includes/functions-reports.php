@@ -246,6 +246,8 @@ function dokan_get_order_report_data( $args, $start_date, $end_date, $current_us
             $get_key = "order_item_meta_{$key}.meta_value";
         } elseif ( $value['type'] == 'order_item' ) {
             $get_key = "order_items.{$key}";
+        } elseif ( $value['type'] == 'dokan_orders' ) {
+            $get_key = "do.{$key}";
         }
 
         if ( $value['function'] ) {
@@ -271,7 +273,7 @@ function dokan_get_order_report_data( $args, $start_date, $end_date, $current_us
             $joins['order_items']            = "LEFT JOIN {$wpdb->prefix}woocommerce_order_items AS order_items ON posts.ID = order_items.order_id";
             $joins["order_item_meta_{$key}"] = "LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta AS order_item_meta_{$key} ON order_items.order_item_id = order_item_meta_{$key}.order_item_id";
         } elseif ( $value['type'] == 'order_item' ) {
-            $joins['order_items'] = "LEFT JOIN {$wpdb->prefix}woocommerce_order_items AS order_items ON posts.ID = order_id";
+            $joins['order_items'] = "LEFT JOIN {$wpdb->prefix}woocommerce_order_items AS order_items ON posts.ID = order_items.order_id";
         }
     }
 
@@ -299,8 +301,8 @@ function dokan_get_order_report_data( $args, $start_date, $end_date, $current_us
         WHERE   posts.post_type     = 'shop_order'
         AND     posts.post_status   != 'trash'
         AND     do.seller_id = {$current_user}
-        AND     do.order_status IN ('" . implode( "','", apply_filters( 'woocommerce_reports_order_statuses', [ 'wc-completed', 'wc-processing', 'wc-on-hold' ] ) ) . "')
-        AND     do.order_status NOT IN ('wc-cancelled','wc-refunded','wc-failed')
+        AND     do.order_status IN ('" . implode( "','", apply_filters( 'woocommerce_reports_order_statuses', [ 'wc-completed', 'wc-processing', 'wc-on-hold', 'wc-refunded', ] ) ) . "')
+        AND     do.order_status NOT IN ('wc-cancelled','wc-failed')
         ";
 
     if ( $filter_range ) {
@@ -664,21 +666,15 @@ function dokan_report_sales_overview( $start_date, $end_date, $heading = '' ) {
 function dokan_sales_overview_chart_data( $start_date, $end_date, $group_by ) {
     global $wp_locale;
 
-    $start_date_to_time = strtotime( $start_date );
-    $end_date_to_time   = strtotime( $end_date );
+    $start_date_to_time = dokan_current_datetime()->modify( $start_date )->getTimestamp();
+    $end_date_to_time   = dokan_current_datetime()->modify( $end_date )->getTimestamp();
+    $chart_interval     = dokan_get_interval_between_dates( $start_date_to_time, $end_date_to_time, $group_by );
 
     if ( $group_by == 'day' ) {
         $group_by_query       = 'YEAR(post_date), MONTH(post_date), DAY(post_date)';
-        $chart_interval       = ceil( max( 0, ( $end_date_to_time - $start_date_to_time ) / ( 60 * 60 * 24 ) ) );
         $barwidth             = 60 * 60 * 24 * 1000;
     } else {
         $group_by_query       = 'YEAR(post_date), MONTH(post_date)';
-        $chart_interval       = 0;
-        $min_date             = $start_date_to_time;
-
-        while ( ( $min_date   = strtotime( '+1 MONTH', $min_date ) ) <= $end_date_to_time ) {
-            $chart_interval ++;
-        }
         $barwidth             = 60 * 60 * 24 * 7 * 4 * 1000;
     }
 
@@ -733,7 +729,7 @@ function dokan_sales_overview_chart_data( $start_date, $end_date, $group_by ) {
     <script type="text/javascript">
         jQuery(function($) {
 
-            var order_data = jQuery.parseJSON( '<?php echo $chart_data; ?>' );
+            var order_data = JSON.parse( '<?php echo $chart_data; ?>' );
             var isRtl = '<?php echo is_rtl() ? '1' : '0'; ?>'
 
             var series = [
@@ -914,16 +910,11 @@ function dokan_top_sellers() {
 
         if ( $product_title ) {
             $product_name = '<a href="' . get_permalink( $product_id ) . '">' . __( $product_title ) . '</a>';
-            $orders_link  = admin_url( 'edit.php?s&post_status=all&post_type=shop_order&action=-1&s=' . urlencode( $product_title ) . '&shop_order_status=' . implode( ',', apply_filters( 'woocommerce_reports_order_statuses', [ 'wc-completed', 'wc-processing', 'wc-on-hold' ] ) ) );
         } else {
             $product_name = __( 'Product does not exist', 'dokan' );
-            $orders_link  = admin_url( 'edit.php?s&post_status=all&post_type=shop_order&action=-1&s=&shop_order_status=' . implode( ',', apply_filters( 'woocommerce_reports_order_statuses', [ 'wc-completed', 'wc-processing', 'wc-on-hold' ] ) ) );
         }
 
-        $orders_link = apply_filters( 'dokan_reports_order_link', $orders_link, $product_id, $product_title );
-
-
-        echo '<tr><th class="60%">' . $product_name . '</th><td width="1%"><span>' . esc_html( $sales ) . '</span></td><td width="30%"><div class="progress"><a class="progress-bar" href="' . esc_url( $orders_link ) . '" style="width:' . esc_attr( $width ) . '%">&nbsp;</a></div></td></tr>';
+        echo '<tr><th style="width: 60%;">' . $product_name . '</th><td style="width: 1%;"><span>' . esc_html( $sales ) . '</span></td></tr>';
     } ?>
         </tbody>
     </table>
@@ -1008,7 +999,7 @@ function dokan_top_earners() {
         <thead>
             <tr>
                 <th><?php esc_html_e( 'Product', 'dokan' ); ?></th>
-                <th colspan="2"><?php esc_html_e( 'Sales', 'dokan' ); ?></th>
+                <th><?php esc_html_e( 'Sales', 'dokan' ); ?></th>
                 <th><?php esc_html_e( 'Earning', 'dokan' ); ?></th>
             </tr>
         </thead>
@@ -1023,19 +1014,14 @@ function dokan_top_earners() {
 
                 if ( $product_title ) {
                     $product_name = '<a href="' . get_permalink( $product_id ) . '">' . __( $product_title ) . '</a>';
-                    $orders_link  = admin_url( 'edit.php?s&post_status=all&post_type=shop_order&action=-1&s=' . urlencode( $product_title ) . '&shop_order_status=' . implode( ',', apply_filters( 'woocommerce_reports_order_statuses', [ 'wc-completed', 'wc-processing', 'wc-on-hold' ] ) ) );
                 } else {
                     $product_name = __( 'Product no longer exists', 'dokan' );
-                    $orders_link  = admin_url( 'edit.php?s&post_status=all&post_type=shop_order&action=-1&s=&shop_order_status=' . implode( ',', apply_filters( 'woocommerce_reports_order_statuses', [ 'wc-completed', 'wc-processing', 'wc-on-hold' ] ) ) );
                 }
 
-                $orders_link = apply_filters( 'woocommerce_reports_order_link', $orders_link, $product_id, $product_title );
-
                 echo '<tr>
-                    <th>' . $product_name . '</th>
-                    <td colspan="2"><span>' . wc_price( $sales ) . '</span></td>
-                    <td width="1%"><span>' . wc_price( $total_earnings[ $product_id ] ) . '</span></td>
-                    <td class="bars"><a href="' . esc_url( $orders_link ) . '" style="width:' . esc_attr( $width ) . '%">&nbsp;</a></td>
+                    <th style="width: 60%;">' . $product_name . '</th>
+                    <td style="width: 20%;"><span>' . wc_price( $sales ) . '</span></td>
+                    <td style="width: 20%;"><span>' . wc_price( $total_earnings[ $product_id ] ) . '</span></td>
                 </tr>';
             } ?>
         </tbody>

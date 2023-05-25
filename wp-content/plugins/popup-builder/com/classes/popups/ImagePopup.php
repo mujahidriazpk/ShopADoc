@@ -9,7 +9,7 @@ class ImagePopup extends SGPopup
 		$imageData = '';
 		$savedImageUrl = '';
 		$data = $this->getSanitizedData();
-		$imageUrl = @$data['sgpb-image-url'];
+		$imageUrl = isset($data['sgpb-image-url']) ? $data['sgpb-image-url'] : '';
 		$savedPopup = $this->getSavedPopup();
 
 		if (is_object($savedPopup)) {

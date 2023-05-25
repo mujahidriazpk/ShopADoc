@@ -60,6 +60,41 @@ class Helper {
     }
 
     /**
+     * Gets vendor selected store order pickup location.
+     *
+     * @since 3.7.8
+     *
+     * @param int    $vendor_id
+     * @param string $location_key
+     *
+     * @return string
+     */
+    public static function get_selected_order_pickup_location( $vendor_id, $location_key ) {
+        if ( empty( $vendor_id ) || empty( $location_key ) ) {
+            return;
+        }
+
+        $location_keys   = explode( '-', $location_key );
+        $store_locations = self::get_vendor_store_pickup_locations( $vendor_id );
+
+        // Get selected store location array.
+        $store_location_data = array_filter(
+            $store_locations,
+            function ( $location, $key ) use ( $store_locations, $location_keys ) {
+                return (
+                    // If location name && store location key matched then get location array.
+                    ( $location['location_name'] === $location_keys[0] ) &&
+                    ( $key === absint( $location_keys[1] ) )
+                ) ? $location : [];
+            },
+            ARRAY_FILTER_USE_BOTH
+        );
+
+        $store_location_data = ! empty( $store_location_data ) ? reset( $store_location_data ) : [];
+        return ! empty( $store_location_data ) ? self::get_formatted_vendor_store_pickup_location( $store_location_data, ' ', $store_location_data['location_name'] ) : '';
+    }
+
+    /**
      * Gets formatted store pickup location
      *
      * @since 3.3.7
@@ -81,7 +116,7 @@ class Helper {
 
         $zip          = isset( $address['zip'] ) ? $address['zip'] : '';
         $country_code = isset( $address['country'] ) ? $address['country'] : '';
-        $state_code   = isset( $address['state'] ) ? ( 'N/A' === $address['state'] ) ? '' : $address['state'] : '';
+        $state_code   = isset( $address['state'] ) ? ( 'N/A' === $address['state'] ? '' : $address['state'] ) : '';
 
         $country           = new WC_Countries();
         $formatted_address = $country->get_formatted_address(
@@ -133,10 +168,27 @@ class Helper {
      *
      * @return bool|string
      */
-    public static function is_store_pickup_location_active_for_vendor( $vendor_id, $bool = true ) {
-        $vendor_settings = dokan_get_store_info( $vendor_id );
+    public static function is_store_pickup_location_active( $vendor_id, $bool = true ) {
+        // Getting admin delivery settings.
+        $vendor_can_override_settings = dokan_get_option( 'allow_vendor_override_settings', 'dokan_delivery_time', 'off' );
+        $admin_support_settings       = dokan_get_option( 'delivery_support', 'dokan_delivery_time', '' );
+        $admin_store_pickup_settings  = ! empty( $admin_support_settings['store-pickup'] ) ? $admin_support_settings['store-pickup'] : '';
 
-        if ( isset( $vendor_settings['vendor_store_location_pickup']['enable_store_pickup_location'] ) && 'yes' === $vendor_settings['vendor_store_location_pickup']['enable_store_pickup_location'] ) {
+        // Set store-pickup support true when admin set it.
+        if ( 'off' === $vendor_can_override_settings ) {
+            if ( 'store-pickup' === $admin_store_pickup_settings ) {
+                return $bool ? true : 'yes';
+            }
+
+            return $bool ? false : 'no';
+        }
+
+        $vendor_settings = dokan_get_store_info( $vendor_id );
+        if (
+            // Check admin and vendor settings then throw store-pickup support bool.
+            ! empty( $vendor_settings['vendor_store_location_pickup']['enable_store_pickup_location'] ) &&
+            'yes' === $vendor_settings['vendor_store_location_pickup']['enable_store_pickup_location']
+        ) {
             return $bool ? true : 'yes';
         }
 
@@ -160,7 +212,8 @@ class Helper {
 
         $formatted_date = dokan_format_date( $date );
 
-        return $formatted_date . ' @ ' . $slot . ' : ' . $location;
+        /* translators: 1) Formatted data string, 2) Time slot, 3) Store location */
+        return sprintf( __( '%1$s @ %2$s : %3$s', 'dokan' ), $formatted_date, $slot, $location );
     }
 
     /**
@@ -171,9 +224,11 @@ class Helper {
      * @return bool
      */
     public static function is_multiple_store_location_active_for_vendor( $vendor_id ) {
-        $vendor_settings = dokan_get_store_info( $vendor_id );
+        $vendor_settings   = dokan_get_store_info( $vendor_id );
+        $multiple_location = ! empty( $vendor_settings['vendor_store_location_pickup']['multiple_store_location'] ) ?
+            $vendor_settings['vendor_store_location_pickup']['multiple_store_location'] : 'no';
 
-        return 'yes' === $vendor_settings['vendor_store_location_pickup']['multiple_store_location'];
+        return 'yes' === $multiple_location;
     }
 
     /**

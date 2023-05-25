@@ -29,6 +29,7 @@ $play_all        = intval(
 						)
 	)
 );
+$loop     = intval( $GLOBALS['WooCommerceMusicPlayer']->get_product_attr( $post->ID, '_wcmp_loop', 0 ) );
 $preload  = $GLOBALS['WooCommerceMusicPlayer']->get_product_attr(
 	$post->ID,
 	'_wcmp_preload',
@@ -47,13 +48,10 @@ $on_cover = intval( $GLOBALS['WooCommerceMusicPlayer']->get_product_attr( $post-
 			<?php if ( current_user_can( 'manage_options' ) ) : ?>
 			<div class="wcmp-highlight-box">
 				<?php
-				_e(
-					'<p>The player uses the audio files associated to the product. If you want protecting the audio files for selling, tick the checkbox: <b>"Protect the file"</b>, in whose case the plugin will create a truncated version of the audio files for selling to be used for demo. The size of audio files for demo is based on the number entered through the attribute: <b>"Percent of audio used for protected playbacks"</b>.</p><p><b>Protecting the files prevents that malicious users can access to the original audio files without pay for them.</b></p>',
-					'music-player-for-woocommerce'
-				);
+				_e( '<p>The player uses the audio files associated to the product. If you want protecting the audio files for selling, tick the checkbox: <b>"Protect the file"</b>, in whose case the plugin will create a truncated version of the audio files for selling to be used for demo. The size of audio files for demo is based on the number entered through the attribute: <b>"Percent of audio used for protected playbacks"</b>.</p><p><b>Protecting the files prevents that malicious users can access to the original audio files without pay for them.</b></p>', 'music-player-for-woocommerce' ); // phpcs:ignore WordPress.Security.EscapeOutput
 				?>
 			<p><?php esc_html_e( 'The security feature and particular files for demo are only available in the PRO version of the plugin', 'music-player-for-woocommerce' ); ?>. <a target="_blank" href="https://wcmp.dwbooster.com"><?php esc_html_e( 'CLICK HERE TO GET THE PRO VERSION OF THE PLUGIN', 'music-player-for-woocommerce' ); ?></a></p>
-			<p><?php _e( 'For testing the premium version of the plugin, visit the online demo:<br/> <a href="https://demos.dwbooster.com/music-player-for-woocommerce/wp-login.php" target="_blank">Administration area: Click to access the administration area demo</a><br/><a href="https://demos.dwbooster.com/music-player-for-woocommerce/" target="_blank">Public page: Click to visit the WooCommerce Store</a>', 'music-player-for-woocommerce' ); ?></p>
+			<p><?php _e( 'For testing the premium version of the plugin, visit the online demo:<br/> <a href="https://demos.dwbooster.com/music-player-for-woocommerce/wp-login.php" target="_blank">Administration area: Click to access the administration area demo</a><br/><a href="https://demos.dwbooster.com/music-player-for-woocommerce/" target="_blank">Public page: Click to visit the WooCommerce Store</a>', 'music-player-for-woocommerce' ); // phpcs:ignore WordPress.Security.EscapeOutput ?></p>
 			</div>
 			<?php endif; ?>
 			<div class="wcmp-highlight-box">
@@ -72,19 +70,19 @@ $on_cover = intval( $GLOBALS['WooCommerceMusicPlayer']->get_product_attr( $post-
 							<li>
 								<p> -
 								<?php
-									_e(
-										'Go to Drive, press the right click on the file to use, and select the option: <b>"Get Shareable Link"</b>',
+									esc_html_e(
+										'Go to Drive, press the right click on the file to use, and select the option: ',
 										'music-player-for-woocommerce'
 									);
-									?>
+									?><b>"Get Shareable Link"</b>
 								</p>
 								<p>
 								<?php
-									_e(
-										'The previous action will generate an url with the structure: <b>https://drive.google.com/open?id=FILE_ID</b>',
+									esc_html_e(
+										'The previous action will generate an url with the structure: ',
 										'music-player-for-woocommerce'
 									);
-									?>
+									?><b>https://drive.google.com/open?id=FILE_ID</b>
 								</p>
 							</li>
 							<li>
@@ -101,10 +99,7 @@ $on_cover = intval( $GLOBALS['WooCommerceMusicPlayer']->get_product_attr( $post-
 								</p>
 								<p>
 									<?php
-									_e(
-										'<b>Note:</b> Pay attention to the use of the fake parameter: <b>&.mp3</b> as the last one in the URL',
-										'music-player-for-woocommerce'
-									);
+									_e( '<b>Note:</b> Pay attention to the use of the fake parameter: <b>&.mp3</b> as the last one in the URL', 'music-player-for-woocommerce' ); // phpcs:ignore WordPress.Security.EscapeOutput
 									?>
 								</p>
 							</li>
@@ -119,21 +114,18 @@ $on_cover = intval( $GLOBALS['WooCommerceMusicPlayer']->get_product_attr( $post-
 							<li>
 								<p> -
 								<?php
-									_e(
-										'Sign in to <a href="https://www.dropbox.com/login" target="_blank">dropbox.com </a>',
+									esc_html_e(
+										'Sign in to ',
 										'music-player-for-woocommerce'
 									);
-									?>
+									?><a href="https://www.dropbox.com/login" target="_blank">dropbox.com </a>
 								</p>
 							</li>
 							<li>
 								<p> -
 								<?php
-									_e(
-										"Hover your cursor over the file or folder you'd like to share and click <b>Share</b> when it appears.",
-										'music-player-for-woocommerce'
-									);
-									?>
+									_e( "Hover your cursor over the file or folder you'd like to share and click <b>Share</b> when it appears.", 'music-player-for-woocommerce' ); // phpcs:ignore WordPress.Security.EscapeOutput
+								?>
 								</p>
 							</li>
 							<li>
@@ -147,28 +139,22 @@ $on_cover = intval( $GLOBALS['WooCommerceMusicPlayer']->get_product_attr( $post-
 								</p>
 								<p>
 								<?php
-									_e(
-										'The link structure would be similar to:<br> https://www.dropbox.com/s/rycvgn8iokfedmo/file.mp3?dl=0',
+									esc_html_e(
+										'The link structure would be similar to:',
 										'music-player-for-woocommerce'
 									);
-									?>
+									?><br> https://www.dropbox.com/s/rycvgn8iokfedmo/file.mp3?dl=0
 								</p>
 							</li>
 							<li>
 								<p> -
 								<?php
-									_e(
-										'Enter the URL into the WooCommerce product with the following structure:<br> https://www.dropbox.com/s/rycvgn8iokfedmo/file.mp3?dl=1&.mp3',
-										'music-player-for-woocommerce'
-									);
-									?>
+									esc_html_e( 'Enter the URL into the WooCommerce product with the following structure:', 'music-player-for-woocommerce' );
+								?><br> https://www.dropbox.com/s/rycvgn8iokfedmo/file.mp3?dl=1&.mp3
 								</p>
 								<p>
 									<?php
-									_e(
-										'<b>Note:</b> Pay attention to the use of the fake parameter: <b>&.mp3</b> as the last one in the URL. Furthermore, the parameter <b>dl=0</b>, has been modified as <b>dl=1</b>',
-										'music-player-for-woocommerce'
-									);
+									_e( '<b>Note:</b> Pay attention to the use of the fake parameter: <b>&.mp3</b> as the last one in the URL. Furthermore, the parameter <b>dl=0</b>, has been modified as <b>dl=1</b>', 'music-player-for-woocommerce' ); // phpcs:ignore WordPress.Security.EscapeOutput
 									?>
 								</p>
 							</li>
@@ -189,13 +175,13 @@ $on_cover = intval( $GLOBALS['WooCommerceMusicPlayer']->get_product_attr( $post-
 					<td><?php esc_html_e( 'Include in', 'music-player-for-woocommerce' ); ?></td>
 					<td>
 						<input aria-label="<?php esc_attr_e( 'Include on products pages', 'music-player-for-woocommerce' ); ?>" type="radio" name="_wcmp_show_in" value="single" <?php echo ( ( 'single' == $show_in ) ? 'checked' : '' ); ?> />
-						<?php _e( 'single-entry pages <i>(Product\'s page only)</i>', 'music-player-for-woocommerce' ); ?><br />
+						<?php _e( 'single-entry pages <i>(Product\'s page only)</i>', 'music-player-for-woocommerce' ); // phpcs:ignore WordPress.Security.EscapeOutput ?><br />
 
 						<input aria-label="<?php esc_attr_e( 'Include on multiple-entry pages', 'music-player-for-woocommerce' ); ?>" type="radio" name="_wcmp_show_in" value="multiple" <?php echo ( ( 'multiple' == $show_in ) ? 'checked' : '' ); ?> />
-						<?php _e( 'multiple entries pages <i>(Shop pages, archive pages, but not in the product\'s page)</i>', 'music-player-for-woocommerce' ); ?><br />
+						<?php _e( 'multiple entries pages <i>(Shop pages, archive pages, but not in the product\'s page)</i>', 'music-player-for-woocommerce' ); // phpcs:ignore WordPress.Security.EscapeOutput ?><br />
 
 						<input aria-label="<?php esc_attr_e( 'Include on product and multiple-entry pages', 'music-player-for-woocommerce' ); ?>" type="radio" name="_wcmp_show_in" value="all" <?php echo ( ( 'all' == $show_in ) ? 'checked' : '' ); ?> />
-						<?php _e( 'all pages <i>(with single or multiple-entries)</i>', 'music-player-for-woocommerce' ); ?>
+						<?php _e( 'all pages <i>(with single or multiple-entries)</i>', 'music-player-for-woocommerce' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 					</td>
 				</tr>
 				<tr>
@@ -208,17 +194,17 @@ $on_cover = intval( $GLOBALS['WooCommerceMusicPlayer']->get_product_attr( $post-
 						<table>
 							<tr>
 								<td><input aria-label="<?php esc_attr_e( 'Skin 1', 'music-player-for-woocommerce' ); ?>" name="_wcmp_player_layout" type="radio" value="mejs-classic" <?php echo ( ( 'mejs-classic' == $player_style ) ? 'checked' : '' ); ?> /></td>
-								<td><img alt="<?php esc_attr_e( 'Skin 1', 'music-player-for-woocommerce' ); ?>" src="<?php print esc_url( WCMP_PLUGIN_URL ); ?>/views/assets/skin1.png" /></td>
+								<td style="width:100%;padding-left:20px;"><img alt="<?php esc_attr_e( 'Skin 1', 'music-player-for-woocommerce' ); ?>" src="<?php print esc_url( WCMP_PLUGIN_URL ); ?>/views/assets/skin1.png" /></td>
 							</tr>
 
 							<tr>
 								<td><input aria-label="<?php esc_attr_e( 'Skin 2', 'music-player-for-woocommerce' ); ?>" name="_wcmp_player_layout" type="radio" value="mejs-ted" <?php echo ( ( 'mejs-ted' == $player_style ) ? 'checked' : '' ); ?> /></td>
-								<td><img alt="<?php esc_attr_e( 'Skin 2', 'music-player-for-woocommerce' ); ?>" src="<?php print esc_url( WCMP_PLUGIN_URL ); ?>/views/assets/skin2.png" /></td>
+								<td style="width:100%;padding-left:20px;"><img alt="<?php esc_attr_e( 'Skin 2', 'music-player-for-woocommerce' ); ?>" src="<?php print esc_url( WCMP_PLUGIN_URL ); ?>/views/assets/skin2.png" /></td>
 							</tr>
 
 							<tr>
 								<td><input aria-label="<?php esc_attr_e( 'Skin 3', 'music-player-for-woocommerce' ); ?>" name="_wcmp_player_layout" type="radio" value="mejs-wmp" <?php echo ( ( 'mejs-wmp' == $player_style ) ? 'checked' : '' ); ?> /></td>
-								<td><img alt="<?php esc_attr_e( 'Skin 3', 'music-player-for-woocommerce' ); ?>" src="<?php print esc_url( WCMP_PLUGIN_URL ); ?>/views/assets/skin3.png" /></td>
+								<td style="width:100%;padding-left:20px;"><img alt="<?php esc_attr_e( 'Skin 3', 'music-player-for-woocommerce' ); ?>" src="<?php print esc_url( WCMP_PLUGIN_URL ); ?>/views/assets/skin3.png" /></td>
 							</tr>
 						</table>
 					</td>
@@ -242,6 +228,15 @@ $on_cover = intval( $GLOBALS['WooCommerceMusicPlayer']->get_product_attr( $post-
 					</td>
 					<td>
 						<input aria-label="<?php esc_attr_e( 'Play all', 'music-player-for-woocommerce' ); ?>" type="checkbox" name="_wcmp_play_all" <?php if ( ! empty( $play_all ) ) {
+							echo 'CHECKED';} ?> />
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<?php esc_html_e( 'Loop', 'music-player-for-woocommerce' ); ?>
+					</td>
+					<td>
+						<input aria-label="<?php esc_attr_e( 'Loop', 'music-player-for-woocommerce' ); ?>" type="checkbox" name="_wcmp_loop" <?php if ( ! empty( $loop ) ) {
 							echo 'CHECKED';} ?> />
 					</td>
 				</tr>
@@ -303,7 +298,7 @@ $on_cover = intval( $GLOBALS['WooCommerceMusicPlayer']->get_product_attr( $post-
 				</tr>
 				<tr valign="top" class="wcmp-demo-files">
 					<td>
-						<div style="color:#DDDDDD;"><?php esc_html_e( 'Demo files', 'music-player-for-woocommerce' ); ?></div>
+						<div style="color:#DDDDDD;margin-bottom:15px;"><b><?php esc_html_e( 'Demo files', 'music-player-for-woocommerce' ); ?></b></div>
 						<table class="widefat">
 							<thead>
 								<tr>
@@ -321,7 +316,7 @@ $on_cover = intval( $GLOBALS['WooCommerceMusicPlayer']->get_product_attr( $post-
 										<input aria-label="<?php esc_attr_e( 'File URL', 'music-player-for-woocommerce' ); ?>" type="text" class="wcmp-file-url" placeholder="http://" disabled style="color:#DDDDDD;" />
 									</td>
 									<td width="1%" style="color:#DDDDDD;">
-										<a href="javascript:void(0);" class="button wcmp-select-file" style="color:#DDDDDD;"><?php esc_html_e( 'Choose file', 'music-player-for-woocommerce' ); ?></a>
+										<a href="javascript:void(0);" class="btn btn-default button wcmp-select-file" style="color:#DDDDDD;"><?php esc_html_e( 'Choose file', 'music-player-for-woocommerce' ); ?></a>
 									</td>
 									<td width="1%" style="color:#DDDDDD;">
 										<a href="javascript:void(0);" class="wcmp-delete" style="color:#DDDDDD;"><?php esc_html_e( 'Delete', 'music-player-for-woocommerce' ); ?></a>

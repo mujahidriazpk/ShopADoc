@@ -8,6 +8,7 @@ use \SgpbDataConfig;
 class Actions
 {
 	public $customPostTypeObj;
+	public $insideShortcodes;
 	public $mediaButton = false;
 
 	public function __construct()
@@ -56,13 +57,14 @@ class Actions
 		add_shortcode('sg_popup', array($this, 'popupShortcode'));
 		add_filter('cron_schedules', array($this, 'cronAddMinutes'), 10, 1);
 		add_action('sgpb_send_newsletter', array($this, 'newsletterSendEmail'), 10, 1);
-		add_action('sgpbGetBannerContentOnce', array($this, 'getBannerContent'), 10, 1);
+		// add_action('sgpbGetBannerContentOnce', array($this, 'getBannerContent'), 10, 1);
 		add_action('plugins_loaded', array($this, 'loadTextDomain'));
 		// for change admin popup list order
 		add_action('pre_get_posts', array($this, 'preGetPosts'));
 		add_action('template_redirect', array($this, 'redirectFromPopupPage'));
 		add_filter('views_edit-popupbuilder', array($this, 'mainActionButtons'), 10, 1);
 		add_action('wpml_loaded', array($this, 'wpmlRelatedActions'));
+		add_action('the_post', array($this, 'postExcludeFromPopupsList'));
 
 		add_filter('get_user_option_screen_layout_'.SG_POPUP_POST_TYPE, array($this, 'screenLayoutSetOneColumn'));
 		new SGPBFeedback();
@@ -496,9 +498,12 @@ class Actions
 	{
 		if (empty($this->mediaButton)) {
 			$this->mediaButton = true;
-			add_action('admin_footer', function() {
+			$currentPostType = AdminHelper::getCurrentPostType();
+			add_action('admin_footer', function() use ($currentPostType) {
 				self::enqueueScriptsForPageBuilders();
-				echo wp_kses(new MediaButton(false), AdminHelper::allowed_html_tags());
+				if (!empty($currentPostType) && $currentPostType == SG_POPUP_POST_TYPE) {
+					require_once(SG_POPUP_VIEWS_PATH.'htmlCustomButtonElement.php');
+				}
 			});
 		}
 
@@ -596,7 +601,7 @@ class Actions
 		$popup = SGPopup::find($popupId);
 		$popup = apply_filters('sgpbShortCodePopupObj', $popup);
 
-		$event = preg_replace('/on/', '', @$args['event']);
+		$event = preg_replace('/on/', '', (isset($args['event']) ? $args['event'] : ''));
 		// when popup does not exists or popup post status it's not publish ex when popup in trash
 		if (empty($popup) || (!is_object($popup) && $popup != 'publish')) {
 			return $content;
@@ -653,11 +658,11 @@ class Actions
 		}
 
 		$popup->setLoadableModes($loadableMode);
-		$scriptsLoader = new ScriptsLoader();
-		$loadablePopups = array($popup);
+
 		$groupObj = new PopupGroupFilter();
 		$groupObj->setPopups(array($popup));
 		$loadablePopups = $groupObj->filter();
+		$scriptsLoader = new ScriptsLoader();
 		$scriptsLoader->setLoadablePopups($loadablePopups);
 		$scriptsLoader->loadToFooter();
 
@@ -792,7 +797,7 @@ class Actions
 
 		$subscribers = apply_filters('sgpNewsletterSendingSubscribers', $subscribers);
 
-		$blogInfo = get_bloginfo();
+		$blogInfo = wp_specialchars_decode( get_bloginfo() );
 		$headers = array(
 			'From: "'.$blogInfo.'" <'.$fromEmail.'>' ,
 			'MIME-Version: 1.0' ,
@@ -1448,7 +1453,8 @@ class Actions
 	public function saveSettings()
 	{
 		$allowToAction = AdminHelper::userCanAccessTo();
-		if (!$allowToAction) {
+		$nonce = isset($_POST['sgpb_saveSettings_nonce']) ? sanitize_text_field($_POST['sgpb_saveSettings_nonce']): '';
+		if (!$allowToAction || !wp_verify_nonce($nonce, 'sgpbSaveSettings')) {
 			wp_redirect(get_home_url());
 			exit();
 		}
@@ -1481,5 +1487,21 @@ class Actions
 		AdminHelper::filterUserCapabilitiesForTheUserRoles('save');
 
 		wp_redirect(admin_url().'edit.php?post_type='.SG_POPUP_POST_TYPE.'&page='.SG_POPUP_SETTINGS_PAGE);
+	}
+
+	/*
+	 * this method will add a filter to exclude the current post from popup list
+	 * which have a post_type=popupbuilder and it is on post edit page
+	 * */
+	public function postExcludeFromPopupsList(){
+		global $pagenow;
+		if ( isset($pagenow) && $pagenow === 'post.php') {
+			if (get_post_type() === SG_POPUP_POST_TYPE){
+				add_filter('sgpb_exclude_from_popups_list', function($excludedPopups) {
+					array_push($excludedPopups, get_the_ID());
+					return $excludedPopups;
+				});
+			}
+		}
 	}
 }

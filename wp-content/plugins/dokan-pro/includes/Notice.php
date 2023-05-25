@@ -32,6 +32,7 @@ class Notice {
         add_action( 'dokan_announcement_content', array( $this, 'load_announcement_content' ), 10 );
         add_action( 'dokan_single_announcement_content', array( $this, 'load_single_announcement_content' ), 10 );
         add_filter( 'dokan_get_dashboard_nav', array( $this, 'add_announcement_page' ), 15 );
+        add_filter( 'dokan_dashboard_nav_active', [ $this, 'active_announcement_nav_menu' ], 11, 3 );
     }
 
     /**
@@ -345,5 +346,23 @@ class Notice {
         }
 
         return $urls;
+    }
+
+    /**
+     * Set announcement menu as active.
+     *
+     * @since 3.7.18
+     *
+     * @param string $active_menu Currently active menu slug.
+     * @param string $request_uri Request URI.
+     * @param array  $query_vars Currently active query vars.
+     *
+     * @return string
+     */
+    public function active_announcement_nav_menu( string $active_menu, $request_uri, array $query_vars ): string {
+        if ( ! in_array( 'single-announcement', $query_vars, true ) ) {
+            return $active_menu;
+        }
+        return 'announcement';
     }
 }

@@ -7,8 +7,13 @@
  */
 
 $vendor_infos = isset( $vendor_infos ) ? $vendor_infos : [];
+$json_infos   = wp_json_encode(
+    [
+        'vendor_data' => $vendor_infos
+    ]
+);
 
-wp_add_inline_script( 'dokan-delivery-time-main-script', 'let dokan_delivery_time_vendor_infos =' . wp_json_encode( $vendor_infos ), 'before' );
+wp_add_inline_script( 'dokan-delivery-time-main-script', "let dokan_delivery_time_infos = {$json_infos}", 'before' );
 ?>
 
 <div id="dokan-delivery-time-box">
@@ -75,7 +80,6 @@ wp_add_inline_script( 'dokan-delivery-time-main-script', 'let dokan_delivery_tim
                         name="vendor_delivery_time[<?php echo esc_attr( $id ); ?>][delivery_date]" type="text"
                         placeholder="<?php echo esc_attr( $delivery_date_label ); ?>"
                         readonly="readonly">
-
                     <?php
                     /**
                      * @since 3.3.7

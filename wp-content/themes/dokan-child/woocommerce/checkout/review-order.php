@@ -53,7 +53,8 @@ if($role=='seller'){
 						<td class="product-total">
 							<?php echo apply_filters( 'woocommerce_cart_item_subtotal', WC()->cart->get_product_subtotal( $_product, $cart_item['quantity'] ), $cart_item, $cart_item_key ); ?>
                             <?php
-								if($_product->get_id()==126 || $_product->get_id()==942){
+								//|| $_product->get_id()==942
+								if($_product->get_id()==126 && 1==2){
 									echo apply_filters( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 										'woocommerce_cart_item_remove_link',
 										sprintf(

@@ -156,11 +156,8 @@ if ($popupTheme == 'sgpb-theme-2' || $popupTheme == 'sgpb-theme-3') {
 			</div>
 		</div>
 		<?php if (empty($removedOptions['sgpb-show-background'])) :?>
-			<div class="formItem formItem_itemsCentered">
-				<span class="formItem__title"><?php esc_html_e('Background options', SG_POPUP_TEXT_DOMAIN)?>:</span>
-			</div>
 			<div class="formItem formItem_lessMargin">
-				<span class="formItem__title"><?php esc_html_e('Show background', SG_POPUP_TEXT_DOMAIN)?>:</span>
+				<span class="formItem__title"><?php esc_html_e('Background settings', SG_POPUP_TEXT_DOMAIN)?>:</span>
 				<div class="sgpb-onOffSwitch sgpb-onOffSwitch_smallLeftMargin">
 					<input type="checkbox" class="sgpb-onOffSwitch-checkbox js-checkbox-accordion" id="sgpb-show-background" name="sgpb-show-background" <?php echo esc_attr($popupTypeObj->getOptionValue('sgpb-show-background')); ?>>
 					<label class="sgpb-onOffSwitch__label" for="sgpb-show-background">

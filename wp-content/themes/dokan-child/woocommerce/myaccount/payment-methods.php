@@ -18,7 +18,14 @@
  */
 
 defined( 'ABSPATH' ) || exit;
-
+/*$product_id_1 = 942;
+$quantity = 0;
+foreach(WC()->cart->get_cart() as $key => $val ) {
+	$_product = $val['data'];
+	if($product_id_1 == $_product->get_id()) {
+		$quantity = $val['quantity'];
+	}
+}*/
 $saved_methods = wc_get_customer_saved_methods_list( get_current_user_id() );
 $has_methods   = (bool) $saved_methods;
 $types         = wc_get_account_payment_methods_types();
@@ -41,7 +48,7 @@ do_action( 'woocommerce_before_account_payment_methods', $has_methods ); ?>
 					<?php foreach ( wc_get_account_payment_methods_columns() as $column_id => $column_name ) : ?>
 						<td class="woocommerce-PaymentMethod woocommerce-PaymentMethod--<?php echo esc_attr( $column_id ); ?> payment-method-<?php echo esc_attr( $column_id ); ?>" data-title="<?php echo esc_attr( $column_name ); ?>">
 							<?php
-							if ( has_action( 'woocommerce_account_payment_methods_column_' . $column_id ) ) {
+							if ( has_action( 'woocommerce_account_payment_methods_column_' . $column_id ) && 'actions' != $column_id) {
 								do_action( 'woocommerce_account_payment_methods_column_' . $column_id, $method );
 							} elseif ( 'method' === $column_id ) {
 								if ( ! empty( $method['method']['last4'] ) ) {
@@ -54,7 +61,9 @@ do_action( 'woocommerce_before_account_payment_methods', $has_methods ); ?>
 								echo esc_html( $method['expires'] );
 							} elseif ( 'actions' === $column_id ) {
 								foreach ( $method['actions'] as $key => $action ) { // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-									echo '<a href="' . esc_url( $action['url'] ) . '" class="button ' . sanitize_html_class( $key ) . '">' . esc_html( $action['name'] ) . '</a>&nbsp;';
+									if(sanitize_html_class( $key )=='delete'){
+										echo '<a href="' . esc_url( $action['url'] ) . '" class="button ' . sanitize_html_class( $key ) . '_btn">' . esc_html( $action['name'] ) . '</a>&nbsp;';
+									}
 								}
 							}
 							?>
@@ -76,7 +85,11 @@ do_action( 'woocommerce_before_account_payment_methods', $has_methods ); ?>
 <?php if ( WC()->payment_gateways->get_available_payment_gateways() ) : ?>
 	<a class="button" href="<?php echo esc_url( wc_get_endpoint_url( 'add-payment-method' ) ); ?>"><?php esc_html_e( 'Add payment method', 'woocommerce' ); ?></a>
 <?php endif; ?>
+<?php if ( WC()->cart->get_cart_contents_count() != 0 ) {?>
+        <a class="button" href="/checkout/">Continue Checkout</a>
+<?php }?>
 <?php
+global $wpdb;
 $user_id = get_current_user_id();
 $user = get_userdata( $user_id );
 if($user->roles[0]=='customer'){
@@ -84,6 +97,12 @@ if($user->roles[0]=='customer'){
 			//get_user_meta( $user_id, 'dentist_account_status', true );
 			//if(!add_user_meta($user_id,'dentist_account_status',$_GET['mode'])) {
 				update_user_meta ($user_id,'dentist_account_status',$_GET['mode']);
+			
+				$SuspendReason = date('m/d/y').'&nbsp;Dentist deactivated account';
+				$data = array('user_id' =>$user_id, 'log_data' =>html_entity_decode($SuspendReason), 'status' =>1,);
+				$format = array('%d','%s','%d');
+				$wpdb->insert('wp_user_CD_log',$data,$format);
+			
 				if($_GET['mode']=='de-active' &&1==2){
 					/* global $current_user;
 					$subscriptions_users = YWSBS_Subscription_Helper()->get_subscriptions_by_user($current_user->ID);
@@ -153,6 +172,9 @@ if($user->roles[0]=='customer'){
 ?>
 
 <?php $dentist_account_status = get_user_meta(get_current_user_id(), 'dentist_account_status', true );
+$plan_orderid =get_plan_orderid();
+$plan_status = get_post_meta($plan_orderid,'_plan_status',true);
+$status = get_post_meta($plan_orderid,'status',true);
 if($dentist_account_status =='unsubscribe' || $dentist_account_status=='de-active' || $dentist_account_status =='de-active-sub-reg' || $dentist_account_status =='de-active-sub-reg-intial'){
 	//echo '<a href="'.get_site_url().'/?action=add_to_cart&type=register&auction_id=" class="" style="float:right;">Reactivate account</a>';
 	echo '<a href="'.get_site_url().'/?action=add_to_cart&type=register&auction_id=" class="" style="float:right;">&nbsp;</a>';

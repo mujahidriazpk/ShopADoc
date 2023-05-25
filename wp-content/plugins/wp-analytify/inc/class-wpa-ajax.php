@@ -26,22 +26,18 @@ class WPANALYTIFY_AJAX {
 		$ajax_calls = array(
 			'rated'	=> false,
 			'load_general_stats' => false,
-			'load_default_general_stats' => false,
+			// 'load_default_general_stats' => false,
 			'load_top_pages' => false,
 			'load_default_top_pages' => false,
 			'load_country_stats' => false,
 			'load_city_stats' => false,
 			'load_keyword_stats' => false,
 			'load_social_stats' => false,
-			'load_browser_stats' => false,
-			'load_os_stats' => false,
-			'load_referrer_stats' => false,
 			'load_page_exit_stats' => false,
 			'fetch_log' => false,
 			'load_default_geographic' => false,
 			'load_default_system' => false,
 			'load_default_keyword' => false,
-			'load_default_page' => false,
 			'load_default_social_media' => false,
 			'load_default_reffers' => false,
 			'dismiss_pointer'	=> true,
@@ -115,6 +111,11 @@ class WPANALYTIFY_AJAX {
 		die();
 	}
 
+	/**
+	 * Fetch general stats for the dashboard.
+	 *
+	 * @return void
+	 */
 	public static function load_default_general_stats() {
 
 		check_ajax_referer( 'analytify-get-dashboard-stats', 'nonce' );
@@ -128,30 +129,116 @@ class WPANALYTIFY_AJAX {
 		$compare_end_date   = $_GET['compare_end_date'];
 		$date_different     = $_GET['date_different'];
 
-		$stats = $wp_analytify->pa_get_analytics_dashboard( 'ga:sessions,ga:users,ga:pageviews,ga:avgSessionDuration,ga:bounceRate,ga:pageviewsPerSession,ga:percentNewSessions,ga:newUsers,ga:sessionDuration', $start_date, $end_date, false, false, false, false, 'show-default-overall-dashboard' );
+		if ( 'ga4' === WPANALYTIFY_Utils::get_ga_mode() ) {
+			// Main general stats.
+			$stats = $wp_analytify->get_reports(
+				'show-default-overall-dashboard',
+				array(
+					'sessions',
+					'totalUsers',
+					'screenPageViews',
+					'averageSessionDuration',
+					'bounceRate',
+					'screenPageViewsPerSession',
+					'newUsers',
+				),
+				array(
+					'start' => $start_date,
+					'end'   => $end_date,
+				)
+			);
 
-		// New vs Returning Users
-		$new_returning_stats = $wp_analytify->pa_get_analytics_dashboard( 'ga:users', $start_date, $end_date, 'ga:userType', false, false, false, 'show-default-new-returning-dashboard' );
+			// New users.
+			$new_users_stats = $wp_analytify->get_reports( 
+				'show-default-new-returning-dashboard',
+				array(
+					'newUsers',
+				), 
+				array(
+					'start' => $start_date,
+					'end'   => $end_date,
+				)
+			);
 
-		// Device Category Stats
-		$device_category_stats = $wp_analytify->pa_get_analytics_dashboard( 'ga:sessions', $start_date, $end_date, 'ga:deviceCategory', '-ga:sessions',  false, false, 'show-default-overall-device-dashboard' );
+			// Returning users.
+			$returning_users_stats = $wp_analytify->get_reports( 
+				'show-default-new-returning-dashboard',
+				array(
+					'activeUsers',
+				), 
+				array(
+					'start' => $start_date,
+					'end'   => $end_date,
+				)
+			);
 
+			$new_returning_stats = array(
+				'new_users' => $new_users_stats,
+				'returning_users' => $returning_users_stats,
+			);
 
-		// get prev stats
-		$compare_stats = $wp_analytify->pa_get_analytics_dashboard( 'ga:sessions,ga:users,ga:pageviews,ga:avgSessionDuration,ga:bounceRate,ga:pageviewsPerSession,ga:percentNewSessions,ga:newUsers', $compare_start_date, $compare_end_date, false, false, false, false, 'show-default-overall-dashboard-compare' );
+			// Device category.
+			$device_category_stats = $wp_analytify->get_reports( 
+				'show-default-overall-device-dashboard',
+				array(
+					'sessions'
+				), 
+				array(
+					'start' => $start_date,
+					'end'   => $end_date,
+				),
+				array(
+					'deviceCategory'
+				),
+				array(
+					'type'  => 'dimension',
+					'name'  => 'deviceCategory',
+					'order' => 'desc',
+				)
+			);
 
+			// Get prev stats.
+			$compare_stats = $wp_analytify->get_reports( 
+				'show-default-overall-dashboard-compare',
+				array(
+					'sessions',
+					'totalUsers',
+					'screenPageViews',
+					'averageSessionDuration',
+					'bounceRate',
+					'screenPageViewsPerSession',
+					'newUsers'
+				), 
+				array(
+					'start' => $compare_start_date,
+					'end'   => $compare_end_date,
+				)
+			);
+	
+			// Create view for general stats.
+			include ANALYTIFY_ROOT_PATH . '/views/default/admin/general-stats.php';
+			fetch_ga_general_stats( $wp_analytify, $stats, $device_category_stats, $compare_stats, $date_different, $new_returning_stats );
+		} else {
+			// Main general stats.
+			$stats = $wp_analytify->pa_get_analytics_dashboard( 'ga:sessions,ga:users,ga:pageviews,ga:avgSessionDuration,ga:bounceRate,ga:pageviewsPerSession,ga:percentNewSessions,ga:newUsers,ga:sessionDuration', $start_date, $end_date, false, false, false, false, 'show-default-overall-dashboard' );
 
+			// New vs returning users.
+			$new_returning_stats = $wp_analytify->pa_get_analytics_dashboard( 'ga:users', $start_date, $end_date, 'ga:userType', false, false, false, 'show-default-new-returning-dashboard' );
+	
+			// Device category.
+			$device_category_stats = $wp_analytify->pa_get_analytics_dashboard( 'ga:sessions', $start_date, $end_date, 'ga:deviceCategory', '-ga:sessions',  false, false, 'show-default-overall-device-dashboard' );
+	
+			// Get prev stats.
+			$compare_stats = $wp_analytify->pa_get_analytics_dashboard( 'ga:sessions,ga:users,ga:pageviews,ga:avgSessionDuration,ga:bounceRate,ga:pageviewsPerSession,ga:percentNewSessions,ga:newUsers', $compare_start_date, $compare_end_date, false, false, false, false, 'show-default-overall-dashboard-compare' );
+	
 			if ( isset( $stats->totalsForAllResults ) ) {
-
-				include ANALYTIFY_ROOT_PATH . '/views/default/admin/general-stats.php';
+				include ANALYTIFY_ROOT_PATH . '/views/default/admin/general-stats-deprecated.php';
 				fetch_general_stats( $wp_analytify , $stats , $device_category_stats, $compare_stats , $date_different, $new_returning_stats );
-			}
+			}	
+		}
 
-
-		die();
+		wp_die();
 	}
-
-
 
 	public static function load_top_pages() {
 
@@ -161,8 +248,8 @@ class WPANALYTIFY_AJAX {
 		$end_date             = $_GET['end_date'];
 
 		if ( is_array( self::$show_settings ) and in_array( 'show-top-pages-dashboard', self::$show_settings ) ) {
-
 			$top_page_stats = get_transient( md5( 'show-top-pages-dashboard' . $dashboard_profile_ID . $start_date . $end_date ) );
+
 			if ( $top_page_stats === false ) {
 				$top_page_stats = $wp_analytify->pa_get_analytics_dashboard( 'ga:pageviews', $start_date, $end_date, 'ga:PageTitle', '-ga:pageviews', false, 5 );
 				set_transient( md5( 'show-top-pages-dashboard' . $dashboard_profile_ID . $start_date . $end_date ) , $top_page_stats, 60 * 60 * 20 );
@@ -177,7 +264,7 @@ class WPANALYTIFY_AJAX {
 		die();
 	}
 
-	public static function load_default_top_pages(){
+	public static function load_default_top_pages() {
 
 		check_ajax_referer( 'analytify-get-dashboard-stats', 'nonce' );
 
@@ -186,11 +273,40 @@ class WPANALYTIFY_AJAX {
 		$start_date           = $_GET['start_date'];
 		$end_date             = $_GET['end_date'];
 
-		$top_page_stats = $wp_analytify->pa_get_analytics_dashboard( 'ga:pageviews,ga:avgTimeOnPage,ga:bounceRate', $start_date, $end_date, 'ga:PageTitle,ga:pagePath', '-ga:pageviews', false, 40, 'show-default-top-pages-dashboard' );
+		if ( 'ga4' === WPANALYTIFY_Utils::get_ga_mode() ) {
+			$stats = $wp_analytify->get_reports(
+				'show-default-top-pages-dashboard',
+				array(
+					'screenPageViews',
+					'userEngagementDuration',
+					'bounceRate',
+				),
+				array(
+					'start' => $start_date,
+					'end'   => $end_date,
+				),
+				array(
+					'pageTitle',
+					'pagePath'
+				),
+				array(
+					'type'  => 'metric',
+					'name'  => 'screenPageViews',
+					'order' => 'desc',
+				),
+				array(),
+				40
+			);
 
-		if ( $top_page_stats ) {
 			include ANALYTIFY_ROOT_PATH . '/views/default/admin/top-pages-stats.php';
-			fetch_top_pages_stats( $wp_analytify, $top_page_stats );
+			fetch_ga_top_pages_stats( $wp_analytify, $stats );
+		} else {
+			$top_page_stats = $wp_analytify->pa_get_analytics_dashboard( 'ga:pageviews,ga:avgTimeOnPage,ga:bounceRate', $start_date, $end_date, 'ga:PageTitle,ga:pagePath', '-ga:pageviews', false, 40, 'show-default-top-pages-dashboard' );
+
+			if ( $top_page_stats ) {
+				include ANALYTIFY_ROOT_PATH . '/views/default/admin/top-pages-stats-deprecated.php';
+				fetch_top_pages_stats( $wp_analytify, $top_page_stats );
+			}
 		}
 
 		wp_die( );
@@ -296,82 +412,6 @@ class WPANALYTIFY_AJAX {
 		die();
 	}
 
-
-	public static function load_browser_stats() {
-
-		$wp_analytify         = $GLOBALS['WP_ANALYTIFY'];
-		$dashboard_profile_ID = $_GET['dashboard_profile_ID'];
-		$start_date           = $_GET['start_date'];
-		$end_date             = $_GET['end_date'];
-
-		if ( is_array( self::$show_settings ) and in_array( 'show-browser-dashboard', self::$show_settings ) ) {
-
-			$browser_stats = get_transient( md5( 'show-browser-dashboard' . $dashboard_profile_ID . $start_date . $end_date ) );
-			if ( $browser_stats === false ) {
-				$browser_stats = $wp_analytify->pa_get_analytics_dashboard( 'ga:sessions', $start_date, $end_date, 'ga:browser,ga:operatingSystem', '-ga:sessions',false,5 );
-				set_transient( md5( 'show-browser-dashboard' . $dashboard_profile_ID . $start_date . $end_date ) , $browser_stats, 60 * 60 * 20 );
-			}
-
-			if ( isset( $browser_stats->totalsForAllResults ) ) {
-				include ANALYTIFY_ROOT_PATH . '/views/old/admin/browser-stats.php';
-				pa_include_browser( $wp_analytify,$browser_stats );
-			}
-		}
-
-		die();
-	}
-
-	public static function load_os_stats() {
-
-		$wp_analytify         = $GLOBALS['WP_ANALYTIFY'];
-		$dashboard_profile_ID = $_GET['dashboard_profile_ID'];
-		$start_date           = $_GET['start_date'];
-		$end_date             = $_GET['end_date'];
-
-		if ( is_array( self::$show_settings ) and in_array( 'show-os-dashboard', self::$show_settings ) ) {
-
-			$operating_stats = get_transient( md5( 'show-os-dashboard' . $dashboard_profile_ID . $start_date . $end_date ) );
-			if ( $operating_stats === false ) {
-				$operating_stats = $wp_analytify->pa_get_analytics_dashboard( 'ga:sessions', $start_date, $end_date, 'ga:operatingSystem,ga:operatingSystemVersion', '-ga:sessions', false, 5 );
-				set_transient( md5( 'show-os-dashboard' . $dashboard_profile_ID . $start_date . $end_date ) , $operating_stats, 60 * 60 * 20 );
-			}
-
-			$operating_stats = $wp_analytify->pa_get_analytics_dashboard( 'ga:sessions', $start_date, $end_date, 'ga:operatingSystem,ga:operatingSystemVersion', '-ga:sessions', false, 5 );
-			if ( isset( $city_stats->totalsForAllResults ) ) {
-				include ANALYTIFY_ROOT_PATH . '/views/old/admin/os-stats.php';
-				pa_include_operating( $wp_analytify, $operating_stats );
-			}
-		}
-
-		die();
-	}
-
-
-	public static function load_referrer_stats() {
-
-		$wp_analytify         = $GLOBALS['WP_ANALYTIFY'];
-		$dashboard_profile_ID = $_GET['dashboard_profile_ID'];
-		$start_date           = $_GET['start_date'];
-		$end_date             = $_GET['end_date'];
-
-		if ( is_array( self::$show_settings ) and in_array( 'show-referrer-dashboard', self::$show_settings ) ) {
-
-			$referr_stats = get_transient( md5( 'show-referrer-dashboard' . $dashboard_profile_ID . $start_date . $end_date ) );
-			if ( $referr_stats === false ) {
-				$referr_stats = $wp_analytify->pa_get_analytics_dashboard( 'ga:sessions', $start_date, $end_date, 'ga:source,ga:medium', '-ga:sessions', false, 10 );
-				set_transient( md5( 'show-referrer-dashboard' . $dashboard_profile_ID . $start_date . $end_date ) , $referr_stats, 60 * 60 * 20 );
-			}
-
-			if ( isset( $referr_stats->totalsForAllResults ) ) {
-				include ANALYTIFY_ROOT_PATH.'/views/old/admin/referrers-stats.php';
-				pa_include_referrers( $wp_analytify, $referr_stats );
-			}
-		}
-
-		die();
-	}
-
-
 	public static function load_page_exit_stats() {
 
 		$wp_analytify         = $GLOBALS['WP_ANALYTIFY'];
@@ -407,13 +447,83 @@ class WPANALYTIFY_AJAX {
 		$report_url           = $_GET['report_url'];
 		$report_date_range    = $_GET['report_date_range'];
 
-		$countries_stats 	= $wp_analytify->pa_get_analytics_dashboard( 'ga:sessions', $start_date, $end_date , 'ga:country' , '-ga:sessions' , 'ga:country!=(not set)', false, 'show-geographic-countries-dashboard' );
+		if ( 'ga4' === WPANALYTIFY_Utils::get_ga_mode() ) {
+			$countries_stats = $wp_analytify->get_reports(
+				'show-geographic-countries-dashboard',
+				array(
+					'sessions',
+				),
+				array(
+					'start' => $start_date,
+					'end'   => $end_date,
+				),
+				array(
+					'country'
+				),
+				array(
+					'type'  => 'dimension',
+					'name'  => 'country',
+					'order' => 'desc',
+				),
+				array(
+					'logic' => 'AND',
+					array(
+						'type'           => 'dimension',
+						'name'           => 'country',
+						'match_type'     => 4,
+						'value'          => '(not set)',
+						'not_expression' => true,
+					),
+				)
+			);
 
-		$cities_stats 		= $wp_analytify->pa_get_analytics_dashboard( 'ga:sessions', $start_date, $end_date , 'ga:city,ga:country' , '-ga:sessions' , 'ga:city!=(not set);ga:country!=(not set)', 5, 'show-geographic-cities-dashboard' );
+			$cities_stats = $wp_analytify->get_reports(
+				'show-geographic-countries-dashboard',
+				array(
+					'sessions',
+				),
+				array(
+					'start' => $start_date,
+					'end'   => $end_date,
+				),
+				array(
+					'city',
+					'country'
+				),
+				array(
+					'type'  => 'metric',
+					'name'  => 'sessions',
+					'order' => 'desc',
+				),
+				array(
+					// array(
+					// 	'type'           => 'dimension',
+					// 	'name'           => 'city',
+					// 	'match_type'     => 4,
+					// 	'value'          => '(not set)',
+					// 	'not_expression' => true,
+					// ),
+					// array(
+					// 	'type'           => 'dimension',
+					// 	'name'           => 'country',
+					// 	'match_type'     => 4,
+					// 	'value'          => '(not set)',
+					// 	'not_expression' => true,
+					// ),
+				)
+			);
 
-		if ( $countries_stats ) {
 			include ANALYTIFY_ROOT_PATH . '/views/default/admin/geographic-stats.php';
-			fetch_geographic_stats( $wp_analytify, $countries_stats, $cities_stats, true, $report_url, $report_date_range );
+			fetch_ga_geographic_stats( $wp_analytify, $countries_stats, $cities_stats, true, $report_url, $report_date_range );
+		} else {
+			$countries_stats 	= $wp_analytify->pa_get_analytics_dashboard( 'ga:sessions', $start_date, $end_date , 'ga:country' , '-ga:sessions' , 'ga:country!=(not set)', false, 'show-geographic-countries-dashboard' );
+
+			$cities_stats 		= $wp_analytify->pa_get_analytics_dashboard( 'ga:sessions', $start_date, $end_date , 'ga:city,ga:country' , '-ga:sessions' , 'ga:city!=(not set);ga:country!=(not set)', 5, 'show-geographic-cities-dashboard' );
+	
+			if ( $countries_stats ) {				
+				include ANALYTIFY_ROOT_PATH . '/views/default/admin/geographic-stats-deprecated.php';
+				fetch_geographic_stats( $wp_analytify, $countries_stats, $cities_stats, true, $report_url, $report_date_range );
+			}
 		}
 
 		wp_die( );
@@ -428,14 +538,112 @@ class WPANALYTIFY_AJAX {
 		$start_date           = $_GET['start_date'];
 		$end_date             = $_GET['end_date'];
 
-		$browser_stats 	= $wp_analytify->pa_get_analytics_dashboard( 'ga:sessions', $start_date, $end_date , 'ga:browser,ga:operatingSystem' , '-ga:sessions' , 'ga:browser!=(not set);ga:operatingSystem!=(not set)', 5, 'show-default-browser-dashboard' );
-		$os_stats 			= $wp_analytify->pa_get_analytics_dashboard( 'ga:sessions', $start_date, $end_date , 'ga:operatingSystem,ga:operatingSystemVersion' , '-ga:sessions' , 'ga:operatingSystemVersion!=(not set)', 5, 'show-default-os-dashboard' );
-		$mobile_stats 	= $wp_analytify->pa_get_analytics_dashboard( 'ga:sessions', $start_date, $end_date , 'ga:mobileDeviceBranding,ga:mobileDeviceModel' , '-ga:sessions', 'ga:mobileDeviceModel!=(not set);ga:mobileDeviceBranding!=(not set)', 5, 'show-default-mobile-dashboard' );
+		if ( 'ga4' === WPANALYTIFY_Utils::get_ga_mode() ) {
+			$browser_stats = $wp_analytify->get_reports(
+				'show-default-browser-dashboard',
+				array(
+					'sessions',
+				),
+				array(
+					'start' => $start_date,
+					'end'   => $end_date,
+				),
+				array(
+					'browser',
+					'operatingSystem'
+				),
+				array(
+					'type'  => 'metric',
+					'name'  => 'sessions',
+					'order' => 'desc',
+				),
+				array(
+					'logic' => 'AND',
+					array(
+						'type'           => 'dimension',
+						'name'           => 'operatingSystem',
+						'match_type'     => 4,
+						'value'          => '(not set)',
+						'not_expression' => true,
+					),
+				),
+				5
+			);
 
+			$os_stats = $wp_analytify->get_reports(
+				'show-default-os-dashboard',
+				array(
+					'sessions',
+				),
+				array(
+					'start' => $start_date,
+					'end'   => $end_date,
+				),
+				array(
+					'browser',
+					'operatingSystemVersion'
+				),
+				array(
+					'type'  => 'metric',
+					'name'  => 'sessions',
+					'order' => 'desc',
+				),
+				array(
+					'logic' => 'AND',
+					array(
+						'type'           => 'dimension',
+						'name'           => 'operatingSystemVersion',
+						'match_type'     => 4,
+						'value'          => '(not set)',
+						'not_expression' => true,
+					),
+				),
+				5
+			);
 
-		if ( $browser_stats ) {
+			$mobile_stats = $wp_analytify->get_reports(
+				'show-default-mobile-dashboard',
+				array(
+					'sessions',
+				),
+				array(
+					'start' => $start_date,
+					'end'   => $end_date,
+				),
+				array(
+					'mobileDeviceBranding',
+					'mobileDeviceModel'
+				),
+				array(
+					'type'  => 'metric',
+					'name'  => 'sessions',
+					'order' => 'desc',
+				),
+				array(
+					'logic' => 'AND',
+					array(
+						'type'           => 'dimension',
+						'name'           => 'mobileDeviceModel',
+						'match_type'     => 4,
+						'value'          => '(not set)',
+						'not_expression' => true,
+					),
+				),
+				5
+			);
+
 			include ANALYTIFY_ROOT_PATH . '/views/default/admin/system-stats.php';
-			fetch_system_stats( $wp_analytify, $browser_stats, $os_stats, $mobile_stats );
+			fetch_ga_system_stats( $wp_analytify, $browser_stats, $os_stats, $mobile_stats );
+		} else {
+			$browser_stats 	= $wp_analytify->pa_get_analytics_dashboard( 'ga:sessions', $start_date, $end_date , 'ga:browser,ga:operatingSystem' , '-ga:sessions' , 'ga:browser!=(not set);ga:operatingSystem!=(not set)', 5, 'show-default-browser-dashboard' );
+			$os_stats 			= $wp_analytify->pa_get_analytics_dashboard( 'ga:sessions', $start_date, $end_date , 'ga:operatingSystem,ga:operatingSystemVersion' , '-ga:sessions' , 'ga:operatingSystemVersion!=(not set)', 5, 'show-default-os-dashboard' );
+			$mobile_stats 	= $wp_analytify->pa_get_analytics_dashboard( 'ga:sessions', $start_date, $end_date , 'ga:mobileDeviceBranding,ga:mobileDeviceModel' , '-ga:sessions', 'ga:mobileDeviceModel!=(not set);ga:mobileDeviceBranding!=(not set)', 5, 'show-default-mobile-dashboard' );
+
+
+			if ( $browser_stats ) {
+				include ANALYTIFY_ROOT_PATH . '/views/default/admin/system-stats-deprecated.php';
+				fetch_system_stats( $wp_analytify, $browser_stats, $os_stats, $mobile_stats );
+			}
 		}
 
 		wp_die();
@@ -450,32 +658,27 @@ class WPANALYTIFY_AJAX {
 		$start_date           = $_GET['start_date'];
 		$end_date             = $_GET['end_date'];
 
-		$keyword_stats = $wp_analytify->pa_get_analytics_dashboard( 'ga:sessions', $start_date, $end_date, 'ga:keyword', '-ga:sessions', false, 8, 'show-default-keyword-dashboard' );
+		if ( 'ga4' === WPANALYTIFY_Utils::get_ga_mode() ) {
+			$keyword_stats = $wp_analytify->get_search_console_stats(
+				'show-default-keyword-dashboard',
+				array(
+					'start' => $start_date,
+					'end'   => $end_date,
+				),
+			);
 
-		if ( $keyword_stats ) {
 			include ANALYTIFY_ROOT_PATH . '/views/default/admin/keywords-stats.php';
-			fetch_keywords_stats( $wp_analytify, $keyword_stats );
+			fetch_ga_keywords_stats( $wp_analytify, $keyword_stats );
+		} else {
+			$keyword_stats = $wp_analytify->pa_get_analytics_dashboard( 'ga:sessions', $start_date, $end_date, 'ga:keyword', '-ga:sessions', false, 8, 'show-default-keyword-dashboard' );
+
+			if ( $keyword_stats ) {
+				include ANALYTIFY_ROOT_PATH . '/views/default/admin/keywords-stats-deprecated.php';
+				fetch_keywords_stats( $wp_analytify, $keyword_stats );
+			}
 		}
 
 		wp_die();
-	}
-
-	public static function load_default_page() {
-
-		$wp_analytify         = $GLOBALS['WP_ANALYTIFY'];
-		$dashboard_profile_ID = $_GET['dashboard_profile_ID'];
-		$start_date           = $_GET['start_date'];
-		$end_date             = $_GET['end_date'];
-
-		$page_stats = $wp_analytify->pa_get_analytics_dashboard( 'ga:entrances,ga:exits,ga:entranceRate,ga:exitRate', $start_date, $end_date , 'ga:pageTitle,ga:pagePath' , '-ga:entrances' , false, 5, 'show-default-pages-dashboard' );
-
-		if ( $page_stats ) {
-			include ANALYTIFY_ROOT_PATH . '/views/default/admin/pages-stats.php';
-			fetch_pages_stats( $wp_analytify, $page_stats );
-		}
-
-		wp_die();
-
 	}
 
 	public static function load_default_social_media() {
@@ -487,34 +690,92 @@ class WPANALYTIFY_AJAX {
 		$start_date           = $_GET['start_date'];
 		$end_date             = $_GET['end_date'];
 
-		$social_stats = $wp_analytify->pa_get_analytics_dashboard( 'ga:sessions', $start_date, $end_date, 'ga:socialNetwork', '-ga:sessions', 'ga:socialNetwork!=(not set)', 7, 'show-default-social-dashboard' );
+		if ( 'ga4' === WPANALYTIFY_Utils::get_ga_mode() ) {
 
+			// ga_missing
 
-		if ( $social_stats ) {
-			include ANALYTIFY_ROOT_PATH . '/views/default/admin/socialmedia-stats.php';
-			fetch_socialmedia_stats( $wp_analytify, $social_stats );
+			// $social_stats = $wp_analytify->get_reports( 
+			// 	'show-top-pages-dashboard',
+			// 	array(
+			// 		'sessions'
+			// 	), 
+			// 	array(
+			// 		'start' => $start_date,
+			// 		'end'   => $end_date,
+			// 	),
+			// 	array(
+			// 		'sourcePlatform'
+			// 	),
+			// 	array(
+			// 		'type' => 'metric',
+			// 		'name' => 'sessions',
+			// 	),
+			// 	array(
+			// 	// 	array(
+			// 	// 		'type' => 'dimension',
+			// 	// 		'name' => 'sourcePlatform',
+			// 	// 		'match_type' => '5',
+			// 	// 		'value' => '^((?!(not set)).)*$',
+			// 	// 	)
+			// 	),
+			// 	7
+			// );
+
+			// include ANALYTIFY_ROOT_PATH . '/views/default/admin/socialmedia-stats.php';
+			// fetch_ga_socialmedia_stats( $wp_analytify, $social_stats );
+		} else {
+			$social_stats = $wp_analytify->pa_get_analytics_dashboard( 'ga:sessions', $start_date, $end_date, 'ga:socialNetwork', '-ga:sessions', 'ga:socialNetwork!=(not set)', 7, 'show-default-social-dashboard' );
+
+			if ( $social_stats ) {
+				include ANALYTIFY_ROOT_PATH . '/views/default/admin/socialmedia-stats.php';
+				fetch_socialmedia_stats( $wp_analytify, $social_stats );
+			}
 		}
 
 		wp_die( );
-
 	}
 
 	public static function load_default_reffers() {
 
-		$wp_analytify         = $GLOBALS['WP_ANALYTIFY'];
-		$dashboard_profile_ID = $_GET['dashboard_profile_ID'];
-		$start_date           = $_GET['start_date'];
-		$end_date             = $_GET['end_date'];
+		if ( 'ga4' === WPANALYTIFY_Utils::get_ga_mode() ) {
+			$referr_stats = $wp_analytify->pa_get_analytics_dashboard(
+				'show-default-reffers-dashboard',
+				array(
+					'sessions',
+				),
+				array(
+					'start' => $start_date,
+					'end'   => $end_date,
+				),
+				array(
+					'sessionSource',
+					'sessionMedium'
+				),
+				array(
+					'type' => 'metric',
+					'name' => 'sessions',
+				),
+				array(),
+				5
+			);
 
-		$referr_stats = $wp_analytify->pa_get_analytics_dashboard( 'ga:sessions', $start_date, $end_date, 'ga:source,ga:medium', '-ga:sessions', false, 7, 'show-default-reffers-dashboard' );
-
-		if ( $referr_stats ) {
 			include ANALYTIFY_ROOT_PATH . '/views/default/admin/referrers-stats.php';
-			fetch_referrers_stats( $wp_analytify, $referr_stats );
+			fetch_ga_referrers_stats( $wp_analytify, $referr_stats );
+		} else {
+			$wp_analytify         = $GLOBALS['WP_ANALYTIFY'];
+			$dashboard_profile_ID = $_GET['dashboard_profile_ID'];
+			$start_date           = $_GET['start_date'];
+			$end_date             = $_GET['end_date'];
+	
+			$referr_stats = $wp_analytify->pa_get_analytics_dashboard( 'ga:sessions', $start_date, $end_date, 'ga:source,ga:medium', '-ga:sessions', false, 7, 'show-default-reffers-dashboard' );
+	
+			if ( $referr_stats ) {
+				include ANALYTIFY_ROOT_PATH . '/views/default/admin/referrers-stats-deprecated.php';
+				fetch_referrers_stats( $wp_analytify, $referr_stats );
+			}
 		}
 
 		wp_die();
-
 	}
 
 	static function fetch_log() {

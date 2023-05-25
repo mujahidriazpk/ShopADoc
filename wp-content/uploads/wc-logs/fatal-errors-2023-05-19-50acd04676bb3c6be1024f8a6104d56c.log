@@ -1,0 +1,24 @@
+2023-05-19T12:28:12+00:00 CRITICAL Uncaught Error: Call to a member function get_cart() on null in C:\wamp64\www\staging\wp-content\plugins\checkout-countdown-for-woocommerce\functions\enqueue.php:52
+Stack trace:
+#0 C:\wamp64\www\staging\wp-includes\class-wp-hook.php(307): ccfwoo_core_enqueue_scripts('')
+#1 C:\wamp64\www\staging\wp-includes\class-wp-hook.php(331): WP_Hook->apply_filters(NULL, Array)
+#2 C:\wamp64\www\staging\wp-includes\plugin.php(476): WP_Hook->do_action(Array)
+#3 C:\wamp64\www\staging\wp-includes\script-loader.php(2156): do_action('wp_enqueue_scri...')
+#4 C:\wamp64\www\staging\wp-includes\class-wp-customize-manager.php(454): wp_enqueue_scripts()
+#5 C:\wamp64\www\staging\wp-includes\class-wp-customize-manager.php(551): WP_Customize_Manager->wp_die(0, 'Non-existent ch...')
+#6 C:\wamp64\www\staging\wp-includes\class-wp-hook.php(307): WP_Customize_Manager->setup_theme('')
+#7 C:\wamp64\www\staging\wp-includes\class-wp-hook.php(331): WP_Hook->apply_filters(NULL, Array)
+#8 C:\wamp64\www\staging\wp-includes\plugin.php(476): WP_Hook-> in C:\wamp64\www\staging\wp-content\plugins\checkout-countdown-for-woocommerce\functions\enqueue.php on line 52
+
+2023-05-19T12:30:35+00:00 CRITICAL Uncaught Error: Call to a member function get_cart() on null in C:\wamp64\www\staging\wp-content\plugins\checkout-countdown-for-woocommerce\functions\enqueue.php:52
+Stack trace:
+#0 C:\wamp64\www\staging\wp-includes\class-wp-hook.php(307): ccfwoo_core_enqueue_scripts('')
+#1 C:\wamp64\www\staging\wp-includes\class-wp-hook.php(331): WP_Hook->apply_filters(NULL, Array)
+#2 C:\wamp64\www\staging\wp-includes\plugin.php(476): WP_Hook->do_action(Array)
+#3 C:\wamp64\www\staging\wp-includes\script-loader.php(2156): do_action('wp_enqueue_scri...')
+#4 C:\wamp64\www\staging\wp-includes\class-wp-customize-manager.php(454): wp_enqueue_scripts()
+#5 C:\wamp64\www\staging\wp-includes\class-wp-customize-manager.php(551): WP_Customize_Manager->wp_die(0, 'Non-existent ch...')
+#6 C:\wamp64\www\staging\wp-includes\class-wp-hook.php(307): WP_Customize_Manager->setup_theme('')
+#7 C:\wamp64\www\staging\wp-includes\class-wp-hook.php(331): WP_Hook->apply_filters(NULL, Array)
+#8 C:\wamp64\www\staging\wp-includes\plugin.php(476): WP_Hook-> in C:\wamp64\www\staging\wp-content\plugins\checkout-countdown-for-woocommerce\functions\enqueue.php on line 52
+
